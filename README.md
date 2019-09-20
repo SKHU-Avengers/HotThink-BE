@@ -8,6 +8,6 @@ HotThink
 
 
 ###Spring Boot
--lombok
--JPA
--Hibernate
+- lombok
+- JPA
+- Hibernate
