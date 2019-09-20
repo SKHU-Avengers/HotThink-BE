@@ -7,7 +7,7 @@ HotThink
 이문혁
 
 
-###Spring Boot
+### Spring Boot
 - lombok
 - JPA
 - Hibernate
