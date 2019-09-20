@@ -13,16 +13,18 @@ public class Free {
     int seq;
 
     @ManyToOne
-    @JoinColumn(name = "CT_CODE")
+    @JoinColumn(name = "CODE")
     Category category;
+
     int hits;
-    String head;
+    String title;
     Date date;
     String contents;
-    int like;
+    int good;
 
-    @OneToMany
-    @JoinColumn(name = "UR_SEQ")
+    @ManyToOne
+    @JoinColumn(name = "ur_seq")
     User user;
+
     String image;
 }
