@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.repository;
+package skhu.ht.hotthink.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import skhu.ht.hotthink.domain.User;
