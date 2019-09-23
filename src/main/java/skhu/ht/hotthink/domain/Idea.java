@@ -10,6 +10,7 @@ import java.util.Date;
 public class Idea {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int id_seq;
     int seq;
 
     @ManyToOne
