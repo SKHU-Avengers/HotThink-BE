@@ -2,7 +2,7 @@ package skhu.ht.hotthink.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import skhu.ht.hotthink.Repository.UserRepository;
+import skhu.ht.hotthink.repository.UserRepository;
 import skhu.ht.hotthink.domain.User;
 
 import java.util.List;

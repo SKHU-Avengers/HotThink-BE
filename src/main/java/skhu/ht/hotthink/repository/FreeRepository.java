@@ -1,7 +1,12 @@
-package skhu.ht.hotthink.Repository;
+package skhu.ht.hotthink.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import skhu.ht.hotthink.domain.User;
+import skhu.ht.hotthink.domain.Free;
 
-public interface FreeRepository extends JpaRepository<User, Integer> {
+import java.util.List;
+
+public interface FreeRepository extends JpaRepository<Free, Integer> {
+//    List<Free>  findBySeqAndTBCategoryCategory(int seq, String category);
+
+
 }
