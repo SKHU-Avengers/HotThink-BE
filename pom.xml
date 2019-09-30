@@ -54,6 +54,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- spring-security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!--json data bind-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
