@@ -17,7 +17,7 @@ public class Idea {
     @JoinColumn(name = "code")
     Category category;
     int hits;
-    String head;
+    String title;
     String state;
     int myScore;
     int sellerScore;
