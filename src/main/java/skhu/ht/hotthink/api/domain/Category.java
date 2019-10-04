@@ -1,6 +1,8 @@
-package skhu.ht.hotthink.domain;
+package skhu.ht.hotthink.api.domain;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,10 +10,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
-@Entity
+@Entity(name = "TB_CATEG")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int code;
-    String categori;
+    private String code;
+    @Getter @Setter private String category;
 }
