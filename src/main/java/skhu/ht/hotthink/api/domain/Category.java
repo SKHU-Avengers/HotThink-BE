@@ -15,5 +15,5 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String code;
-    @Getter @Setter private String category;
+    private String category;
 }

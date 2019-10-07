@@ -10,13 +10,13 @@ import java.net.URLEncoder;
 
 @Data
 public class Pagination {
-    @Getter @Setter String category;
-    @Getter @Setter int page;
-    @Getter @Setter int size;
-    @Getter @Setter int searchBy;
-    @Getter @Setter String searchText;
-    @Getter @Setter int orderBy;
-    @Getter @Setter int recordCount;
+    String category;
+    int page;
+    int size;
+    int searchBy;
+    String searchText;
+    int orderBy;
+    int recordCount;
 
     public String getQueryString() {
         String url = null;

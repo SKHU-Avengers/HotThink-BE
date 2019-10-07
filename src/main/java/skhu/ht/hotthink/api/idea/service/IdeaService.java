@@ -16,9 +16,9 @@ import java.util.List;
 public interface IdeaService {
 
     public List<FreeListDTO> getFreeList(Pagination pagination);
-    public FreeOutDTO getFree(int seq, String category);
+    public FreeOutDTO getFree(Long seq, String category);
     public boolean setFree(FreeInDTO free, String nickname, String category);
-    public boolean putFree(int seq, String category, Free free, String writer);
+    public boolean putFree(Long seq, String category, FreeInDTO freeInDto);
     public List<Idea> getRealList(Pagination pagination);
     public Idea getReal(int seq, String category);
 }

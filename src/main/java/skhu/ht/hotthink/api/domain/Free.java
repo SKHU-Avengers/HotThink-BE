@@ -13,20 +13,20 @@ import java.util.Date;
 public class Free {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter private Long fr_seq;
-    @Getter @Setter private Long seq;
-    @Getter @Setter private int hits;
-    @Getter @Setter private String title;
+    private Long fr_seq;
+    private Long seq;
+    private int hits;
+    private String title;
     @JsonFormat(pattern="yyyy-MM-dd")
-    @Getter @Setter private Date date;
-    @Getter @Setter private String contents;
-    @Getter @Setter private int good;
-    @Getter @Setter private String image;
-    @ManyToOne
-    @JoinColumn(name = "ur_seq")
-    @Getter @Setter private User user;
+    private Date date;
+    private String contents;
+    private int good;
+    private String image;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "UR_SEQ")
+    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "CODE")
-    @Getter @Setter private Category category;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CT_CODE")
+    private Category category;
 }

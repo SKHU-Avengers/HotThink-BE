@@ -5,7 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import skhu.ht.hotthink.api.domain.Category;
 import skhu.ht.hotthink.api.domain.Free;
 import skhu.ht.hotthink.api.idea.model.Option;
 import skhu.ht.hotthink.api.idea.model.Pagination;
@@ -43,9 +45,11 @@ public interface FreeRepository extends JpaRepository<Free, Integer> {
         }
         return page.getContent();
     }
+    @Query(value = "SELECT getFR_Seq(?1)", nativeQuery = true)
+    Long findFreeSeq(String category);
     Page<Free> findByCategoryAndContents(String category, String Contents, Pageable pageable);
     Page<Free> findByCategoryAndTitle(String category, String Title, Pageable pageable);
     Page<Free> findByCategoryAndUser(String category, String User, Pageable pageable);
     Page<Free> findByCategory(String category, Pageable pageable);
-    Free findFreeBySeqAndCategory(int seq, String category);
+    Free findFreeBySeqAndCategory(Long seq, Category category);
 }

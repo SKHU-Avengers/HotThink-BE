@@ -29,9 +29,9 @@ public class RealThinkController {
     /*
         작성자: 홍민석
         작성일: 2019-10-01
-    내용: realthink 게시물 GET.
-    realthink 게시물 id 및 카테고리를 url에 입력하면
-    해당하는 realthink 게시물 반환
+        내용: realthink 게시물 GET.
+        realthink 게시물 id 및 카테고리를 url에 입력하면
+        해당하는 realthink 게시물 반환
     */
     @RequestMapping(value = "/{realId}/{category}", method = RequestMethod.GET)
     public Idea realRead(@PathVariable("realId") int seq, @PathVariable("category") String category){

@@ -12,14 +12,14 @@ import javax.persistence.*;
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter protected Long seq;
-    @Getter @Setter protected String email;
-    @Getter @Setter protected String nickName;
-    @Getter @Setter protected String name;
-    @Getter @Setter protected String pw;
+    protected Long seq;
+    protected String email;
+    protected String nickName;
+    protected String name;
+    protected String pw;
     @Enumerated(EnumType.STRING)
-    @Getter @Setter protected RoleName auth;
-    @Getter @Setter private String tel;
-    @Getter @Setter private int point;
-    @Getter @Setter private int realTicket;
+    protected RoleName auth;
+    private String tel;
+    private int point;
+    private int realTicket;
 }
