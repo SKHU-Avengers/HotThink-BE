@@ -2,6 +2,7 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Tables */
 
+DROP TABLE IF EXISTS TB_FR_HISTORY;
 DROP TABLE IF EXISTS TB_REPORT;
 DROP TABLE IF EXISTS TB_REPLY;
 DROP TABLE IF EXISTS TB_SCRAP;
@@ -33,7 +34,7 @@ CREATE TABLE TB_CONVERSATION
 (
 	UR_FROM int unsigned NOT NULL,
 	UR_TO int unsigned NOT NULL,
-	DATE date NOT NULL,
+	AT datetime NOT NULL,
 	MSG varchar(1500)
 );
 
@@ -45,13 +46,26 @@ CREATE TABLE TB_FREE
 	-- 게시물 번호
 	SEQ bigint unsigned NOT NULL COMMENT '게시물 번호',
 	HITS int unsigned DEFAULT 0 NOT NULL,
-	TITLE varchar(250) NOT NULL,
-	DATE date NOT NULL,
-	CONTENTS varchar(5000) NOT NULL,
+	TITLE varchar(150) NOT NULL,
+	CREATEAT datetime NOT NULL,
+	CONTENTS text NOT NULL,
 	GOOD int DEFAULT 0 NOT NULL,
 	UR_SEQ int unsigned NOT NULL,
-	IMAGE varchar(1000),
+	THUMBNAILIMG varchar(280),
 	PRIMARY KEY (FR_SEQ)
+);
+
+
+CREATE TABLE TB_FR_HISTORY
+(
+	SEQ bigint unsigned NOT NULL AUTO_INCREMENT,
+	-- 수정된 날짜
+	UPDATEAT datetime NOT NULL COMMENT '수정된 날짜',
+	CONTENTS text NOT NULL,
+	TITLE varchar(150) NOT NULL,
+	THUMBNAILIMG varchar(280),
+	FR_SEQ bigint unsigned NOT NULL,
+	PRIMARY KEY (SEQ)
 );
 
 
@@ -62,18 +76,19 @@ CREATE TABLE TB_IDEA
 	-- 게시물번호
 	SEQ bigint NOT NULL COMMENT '게시물번호',
 	HITS int unsigned DEFAULT 0 NOT NULL,
-	TITLE varchar(250) NOT NULL,
+	TITLE varchar(150) NOT NULL,
 	STATE varchar(15) NOT NULL,
 	-- 다른 회원이 평가한 점수
 	MYSCORE int DEFAULT 0 NOT NULL COMMENT '다른 회원이 평가한 점수',
 	-- 구매자의 판매자 평가
 	SELLERSCORE int DEFAULT 0 NOT NULL COMMENT '구매자의 판매자 평가',
-	DATE date NOT NULL,
-	CONTENTS varchar(5000) NOT NULL,
-	REVIEW varchar(5000),
+	CREATEAT datetime NOT NULL,
+	UPDATEAT datetime,
+	CONTENTS text NOT NULL,
+	REVIEW text,
 	UR_SEQ int unsigned NOT NULL,
 	-- 유료정보
-	PMATERIAL varchar(6000) COMMENT '유료정보',
+	PMATERIAL text COMMENT '유료정보',
 	PRIMARY KEY (ID_SEQ),
 	UNIQUE (ID_SEQ)
 );
@@ -85,7 +100,7 @@ CREATE TABLE TB_IDEA_PAYLIST
 	-- 거래가격
 	PRICE double unsigned NOT NULL COMMENT '거래가격',
 	-- 거래날짜
-	PAYDATE date NOT NULL COMMENT '거래날짜',
+	PAYAT datetime NOT NULL COMMENT '거래날짜',
 	-- 결제수단
 	PAYMETHOD varchar(20) NOT NULL COMMENT '결제수단',
 	UR_BUYER int unsigned NOT NULL,
@@ -103,8 +118,8 @@ CREATE TABLE TB_PAY
 	UR_SEQ int unsigned NOT NULL,
 	-- 유료회원 종류
 	PROTYPE varchar(10) DEFAULT 'NONE' NOT NULL COMMENT '유료회원 종류',
-	START date,
-	END varchar(10)
+	START datetime,
+	END datetime
 );
 
 
@@ -122,7 +137,7 @@ CREATE TABLE TB_REPLY
 (
 	SEQ int unsigned NOT NULL AUTO_INCREMENT,
 	CONTENTS varchar(2000) NOT NULL,
-	DATE date NOT NULL,
+	AT datetime NOT NULL,
 	GOOD int DEFAULT 0 NOT NULL,
 	ADOPT varchar(10) NOT NULL,
 	FR_SEQ bigint unsigned NOT NULL,
@@ -136,7 +151,7 @@ CREATE TABLE TB_REPORT
 (
 	SEQ int unsigned NOT NULL AUTO_INCREMENT,
 	REASON varchar(100) NOT NULL,
-	DETAIL varchar(2000),
+	DETAIL varchar(3000),
 	CT_CODE varchar(30) NOT NULL,
 	UR_SEQ int unsigned NOT NULL,
 	ID_SEQ bigint unsigned,
@@ -173,11 +188,11 @@ CREATE TABLE TB_USER
 	SEQ int unsigned NOT NULL AUTO_INCREMENT,
 	EMAIL varchar(30) NOT NULL,
 	NICKNAME varchar(20) NOT NULL,
-	NAME varchar(20),
+	UNAME varchar(20),
 	PW varchar(100) NOT NULL,
 	TEL varchar(15),
 	AUTH varchar(30) DEFAULT 'NONE' NOT NULL,
-	POINT int DEFAULT 0 NOT NULL,
+	UPOINT int DEFAULT 0 NOT NULL,
 	-- 리얼띵크 작성권
 	REALTICKET smallint unsigned DEFAULT 0 NOT NULL COMMENT '리얼띵크 작성권',
 	PRIMARY KEY (SEQ),
@@ -217,6 +232,14 @@ ALTER TABLE TB_REPORT
 ALTER TABLE TB_SCRAP
 	ADD FOREIGN KEY (CODE)
 	REFERENCES TB_CATEG (CODE)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE TB_FR_HISTORY
+	ADD FOREIGN KEY (FR_SEQ)
+	REFERENCES TB_FREE (FR_SEQ)
 	ON UPDATE RESTRICT
 	ON DELETE RESTRICT
 ;
