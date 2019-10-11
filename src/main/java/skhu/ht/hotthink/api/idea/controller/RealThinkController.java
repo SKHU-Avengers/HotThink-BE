@@ -21,9 +21,9 @@ public class RealThinkController {
     내용: realthink 페이징 GET.
     pagination 객체 수신후 realthink 페이지 List 반환
     */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping(value = "/")
     public List<Idea> realList(@RequestBody Pagination pagination) {
-        return ideaService.getRealList(pagination);
+        return ideaService.getIdeaList(pagination);
     }
 
     /*
@@ -33,9 +33,9 @@ public class RealThinkController {
         realthink 게시물 id 및 카테고리를 url에 입력하면
         해당하는 realthink 게시물 반환
     */
-    @RequestMapping(value = "/{realId}/{category}", method = RequestMethod.GET)
+    @GetMapping(value = "/{realId}/{category}")
     public Idea realRead(@PathVariable("realId") int seq, @PathVariable("category") String category){
-        return ideaService.getReal(seq, category);
+        return ideaService.getIdea(seq, category);
     }
 
 

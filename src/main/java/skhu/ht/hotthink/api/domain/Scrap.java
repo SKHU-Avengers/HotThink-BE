@@ -11,21 +11,21 @@ import javax.persistence.*;
 public class Scrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter private Long seq;
+    private Long seq;
 
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
-    @Getter @Setter private User user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "FR_SEQ")
-    @Getter @Setter private Free free;
+    private Free free;
 
     @ManyToOne
     @JoinColumn(name = "ID_SEQ")
-    @Getter @Setter private Idea idea;
+    private Idea idea;
 
     @ManyToOne
     @JoinColumn(name = "CODE")
-    @Getter @Setter private Category category;
+    private Category category;
 }

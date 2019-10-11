@@ -3,18 +3,24 @@ package skhu.ht.hotthink.api.user.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import skhu.ht.hotthink.api.domain.Preference;
 import skhu.ht.hotthink.api.domain.RoleName;
 import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
+import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 
-import javax.management.relation.Role;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    PreferenceRepository preferenceRepository;
+    @Autowired
+    FollowRepository followRepository;
     @Autowired
     ModelMapper modelMapper;
 
@@ -30,6 +36,12 @@ public class UserServiceImpl implements UserService{
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
         userRepository.save(user);
+        Preference preference = new Preference();
+        preference.setUser(user);
+        for(String s : newUserDTO.getPreferences()){
+            preference.setPreference(s);
+            preferenceRepository.save(preference);
+        }
         return true;
     }
 
@@ -50,6 +62,7 @@ public class UserServiceImpl implements UserService{
     public User findByEmail(String email) {
         return null;
     }
+
     /*
         작성자: 홍민석
         작성일: 19-10-07

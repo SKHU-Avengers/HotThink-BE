@@ -2,8 +2,6 @@ package skhu.ht.hotthink.api.idea.model;
 
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -17,7 +15,7 @@ public class Pagination {
     String searchText;
     int orderBy;
     int recordCount;
-
+    /*
     public String getQueryString() {
         String url = null;
         try{
@@ -28,4 +26,5 @@ public class Pagination {
         }
         return url;
     }
+     */
 }

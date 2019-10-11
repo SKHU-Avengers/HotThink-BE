@@ -1,11 +1,13 @@
 package skhu.ht.hotthink.api.idea.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import skhu.ht.hotthink.api.domain.Category;
 import skhu.ht.hotthink.api.domain.Idea;
 import skhu.ht.hotthink.api.idea.model.Option;
 import skhu.ht.hotthink.api.idea.model.Pagination;
@@ -23,10 +25,9 @@ public interface IdeaRepository extends JpaRepository<Idea, Integer> {
             new Sort(Sort.Direction.ASC, "user_name")};
 
 
-    default List<Idea> findAll(Pagination pagination){
+    default List<Idea> findAll(Pagination pagination, Category category){
         Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
         Page<Idea> page;
-        String category = pagination.getCategory();
         String searchText = pagination.getSearchText();
         switch(pagination.getSearchBy()){
             case 1:
@@ -43,9 +44,9 @@ public interface IdeaRepository extends JpaRepository<Idea, Integer> {
         }
         return page.getContent();
     }
-    Page<Idea> findByCategoryAndContents(String category, String Contents, Pageable pageable);
-    Page<Idea> findByCategoryAndTitle(String category, String Title, Pageable pageable);
-    Page<Idea> findByCategoryAndUser(String category, String User, Pageable pageable);
-    Page<Idea> findByCategory(String category, Pageable pageable);
-    Idea findIdeaBySeqAndCategory(int seq, String category);
+    Page<Idea> findByCategoryAndContents(Category category, String Contents, Pageable pageable);
+    Page<Idea> findByCategoryAndTitle(Category category, String Title, Pageable pageable);
+    Page<Idea> findByCategoryAndUser(Category category, String User, Pageable pageable);
+    Page<Idea> findByCategory(Category category, Pageable pageable);
+    Idea findIdeaBySeqAndCategory(int seq, Category category);
 }

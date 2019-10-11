@@ -1,13 +1,12 @@
 package skhu.ht.hotthink.api.idea.controller;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skhu.ht.hotthink.api.domain.Free;
-import skhu.ht.hotthink.api.idea.model.FreeInDTO;
-import skhu.ht.hotthink.api.idea.model.FreeListDTO;
-import skhu.ht.hotthink.api.idea.model.FreeOutDTO;
-import skhu.ht.hotthink.api.idea.model.Pagination;
-import skhu.ht.hotthink.api.idea.service.IdeaServiceImpl;
+import skhu.ht.hotthink.api.idea.model.*;
+import skhu.ht.hotthink.api.idea.service.FreeServiceImpl;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
 public class FreeThinkController {
 
     @Autowired
-    IdeaServiceImpl ideaService;
+    FreeServiceImpl freeService;
 
     /*
         작성자: 홍민석
@@ -25,21 +24,26 @@ public class FreeThinkController {
         Pagination 정보를 JSON으로 입력받아
         해당하는 realthink 게시물 리스트 반환
     */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping(value = "/")
     public List<FreeListDTO> freeList(@RequestBody Pagination pagination) {
-        return ideaService.getFreeList(pagination);
+        return freeService.getFreeList(pagination);
     }
 
     /*
         작성자: 홍민석
         작성일: 2019-10-01
-        내용: realthink 게시물 READ.
-        realthink 게시물 seq 및 카테고리를 url에 입력하면
-        해당하는 realthink 게시물 반환
+        내용: freethink 게시물 READ.
+        freethink 게시물 fr_seq를 입력하면
+        해당하는 freethink 게시물 반환
     */
-    @RequestMapping(value = "/{freeId}/{category}", method = RequestMethod.GET)
-    public FreeOutDTO freeRead(@PathVariable("freeId") Long freeId, @PathVariable("category") String category) {
-        return ideaService.getFree(freeId, category);
+    @GetMapping(value = "/{freeId}")
+    public ResponseEntity<?> freeRead(@PathVariable("freeId") Long freeId) {
+        FreeOutDTO freeOutDto = freeService.getFree(freeId);
+        if(freeOutDto == null){
+            return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
+        }
+        freeOutDto.setReplies(freeService.getReplyList(freeOutDto.getFrSeq()));
+        return new ResponseEntity(freeOutDto,HttpStatus.OK);
     }
 
     /*
@@ -49,11 +53,15 @@ public class FreeThinkController {
         쓰고자 하는 게시물 정보(FreeInDTO)를 JSON으로 입력받아
         새로운 게시물 생성
     */
-    @RequestMapping(value = "/{nickname}/{category}", method = RequestMethod.POST)
-    public void freeCreate(@RequestBody FreeInDTO freeInDto,
+    @PostMapping(value = "/{nickname}/{category}")
+    public ResponseEntity<String> freeCreate(@RequestBody FreeInDTO freeInDto,
                            @PathVariable("nickname") String nickname,
                            @PathVariable("category") String category){
-        ideaService.setFree(freeInDto,nickname,category);
+        if(freeService.setFree(freeInDto,nickname,category)==false){
+            return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity("Fail",HttpStatus.OK);
     }
 
     /*
@@ -64,10 +72,68 @@ public class FreeThinkController {
         원본 게시물 수정.
         TODO:권한 인증 코드 작성
     */
-    @RequestMapping(value = "/{freeId}/{category}", method = RequestMethod.PUT)
-    public void freeUpdate(@PathVariable("freeId") Long freeId, @PathVariable("category") String category,
+    @PutMapping(value = "/{freeId}/{category}")
+    public ResponseEntity<String> freeUpdate(@PathVariable("freeId") Long freeId, @PathVariable("category") String category,
                            @RequestBody FreeInDTO freeInDto){
-        ideaService.putFree(freeId, category, freeInDto);
+        if(freeService.putFree(freeId, category, freeInDto)==false){
+            return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity("Fail",HttpStatus.OK);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 2019-10-07
+        내용: realthink 게시물 DELETE.
+        수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
+        삭제 실패시 BAD_REQUEST 반환.
+        TODO:권한 인증 코드 작성
+    */
+    @DeleteMapping(value = "/{freeId}")
+    public ResponseEntity<String> freeDelete(@PathVariable("freeId") Long freeId,
+                           @RequestBody FreeInDTO freeInDto){
+
+        if(freeService.deleteFree(freeId, freeInDto)!=true){
+            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<String>("Success",HttpStatus.OK);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일:
+        내용: 댓글 CREATE.
+
+    */
+    @PostMapping(value = "/reply")
+    public ResponseEntity<String> replyCreate(@RequestBody ReplyInDTO replyInDto){
+        if(freeService.setReply(replyInDto)!=true){
+            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<String>("Success",HttpStatus.OK);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일:
+        내용: 댓글 UPDATE.
+        TODO:권한 인증 코드 작성
+    */
+    @PutMapping(value = "/reply/{replyId}")
+    public void replyUpdate(){
+    }
+
+    /*
+        작성자: 홍민석
+        작성일:
+        내용: 댓글 DELETE.
+        TODO:권한 인증 코드 작성
+    */
+    @DeleteMapping(value = "/{freeId}/reply/{replyId}")
+    public void replyDelete(@PathVariable("freeId") String freeId,
+                            @PathVariable("replyId") Long replyId){
+        freeService.deleteReply(freeId,replyId);
 
     }
 }

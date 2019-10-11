@@ -6,18 +6,18 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity
 @Data
-public class Subscribe {
+@Entity(name="TB_FOLLOW")
+public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter private int seq;
+    private int seq;
 
     @ManyToOne
-    @JoinColumn(name = "UR_STAR")
-    @Getter @Setter private User star;
+    @JoinColumn(name = "UR_CELEBRITY")
+    private User celebrity;
 
     @ManyToOne
-    @JoinColumn(name = "UR_SUBSCRIBER")
-    @Getter @Setter private User subscriber;
+    @JoinColumn(name = "UR_FOLLOWER")
+    private User follower;
 }
