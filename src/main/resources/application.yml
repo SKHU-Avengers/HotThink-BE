@@ -1,0 +1,7 @@
+test:
+  security:
+    jwt:
+      token-issuer: zerogone
+      token-expiration-time: 5
+      refresh-token-exp-time: 1440
+      token-signing-key: test123test456test789
