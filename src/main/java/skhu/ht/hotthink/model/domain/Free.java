@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.domain;
+package skhu.ht.hotthink.model.domain;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Data
-@Entity
+@Entity()
 public class Free {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.domain;
+package skhu.ht.hotthink.model.domain;
 
 import lombok.Data;
 
