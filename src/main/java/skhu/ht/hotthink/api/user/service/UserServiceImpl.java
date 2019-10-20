@@ -3,15 +3,20 @@ package skhu.ht.hotthink.api.user.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import skhu.ht.hotthink.api.domain.Follow;
 import skhu.ht.hotthink.api.domain.Preference;
 import skhu.ht.hotthink.api.domain.RoleName;
 import skhu.ht.hotthink.api.domain.User;
+import skhu.ht.hotthink.api.user.model.FollowDTO;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -68,9 +73,49 @@ public class UserServiceImpl implements UserService{
         작성일: 19-10-07
         내용: 아이디가 중복되었는지 검사합니다.
     */
+    @Transactional
     public Boolean checkOverlap(String email) {
         User user = userRepository.findUserByEmail(email);
         if(user == null){
+            return false;
+        }
+        return true;
+    }
+    @Transactional
+    public List<FollowDTO> getFollowerList(String nickName) {
+        User celebrity = userRepository.findUserByNickName(nickName);
+        return followRepository.findAllByCelebrity(celebrity)
+                .stream().map(s -> modelMapper.map(s, FollowDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<FollowDTO> getFollowList(String nickName) {
+        User follower = userRepository.findUserByNickName(nickName);
+        return followRepository.findAllByFollower(follower)
+                .stream().map(s -> modelMapper.map(s, FollowDTO.class))
+                .collect(Collectors.toList());
+
+    }
+    @Transactional
+    public boolean setFollow(String follower,String celebrity) {
+        Follow follow = new Follow();
+        follow.setFollower(userRepository.findUserByNickName(follower));
+        follow.setCelebrity(userRepository.findUserByNickName(celebrity));
+        if (followRepository.save(follow) == null){
+            return false;
+        }
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteFollow(String follower,String celebrity) {
+        User from = userRepository.findUserByNickName(follower);
+        User to = userRepository.findUserByNickName(celebrity);
+        //TODO: 권한인증 코드 작성
+        Follow follow=followRepository.findFollowByFollowerAndCelebrity(from, to);
+        followRepository.delete(follow);
+        if (followRepository.existsById(follow.getSeq())){
             return false;
         }
         return true;

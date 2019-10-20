@@ -9,7 +9,7 @@ import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
 @RequestMapping("user")
 public class ScrapController {
 
-
+/*
     @GetMapping("/{nickName}/scrap/freethink/{freeId}")
     public void freeScrapListRead(@PathVariable("nickName") String nickName,
                               @PathVariable("freeId") String frSeq){
@@ -53,5 +53,5 @@ public class ScrapController {
     public void scrapDelete(){
 
     }
-
+*/
 }

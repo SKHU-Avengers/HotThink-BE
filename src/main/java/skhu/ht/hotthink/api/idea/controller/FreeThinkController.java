@@ -61,7 +61,7 @@ public class FreeThinkController {
             return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity("Fail",HttpStatus.OK);
+        return new ResponseEntity("Success",HttpStatus.OK);
     }
 
     /*
@@ -79,7 +79,7 @@ public class FreeThinkController {
             return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity("Fail",HttpStatus.OK);
+        return new ResponseEntity("Success",HttpStatus.OK);
     }
 
     /*

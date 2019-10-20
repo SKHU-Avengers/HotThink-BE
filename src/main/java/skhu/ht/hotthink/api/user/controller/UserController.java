@@ -26,7 +26,7 @@ public class UserController {
         if(userService.setUser(newUserDto,0)==false){
             return new ResponseEntity<String>("Fail", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<String>("Sucess", HttpStatus.OK);
+        return new ResponseEntity<String>("Success", HttpStatus.OK);
     }
 
     /*@ResponseBody

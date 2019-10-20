@@ -8,14 +8,14 @@ import java.util.List;
 @Data
 public class FreeOutDTO {
     private Long frSeq;
-    private String category;
     private Long seq;
     private Integer hits;
-    private String title;
     private Date createAt;
-    private String contents;
-    private Integer good;
     private String image;
+    private String title;
+    private String contents;
+    private String category;
+    private Integer good;
     private UserOutDTO user;
     private List<ReplyOutDTO> replies;
 }

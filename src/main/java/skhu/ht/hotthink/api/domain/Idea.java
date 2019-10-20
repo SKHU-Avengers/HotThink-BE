@@ -3,9 +3,6 @@ package skhu.ht.hotthink.api.domain;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import skhu.ht.hotthink.api.domain.Category;
-import skhu.ht.hotthink.api.domain.User;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -14,7 +11,8 @@ import java.util.Date;
 public class Idea {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_seq;
+    @Column(name = "ID_SEQ")
+    private Long idSeq;
     private Long seq;
     private Integer hits;
     private String title;
@@ -34,4 +32,5 @@ public class Idea {
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
     @Getter @Setter private User user;
+
 }

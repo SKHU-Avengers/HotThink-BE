@@ -89,9 +89,9 @@ CREATE TABLE TB_IDEA
 	TITLE varchar(150) NOT NULL,
 	STATE varchar(15) NOT NULL,
 	-- 다른 회원이 평가한 점수
-	MYSCORE int DEFAULT 0 NOT NULL COMMENT '다른 회원이 평가한 점수',
+	MYSCORE int COMMENT '다른 회원이 평가한 점수',
 	-- 구매자의 판매자 평가
-	SELLERSCORE int DEFAULT 0 NOT NULL COMMENT '구매자의 판매자 평가',
+	SELLERSCORE int COMMENT '구매자의 판매자 평가',
 	CREATEAT datetime NOT NULL,
 	UPDATEAT datetime,
 	CONTENTS text NOT NULL,

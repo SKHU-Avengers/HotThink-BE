@@ -38,7 +38,10 @@ public class FreeServiceImpl implements FreeService{
      */
     @Override
     public List<FreeListDTO> getFreeList(Pagination pagination){
-        return freeRepository.findAll(pagination).stream().map(e->modelMapper.map(e,FreeListDTO.class)).collect(Collectors.toList());
+        return freeRepository.findAll(pagination)
+                .stream()
+                .map(e->modelMapper.map(e,FreeListDTO.class))
+                .collect(Collectors.toList());
     }
 
     /*
