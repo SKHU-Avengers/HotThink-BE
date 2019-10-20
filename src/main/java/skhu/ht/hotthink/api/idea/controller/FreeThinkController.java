@@ -99,7 +99,15 @@ public class FreeThinkController {
         }
         return new ResponseEntity<String>("Success",HttpStatus.OK);
     }
+    @PostMapping(value="/{freeId}/fan/{nickname}")
+    public ResponseEntity<String> freeLikeCreate(@PathVariable("freeId") Long frSeq,
+                                                 @PathVariable("nickname") String nickName){
+        if(!freeService.setFreeLike(frSeq,nickName)){
+            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
+        }
 
+        return new ResponseEntity<String>("Success",HttpStatus.OK);
+    }
     /*
         작성자: 홍민석
         작성일:

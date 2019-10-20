@@ -49,8 +49,8 @@ public interface FreeRepository extends JpaRepository<Free, Integer> {
     @Query(value = "SELECT getFR_Seq(?1)", nativeQuery = true)
     Long findFreeSeq(String category);
 
-    @Query(value = "CALL likeFree(?1,?2)", nativeQuery = true)
-    void likeFree(Long freeId, String category);
+    @Query(value = "CALL likeFree(?1)", nativeQuery = true)
+    void likeFree(Long freeId);
 
     @Query(value = "SELECT FR.FR_SEQ FROM TB_FREE FR INNER JOIN CATEGORY CT ON FR.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
     Long findFreeFr_seq(Long seq, String category);

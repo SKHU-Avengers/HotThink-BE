@@ -15,7 +15,7 @@ public class FreeOutDTO {
     private String title;
     private String contents;
     private String category;
-    private Integer good;
+    private Integer like;
     private UserOutDTO user;
     private List<ReplyOutDTO> replies;
 }

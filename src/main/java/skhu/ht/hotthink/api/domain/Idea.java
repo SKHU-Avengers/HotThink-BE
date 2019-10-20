@@ -1,8 +1,6 @@
 package skhu.ht.hotthink.api.domain;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import javax.persistence.*;
 import java.util.Date;
 
@@ -28,9 +26,9 @@ public class Idea {
 
     @ManyToOne
     @JoinColumn(name = "CT_CODE")
-    @Getter @Setter private Category category;
+    private Category category;
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
-    @Getter @Setter private User user;
+    private User user;
 
 }
