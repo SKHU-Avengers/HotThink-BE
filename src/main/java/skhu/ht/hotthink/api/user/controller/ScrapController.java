@@ -41,7 +41,7 @@ public class ScrapController {
                                   @PathVariable("hotId") String IdSeq){
     }
 
-    @PostMapping("/{nickName}/scrap/realthink/")
+    @PostMapping("/{nickName}/scrap/hotthink/")
     public ResponseEntity<?> hotScrapCreate(@PathVariable("nickName") String nickName,
                                              @RequestBody ScrapInfoDTO scrapInfoDto){
 

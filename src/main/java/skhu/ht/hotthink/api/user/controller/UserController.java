@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
+//테스트중
 @RequestMapping("user")
-@Controller
+//@Controller
+@RestController
 public class UserController {
 
     @Autowired
@@ -36,4 +38,13 @@ public class UserController {
     }*/
 
 
+    @GetMapping("/home")
+    public String home(){
+        return "home";
+    }
+
+    @PostMapping("/register")
+    public String regiester(){
+        return "test";
+    }
  }

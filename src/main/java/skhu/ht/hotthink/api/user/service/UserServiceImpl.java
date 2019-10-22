@@ -2,6 +2,9 @@ package skhu.ht.hotthink.api.user.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.Follow;
@@ -13,6 +16,7 @@ import skhu.ht.hotthink.api.user.model.NewUserDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
+import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -119,5 +123,20 @@ public class UserServiceImpl implements UserService{
             return false;
         }
         return true;
+
+    /*
+       작성자: 김영곤
+       작성일: 19-10-19
+       내용: 아이디와 비밀번호로 유저를 찾고 유저권한모델로 맵핑
+   */
+
+    public UserAuthenticationModel findUserByEmailAndPw(String email, String pw){
+        User entity = userRepository.findUserByEmail(email);
+        if(entity == null) throw new UsernameNotFoundException("");
+        else if(!entity.getPw().equals(pw)) throw new BadCredentialsException("");
+        return UserAuthenticationModel.builder()
+                .email(entity.getEmail())
+                .pw(entity.getPw())
+                .auth(new SimpleGrantedAuthority(entity.getAuth().toString())).build();
     }
 }

@@ -27,7 +27,7 @@ public class User{
     private Integer point;
     private Integer realTicket;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "preference")
-    private List<Preference> preferenceList;
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "preference")
+//    private List<Preference> preferenceList;
 }

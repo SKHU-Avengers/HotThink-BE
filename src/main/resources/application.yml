@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/hotthink?useUnicode=yes&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
+    username: user
+    password: test123
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  jackson:
+    deserialization:
+      fail_on_unknown_properties: true #잘못된 값 전달시 BAD_REQUEST 응답
+
+hot-think:
+  security:
+    jwt:
+      token-issuer: zerogone
+      token-expiration-time: 5
+      refresh-token-exp-time: 1440
+      token-signing-key: test123test456test789
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
