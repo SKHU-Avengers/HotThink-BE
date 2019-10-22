@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.security.model.dto;
+package skhu.ht.hotthink.api.user.model;
 
 import lombok.Getter;
 

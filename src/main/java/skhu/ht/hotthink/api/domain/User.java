@@ -2,18 +2,17 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import skhu.ht.hotthink.api.user.model.UserInfoDTO;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Data
-@ToString(exclude={"Preference"})
-@EqualsAndHashCode(exclude={"Preference"})
+@EqualsAndHashCode(of = {"seq", "email", "nickName"})
 @Entity(name = "TB_USER")
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "UR_SEQ")
     protected Long seq;
     protected String email;
     protected String nickName;
@@ -27,7 +26,7 @@ public class User{
     private Integer point;
     private Integer realTicket;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "preference")
-//    private List<Preference> preferenceList;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<Preference> preferences;
 }

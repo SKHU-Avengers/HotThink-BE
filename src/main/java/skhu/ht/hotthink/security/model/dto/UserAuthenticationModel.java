@@ -3,6 +3,7 @@ package skhu.ht.hotthink.security.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import skhu.ht.hotthink.api.user.model.UserBase;
 
 
 @ToString

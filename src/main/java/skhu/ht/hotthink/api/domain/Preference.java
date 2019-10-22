@@ -1,11 +1,17 @@
 package skhu.ht.hotthink.api.domain;
 
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
-@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name="TB_PREFERENCE")
 public class Preference {
+    public Preference(String name){
+        this.preference=name;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
@@ -14,4 +20,5 @@ public class Preference {
     @ManyToOne
     @JoinColumn(name="UR_SEQ")
     private User user;
+
 }

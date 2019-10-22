@@ -6,11 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
-//테스트중
-@RequestMapping("user")
-//@Controller
+@RequestMapping("api/user")
 @RestController
 public class UserController {
 
@@ -43,8 +42,10 @@ public class UserController {
         return "home";
     }
 
-    @PostMapping("/register")
-    public String regiester(){
-        return "test";
+    @PutMapping
+    @ResponseBody
+    public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
+        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("Fail", HttpStatus.valueOf(408));
     }
- }
+
+}

@@ -13,12 +13,14 @@ import skhu.ht.hotthink.api.domain.RoleName;
 import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.user.model.FollowDTO;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,12 +47,12 @@ public class UserServiceImpl implements UserService{
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
         userRepository.save(user);
-        Preference preference = new Preference();
-        preference.setUser(user);
-        for(String s : newUserDTO.getPreferences()){
-            preference.setPreference(s);
-            preferenceRepository.save(preference);
-        }
+//        Preference preference = new Preference();
+//        preference.setUser(user);
+//        for(String s : newUserDTO.getPreferences()){
+//            preference.setPreference(s);
+//            preferenceRepository.save(preference);
+//        }
         return true;
     }
 
@@ -58,13 +60,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> findAll(){
         return userRepository.findAll();
-    }
-
-
-    @Override
-    public boolean saveUser(User user){
-        userRepository.save(user);
-        return true;
     }
 
     @Override
@@ -117,19 +112,19 @@ public class UserServiceImpl implements UserService{
         User from = userRepository.findUserByNickName(follower);
         User to = userRepository.findUserByNickName(celebrity);
         //TODO: 권한인증 코드 작성
-        Follow follow=followRepository.findFollowByFollowerAndCelebrity(from, to);
+        Follow follow = followRepository.findFollowByFollowerAndCelebrity(from, to);
         followRepository.delete(follow);
-        if (followRepository.existsById(follow.getSeq())){
+        if (followRepository.existsById(follow.getSeq())) {
             return false;
         }
         return true;
+    }
 
     /*
        작성자: 김영곤
        작성일: 19-10-19
        내용: 아이디와 비밀번호로 유저를 찾고 유저권한모델로 맵핑
    */
-
     public UserAuthenticationModel findUserByEmailAndPw(String email, String pw){
         User entity = userRepository.findUserByEmail(email);
         if(entity == null) throw new UsernameNotFoundException("");
@@ -138,5 +133,24 @@ public class UserServiceImpl implements UserService{
                 .email(entity.getEmail())
                 .pw(entity.getPw())
                 .auth(new SimpleGrantedAuthority(entity.getAuth().toString())).build();
+    }
+
+    /*
+      작성자: 김영곤
+      작성일: 19-10-23
+      내용: 유저 수정 메소드
+    */
+    @Override
+    public boolean saveUser(UserModificationDTO userModificationDTO){
+        if(userRepository.findUserByNickName(userModificationDTO.getNickName())!=null) return false;
+        User entity = userRepository.findUserByEmail(userModificationDTO.getEmail());
+        entity.setNickName(userModificationDTO.getNickName());
+        entity.setPw(userModificationDTO.getPw());
+        entity.setTel(userModificationDTO.getTel());
+        List<Preference> preferences = new ArrayList<Preference>();
+        for(String preference:userModificationDTO.getPreferences()) preferences.add(new Preference(preference));
+        entity.setPreferences(preferences);
+        userRepository.save(entity);
+        return true;
     }
 }
