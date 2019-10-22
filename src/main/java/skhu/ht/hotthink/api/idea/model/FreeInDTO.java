@@ -6,7 +6,6 @@ import java.util.Date;
 @Data
 public class FreeInDTO {
     private String title;
-    private Date createAt;
     private String contents;
     private Integer good;
     private String image;

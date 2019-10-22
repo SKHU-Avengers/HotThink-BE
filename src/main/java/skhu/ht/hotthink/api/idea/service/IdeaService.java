@@ -2,10 +2,7 @@ package skhu.ht.hotthink.api.idea.service;
 
 import skhu.ht.hotthink.api.domain.Free;
 import skhu.ht.hotthink.api.domain.Idea;
-import skhu.ht.hotthink.api.idea.model.FreeInDTO;
-import skhu.ht.hotthink.api.idea.model.FreeListDTO;
-import skhu.ht.hotthink.api.idea.model.FreeOutDTO;
-import skhu.ht.hotthink.api.idea.model.Pagination;
+import skhu.ht.hotthink.api.idea.model.*;
 
 import java.util.List;
 /*

@@ -1,7 +1,6 @@
 package skhu.ht.hotthink.api.idea.model;
 
 import skhu.ht.hotthink.api.domain.Category;
-import skhu.ht.hotthink.api.domain.IdeaState;
 
 import java.util.Date;
 

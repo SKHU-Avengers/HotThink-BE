@@ -1,12 +1,10 @@
 package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @ToString(exclude={"Reply"})
