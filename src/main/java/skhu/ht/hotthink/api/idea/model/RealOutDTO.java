@@ -1,12 +1,14 @@
 package skhu.ht.hotthink.api.idea.model;
 
+import lombok.Data;
 import skhu.ht.hotthink.api.domain.Category;
 import skhu.ht.hotthink.api.domain.IdeaState;
 
 import java.util.Date;
 
+@Data
 public class RealOutDTO {
-    private Long id_seq;
+    private Long idSeq;
     private Long seq;
     private Integer hits;
     private String title;

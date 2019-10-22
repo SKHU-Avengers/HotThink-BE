@@ -6,9 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Category;
 import skhu.ht.hotthink.api.domain.Idea;
+import skhu.ht.hotthink.api.domain.IdeaState;
+import skhu.ht.hotthink.api.idea.model.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.Option;
 import skhu.ht.hotthink.api.idea.model.Pagination;
 
@@ -25,28 +28,53 @@ public interface IdeaRepository extends JpaRepository<Idea, Integer> {
             new Sort(Sort.Direction.ASC, "user_name")};
 
 
-    default List<Idea> findAll(Pagination pagination, Category category){
+    default List<Idea> findAll(IdeaPagination pagination, Category category){
         Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
         Page<Idea> page;
         String searchText = pagination.getSearchText();
-        switch(pagination.getSearchBy()){
-            case 1:
-                page = this.findByCategoryAndUser(category,searchText, pageable);
-                break;
-            case 2:
-                page = this.findByCategoryAndTitle(category, searchText, pageable);
-                break;
-            case 3:
-                page = this.findByCategoryAndContents(category, searchText, pageable);
-                break;
-            default:
-                page = this.findByCategory(category, pageable);
+        IdeaState type = pagination.getType();
+        if(type == IdeaState.HOT) {
+            switch (pagination.getSearchBy()) {
+                case 1:
+                    page = this.findByCategoryAndUserAndState(category, searchText, pageable, type);
+                    break;
+                case 2:
+                    page = this.findByCategoryAndTitleAndState(category, searchText, pageable, type);
+                    break;
+                case 3:
+                    page = this.findByCategoryAndContentsAndState(category, searchText, pageable, type);
+                    break;
+                default:
+                    page = this.findByCategoryAndState(category, pageable, type);
+            }
+        }else{
+            switch (pagination.getSearchBy()) {
+                case 1:
+                    page = this.findByCategoryAndUserAndStateNot(category, searchText, pageable, IdeaState.HOT);
+                    break;
+                case 2:
+                    page = this.findByCategoryAndTitleAndStateNot(category, searchText, pageable, IdeaState.HOT);
+                    break;
+                case 3:
+                    page = this.findByCategoryAndContentsAndStateNot(category, searchText, pageable, IdeaState.HOT);
+                    break;
+                default:
+                    page = this.findByCategoryAndStateNot(category, pageable, IdeaState.HOT);
+            }
         }
         return page.getContent();
     }
-    Page<Idea> findByCategoryAndContents(Category category, String Contents, Pageable pageable);
-    Page<Idea> findByCategoryAndTitle(Category category, String Title, Pageable pageable);
-    Page<Idea> findByCategoryAndUser(Category category, String User, Pageable pageable);
-    Page<Idea> findByCategory(Category category, Pageable pageable);
-    Idea findIdeaBySeqAndCategory(int seq, Category category);
+
+    Page<Idea> findByCategoryAndContentsAndStateNot(Category category, String searchText, Pageable pageable, IdeaState hot);
+    Page<Idea> findByCategoryAndStateNot(Category category, Pageable pageable, IdeaState hot);
+    Page<Idea> findByCategoryAndTitleAndStateNot(Category category, String searchText, Pageable pageable, IdeaState hot);
+    Page<Idea> findByCategoryAndUserAndStateNot(Category category, String searchText, Pageable pageable, IdeaState hot);
+    Page<Idea> findByCategoryAndState(Category category, Pageable pageable, IdeaState type);
+    Page<Idea> findByCategoryAndContentsAndState(Category category, String searchText, Pageable pageable, IdeaState type);
+    Page<Idea> findByCategoryAndTitleAndState(Category category, String searchText, Pageable pageable, IdeaState type);
+    Page<Idea> findByCategoryAndUserAndState(Category category, String searchText, Pageable pageable, IdeaState type);
+
+    Idea findIdeaByIdSeq(Long seq);
+    @Query(value = "SELECT getID_seq(?1)", nativeQuery=true)
+    Long findIdeaSeq(String category);
 }

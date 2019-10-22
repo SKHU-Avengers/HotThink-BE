@@ -11,7 +11,7 @@ public class ScrapServiceImpl implements ScrapService {
     public void setScrap(){
 
     }
-    public void putScrap(){
+    public void deleteScrap(){
 
     }
 

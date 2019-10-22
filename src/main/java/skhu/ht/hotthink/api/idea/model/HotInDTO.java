@@ -1,13 +1,16 @@
 package skhu.ht.hotthink.api.idea.model;
 
-import skhu.ht.hotthink.api.domain.Category;
+import skhu.ht.hotthink.api.domain.IdeaState;
 
-import java.util.Date;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
+//unused
 public class HotInDTO {
     private Long id_seq;
     private String title;
-    private Date updateAt;
+    @Enumerated(EnumType.STRING)
+    private IdeaState state;
     private String contents;
     private String review;
 }

@@ -4,12 +4,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhu.ht.hotthink.api.domain.Category;
-import skhu.ht.hotthink.api.domain.Free;
-import skhu.ht.hotthink.api.domain.Reply;
-import skhu.ht.hotthink.api.domain.User;
+import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.idea.model.*;
 import skhu.ht.hotthink.api.idea.repository.CategoryRepository;
+import skhu.ht.hotthink.api.idea.repository.FreeLikeRepository;
 import skhu.ht.hotthink.api.idea.repository.FreeRepository;
 import skhu.ht.hotthink.api.idea.repository.ReplyRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
@@ -27,6 +25,8 @@ public class FreeServiceImpl implements FreeService{
     @Autowired
     CategoryRepository categoryRepository;
     @Autowired
+    FreeLikeRepository freeLikeRepository;
+    @Autowired
     ReplyRepository replyRepository;
     @Autowired
     ModelMapper modelMapper = new ModelMapper();
@@ -38,7 +38,10 @@ public class FreeServiceImpl implements FreeService{
      */
     @Override
     public List<FreeListDTO> getFreeList(Pagination pagination){
-        return freeRepository.findAll(pagination).stream().map(e->modelMapper.map(e,FreeListDTO.class)).collect(Collectors.toList());
+        return freeRepository.findAll(pagination)
+                .stream()
+                .map(e->modelMapper.map(e,FreeListDTO.class))
+                .collect(Collectors.toList());
     }
 
     /*
@@ -48,12 +51,14 @@ public class FreeServiceImpl implements FreeService{
     해당하는 FreeThink게시물을 반환합니다.
      */
     @Override
+    @Transactional
     public FreeOutDTO getFree(Long seq){
         //Category categ = categoryRepository.findCategoryByCategory(category);
         //Free free = freeRepository.findFreeBySeqAndCategory(seq, categ);
         Free free = freeRepository.findFreeByFrSeq(seq);
         if(free != null) {
             FreeOutDTO freeOutDto = modelMapper.map(free, FreeOutDTO.class);
+            freeOutDto.setLike(free.getGood());
             return freeOutDto;
         }
         return null;
@@ -78,7 +83,6 @@ public class FreeServiceImpl implements FreeService{
                 free.setUser(user);
                 free.setCategory(categ);
                 free.setHits(0);
-                free.setGood(0);
                 if ((seq = freeRepository.findFreeSeq(category)) != -1) {
                     free.setSeq(seq);
                     freeRepository.save(free);
@@ -105,6 +109,23 @@ public class FreeServiceImpl implements FreeService{
         free.setImage(freeInDto.getImage());
         //TODO: 권한 인증 코드 작성
         freeRepository.save(free);
+        return true;
+    }
+
+    /*
+            작성자: 홍민석
+            작성일: 19-10-20
+            내용: freethink 게시물 좋아요 기능
+            TB_LIKE에 좋아요 기록을 표시한 후,
+            게시판 좋아요(good)을 1만큼 증가시킵니다.
+        */
+    @Transactional
+    public boolean setFreeLike(Long frSeq, String nickName) {
+        FreeLike freeLike = new FreeLike();
+        freeLike.setFree(freeRepository.findFreeByFrSeq(frSeq));
+        freeLike.setUser(userRepository.findUserByNickName(nickName));
+        freeLikeRepository.save(freeLike);
+        freeRepository.likeFree(frSeq);
         return true;
     }
 
@@ -150,7 +171,7 @@ public class FreeServiceImpl implements FreeService{
 
         freeRepository.delete(free);
         free = freeRepository.findFreeByFrSeq(frSeq);
-        if(free!=null){
+        if (free != null) {
             return false;
         }
         return true;
