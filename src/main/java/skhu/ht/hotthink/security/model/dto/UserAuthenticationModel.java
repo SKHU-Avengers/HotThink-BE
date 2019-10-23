@@ -19,9 +19,10 @@ public class UserAuthenticationModel extends UserBase {
     private SimpleGrantedAuthority auth;
 
     @Builder
-    public UserAuthenticationModel(String email, String pw, SimpleGrantedAuthority auth){
+    public UserAuthenticationModel(String email, String pw, String nickName, SimpleGrantedAuthority auth){
         this.email = email;
         this.pw = pw;
+        this.nickName = nickName;
         this.auth = auth;
     }
 }

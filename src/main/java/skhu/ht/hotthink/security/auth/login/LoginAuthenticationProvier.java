@@ -27,7 +27,6 @@ public class LoginAuthenticationProvier implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        System.out.println("테스트");
         log.info("로그인 Provider 진입");
         Assert.notNull(authentication, "인증 없으면 안됨");
         UserAuthenticationModel user = userService.findUserByEmailAndPw((String)authentication.getPrincipal(), (String)authentication.getCredentials());

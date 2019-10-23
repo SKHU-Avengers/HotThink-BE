@@ -130,6 +130,7 @@ public class UserServiceImpl implements UserService{
         return UserAuthenticationModel.builder()
                 .email(entity.getEmail())
                 .pw(entity.getPw())
+                .nickName(entity.getNickName())
                 .auth(new SimpleGrantedAuthority(entity.getAuth().toString())).build();
     }
 
