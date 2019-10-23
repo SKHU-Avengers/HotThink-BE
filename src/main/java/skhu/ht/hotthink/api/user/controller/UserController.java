@@ -3,14 +3,14 @@ package skhu.ht.hotthink.api.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
-import skhu.ht.hotthink.security.service.TokenVerificationService;
 
-@RequestMapping("api/user")
+@RequestMapping("api")
 @RestController
 public class UserController {
 
@@ -23,7 +23,7 @@ public class UserController {
             내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
     */
     @ResponseBody
-    @PostMapping
+    @PostMapping("user/create")
     public ResponseEntity<?> userCreate(@RequestBody NewUserDTO newUserDto){
 
         switch(userService.setUser(newUserDto,0)){
@@ -35,26 +35,26 @@ public class UserController {
         }
     }
 
-    /*@ResponseBody
-    @RequestMapping("users")
-    public List<User> users(){
-        return userService.findAll();
-    }*/
-
-
-    @GetMapping("/home")
-    public String home(){
-        return "home";
-    }
-
     /*
            작성자: 김영곤
            작성일: 19-10-22
            내용: 회원정보 수정
     */
-    @PutMapping
     @ResponseBody
+    @PutMapping("user/update")
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
         return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
+    }
+
+    /*
+           작성자: 김영곤
+           작성일: 19-10-22
+           내용: 마이페이지
+    */
+
+    @GetMapping("me")
+    public ResponseEntity<?> myPage(){
+        System.out.println(userService.findUserInfoByEmail(((UserBase)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail()));
+        return null;
     }
  }

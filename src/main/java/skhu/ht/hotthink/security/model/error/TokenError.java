@@ -6,21 +6,21 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
-public class LoginError {
+public class TokenError {
     @Getter private final HttpStatus status;
     @Getter private final Date time;
     @Getter private final String message;
     @Getter private final ErrorCode errorCode;
 
-    public LoginError(final String message, final ErrorCode errorCode, final HttpStatus status){
+    public TokenError(final String message, final ErrorCode errorCode, final HttpStatus status){
         this.message = message;
         this.errorCode = errorCode;
         this.status = status;
         this.time = new java.util.Date();
     }
 
-    public static LoginError of(final String message, final ErrorCode errorCode, HttpStatus status) {
-        return new LoginError(message, errorCode, status);
+    public static TokenError of(final String message, final ErrorCode errorCode, HttpStatus status) {
+        return new TokenError(message, errorCode, status);
     }
 
     @AllArgsConstructor

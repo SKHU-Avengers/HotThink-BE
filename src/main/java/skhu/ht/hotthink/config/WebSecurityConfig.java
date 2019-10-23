@@ -25,13 +25,11 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    public static final String API_ROOT_URL = "/api/";
-    public static final String LOGIN_URL = "/api/login";
+    public static final String API_ROOT_URL = "/api";
     public static final String LOGIN_PROCESSING_URL = "/api/login/processing";
-
+    public static final String USER_CREATE_URL = "/api/user/create";
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
-    public static final String AUTHENTICATION_URL = "/user/**";
-    public static final String REFRESH_TOKEN_URL = "/api/auth/token";
+    public static final String REFRESH_TOKEN_URL = "/auth/token";
 
     @Autowired private AuthenticationHandler authenticationHandler;
     @Autowired private LoginAuthenticationProvier loginAuthenticationProvider;
@@ -51,8 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() {
-        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, LOGIN_PROCESSING_URL);
-        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTHENTICATION_URL);
+        List<String> pathsToSkip = Arrays.asList(API_ROOT_URL, REFRESH_TOKEN_URL, USER_CREATE_URL);
+        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, "/api/**");
         JwtTokenAuthenticationProcessingFilter filter
                 = new JwtTokenAuthenticationProcessingFilter(authenticationHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
@@ -92,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //root,login,tokenRefresh 빼고 나머지는 권한 요청
                 .and()
                     .authorizeRequests()
-                    .antMatchers(API_ROOT_URL, LOGIN_URL, REFRESH_TOKEN_URL).permitAll()
+                    .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
 
 //                .and()
 //                    .authorizeRequests()

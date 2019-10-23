@@ -11,7 +11,7 @@ public class UserLoginRequestModel extends UserBase {
     private String pw;
 
     @JsonCreator
-    public UserLoginRequestModel(@JsonProperty("email") String email, @JsonProperty("password") String pw){
+    public UserLoginRequestModel(@JsonProperty("email") String email, @JsonProperty("pw") String pw){
         this.email = email;
         this.pw = pw;
     }

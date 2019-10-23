@@ -4,23 +4,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.domain.*;
-import skhu.ht.hotthink.api.user.model.FollowDTO;
-import skhu.ht.hotthink.api.user.model.NewUserDTO;
-import skhu.ht.hotthink.api.user.model.UserModificationDTO;
+import skhu.ht.hotthink.api.user.model.*;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
-import javax.mail.Message;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,20 +38,23 @@ public class UserServiceImpl implements UserService{
         내용: 중복확인 추가
         작성일: 19-10-23
         내용: 반환형 MessageState로 수정.
-*/
+        작성일: 19-10-23
+        내용: 유저모델 수정
+    */
     public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
-        User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
-        if(entity != null && entity.getNickName().equals(newUserDTO.getNickName())) return MessageState.Conflict;
+        //닉네임 중복 추가
+        if(userRepository.findUserByEmail(newUserDTO.getEmail())!=null||
+                userRepository.findUserByNickName(newUserDTO.getNickName())!=null) return MessageState.Conflict;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
         user.setUseAt(UseAt.Y);//사용유무 설정
-        List<Preference> preferenceList = new ArrayList<Preference>();
-        for(String prefer : newUserDTO.getPreferenceList()) preferenceList.add(new Preference(prefer));
-        user.setPreferences(preferenceList);
         userRepository.save(user);
-
+        for(String str:newUserDTO.getPreferences()) {
+            Preference preference = new Preference(str, user);
+            preferenceRepository.save(preference);
+        }
         return MessageState.Created;
     }
 
@@ -69,7 +67,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User findByEmail(String email) {
-        return null;
+        return userRepository.findUserByEmail(email);
     }
 
     /*
@@ -150,8 +148,7 @@ public class UserServiceImpl implements UserService{
        작성일: 19-10-19
        내용: 아이디와 비밀번호로 유저를 찾고 유저권한모델로 맵핑
    */
-
-    public UserAuthenticationModel findUserByEmailAndPw(String email, String pw){
+    public UserAuthenticationModel findUserAuthByEmailAndPw(String email, String pw){
         User entity = userRepository.findUserByEmail(email);
         if(entity == null) throw new UsernameNotFoundException("");
         else if(!entity.getPw().equals(pw)) throw new BadCredentialsException("");
@@ -163,21 +160,49 @@ public class UserServiceImpl implements UserService{
     }
 
     /*
+       작성자: 김영곤
+       작성일: 19-10-23
+       내용: 이메일로 유저 조회하여 마이페이지 모델로 맵핑
+    */
+    @Override
+    public UserInfoDTO findUserInfoByEmail(String email) {
+        User entity = userRepository.findUserByEmail(email);
+        UserInfoDTO user = modelMapper.map(userRepository.findUserByEmail(email), UserInfoDTO.class);
+        return user;
+    }
+
+    /*
       작성자: 김영곤
-      작성일: 19-10-23
+      작성일: 19-10-24
       내용: 유저 수정 메소드
     */
     @Override
+    @Transactional
     public boolean saveUser(UserModificationDTO userModificationDTO){
-        if(userRepository.findUserByNickName(userModificationDTO.getNickName())!=null) return false;
-        User entity = userRepository.findUserByEmail(userModificationDTO.getEmail());
-        entity.setNickName(userModificationDTO.getNickName());
+        //유저 수정
+        User entity = userRepository.findUserByEmail(getUserEmailFromSecurity());
+        if(!entity.getNickName().equals(userModificationDTO.getNickName())&&//유저 닉네임 바뀌었는지
+                userRepository.findUserByNickName(userModificationDTO.getNickName())!=null) return false;
         entity.setPw(userModificationDTO.getPw());
         entity.setTel(userModificationDTO.getTel());
-        List<Preference> preferences = new ArrayList<Preference>();
-        for(String preference:userModificationDTO.getPreferences()) preferences.add(new Preference(preference));
-        entity.setPreferences(preferences);
+        entity.setNickName(userModificationDTO.getNickName());
         userRepository.save(entity);
+        //Preference 수정
+        List<Preference> preferences = preferenceRepository.findAllByUser(entity);
+        for(Preference preference:preferences)
+            if(!userModificationDTO.getPreferences().contains(preference.getPreference())) preferenceRepository.delete(preference);//없어진것 삭제
+        for(String preference:userModificationDTO.getPreferences())
+            if(!preferences.contains(new Preference(preference,null))) preferenceRepository.save(new Preference(preference, entity));//새로 추가
         return true;
+    }
+
+
+    /*
+      작성자: 김영곤
+      작성일: 19-10-24
+      내용: 토큰 검증 후 Context에 저장된 유저의 이메일을 받아옴
+    */
+    private static String getUserEmailFromSecurity(){
+        return ((UserBase)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
     }
 }

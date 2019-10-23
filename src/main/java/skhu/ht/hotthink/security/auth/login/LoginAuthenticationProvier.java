@@ -29,7 +29,7 @@ public class LoginAuthenticationProvier implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         log.info("로그인 Provider 진입");
         Assert.notNull(authentication, "인증 없으면 안됨");
-        UserAuthenticationModel user = userService.findUserByEmailAndPw((String)authentication.getPrincipal(), (String)authentication.getCredentials());
+        UserAuthenticationModel user = userService.findUserAuthByEmailAndPw((String)authentication.getPrincipal(), (String)authentication.getCredentials());
         return new UserLoginToken(user, null, user.getAuth());
     }
 

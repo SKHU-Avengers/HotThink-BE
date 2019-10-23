@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.user.model;
 
 import lombok.Data;
+import skhu.ht.hotthink.api.domain.Preference;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public class NewUserDTO {
     protected String name;
     protected String pw;
     private String tel;
-    private List<String> preferenceList;
+    private List<String> preferences;
 }

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 import skhu.ht.hotthink.security.model.token.JwtAuthenticationToken;
 import skhu.ht.hotthink.security.model.token.RawAccessJwtToken;
 import skhu.ht.hotthink.config.WebSecurityConfig;

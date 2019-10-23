@@ -1,10 +1,17 @@
 package skhu.ht.hotthink.api.user.model;
 
-import lombok.Data;
+import lombok.*;
+import skhu.ht.hotthink.api.domain.Board;
+import skhu.ht.hotthink.api.domain.Scrap;
 
-@Data
-public class UserInfoDTO {
-    private String email;
-    private String nickName;
-    private String tel;
+import java.util.List;
+
+@ToString
+@Setter
+public final class UserInfoDTO extends UserModificationDTO{
+    private Long seq;
+    private Integer point;
+    private Integer realTicket;
+    private List<Scrap> scraps;
+    private List<Board> boards;
 }
