@@ -6,11 +6,12 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Data
-@Entity(name = "TB_REPLY")
+@Entity(name = "Reply")
+@Table(name = "TB_REPLY")
 public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="rp_seq")
+    @Column(name="RP_SEQ")
     private Long rpSeq;
     private Long seq;
 
@@ -20,14 +21,14 @@ public class Reply {
     private Integer good;
 
     @ManyToOne
-    @JoinColumn(name = "fr_seq")
-    private Free free;
+    @JoinColumn(name = "BD_SEQ")
+    private Board board;
 
     @ManyToOne
-    @JoinColumn(name = "re_seq")
+    @JoinColumn(name = "RE_SEQ")
     private Report report;
 
     @ManyToOne
-    @JoinColumn(name = "ur_seq")
+    @JoinColumn(name = "UR_SEQ")
     private User user;
 }

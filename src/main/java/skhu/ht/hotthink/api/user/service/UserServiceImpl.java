@@ -7,18 +7,23 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhu.ht.hotthink.api.domain.Follow;
-import skhu.ht.hotthink.api.domain.Preference;
-import skhu.ht.hotthink.api.domain.RoleName;
-import skhu.ht.hotthink.api.domain.User;
+import skhu.ht.hotthink.api.MessageState;
+import skhu.ht.hotthink.api.domain.*;
+import skhu.ht.hotthink.api.idea.repository.BoardRepository;
 import skhu.ht.hotthink.api.user.model.FollowDTO;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
+import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
+import skhu.ht.hotthink.api.user.repository.ScrapRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
+import javax.mail.Message;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,41 +36,98 @@ public class UserServiceImpl implements UserService{
     @Autowired
     FollowRepository followRepository;
     @Autowired
+    ScrapRepository scrapRepository;
+    @Autowired
+    BoardRepository boardRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     /*
-        작성자: 홍민석
+        작성자: 홍민석, 김영곤
         작성일: 19-10-07
-        내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
-    */
-    @Override
-    public boolean setUser(NewUserDTO newUserDTO, int initPoint) {
+        내용: 회원가입 정보를 바탕으로 새로운 계정생성.
+        작성일: 19-10-22
+        내용: 중복확인 추가
+        작성일: 19-10-23
+        내용: 반환형 MessageState로 수정.
+*/
+    public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
+        User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
+        if(entity != null) return MessageState.EmailConflict;
+        entity = userRepository.findUserByNickName(newUserDTO.getNickName());
+        if(entity != null) return MessageState.NickNameConflict;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
+        user.setUseAt(UseAt.Y);//사용유무 설정
+        List<Preference> preferenceList = new ArrayList<Preference>();
+        for(String prefer : newUserDTO.getPreferenceList()) preferenceList.add(new Preference(prefer));
+        user.setPreferences(preferenceList);
         userRepository.save(user);
-        Preference preference = new Preference();
-        preference.setUser(user);
-        for(String s : newUserDTO.getPreferences()){
-            preference.setPreference(s);
-            preferenceRepository.save(preference);
-        }
-        return true;
+
+        return MessageState.Created;
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 스크랩한 게시물 리스트 반환
 
-    @Override
+     */
+    public List<ScrapInfoDTO> getScrapList(String nickName){
+        User user = userRepository.findUserByNickName(nickName);
+        return scrapRepository.findAllByUser(user).stream()
+                .map(s -> modelMapper.map(s, ScrapInfoDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 특정 게시판에서 스크랩한 게시물 리스트 반환
+
+     */
+    public List<ScrapInfoDTO> getScrapList(String nickName, String boardType){
+        User user = userRepository.findUserByNickName(nickName);
+        return scrapRepository.findAllByUserAndBoardType(user,boardType).stream()
+                .map(s -> modelMapper.map(s, ScrapInfoDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 게시판 스크랩 작성.
+        성공시 CREATED 반환
+     */
+    public MessageState setScrap(String nickName, Long bdSeq){
+        User user = userRepository.findUserByNickName(nickName);
+        Board board = boardRepository.findBoardByBdSeq(bdSeq);
+        Scrap scrap = new Scrap();
+        scrap.setUser(user);
+        scrap.setBoard(board);
+        if(scrapRepository.save(scrap)!=null) {
+            return MessageState.Created;
+        }
+        return MessageState.Fail;
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 게시판 스크랩 삭제.
+        성공시 Success 반환
+
+     */
+    public MessageState deleteScrap(){
+        return MessageState.Success;
+    }
+
     public List<User> findAll(){
         return userRepository.findAll();
     }
 
-
-    @Override
-    public boolean saveUser(User user){
-        userRepository.save(user);
-        return true;
-    }
 
     @Override
     public User findByEmail(String email) {
@@ -85,6 +147,13 @@ public class UserServiceImpl implements UserService{
         }
         return true;
     }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: nickname을 팔로우하는 사람 목록 불러오기.
+     */
+
     @Transactional
     public List<FollowDTO> getFollowerList(String nickName) {
         User celebrity = userRepository.findUserByNickName(nickName);
@@ -93,6 +162,11 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: nickname이 팔로우하는 사람 목록 불러오기.
+     */
     @Transactional
     public List<FollowDTO> getFollowList(String nickName) {
         User follower = userRepository.findUserByNickName(nickName);
@@ -101,6 +175,11 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
 
     }
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 팔로우 시작.
+     */
     @Transactional
     public boolean setFollow(String follower,String celebrity) {
         Follow follow = new Follow();
@@ -111,19 +190,23 @@ public class UserServiceImpl implements UserService{
         }
         return true;
     }
-
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 팔로우 취소.
+     */
     @Transactional
     public boolean deleteFollow(String follower,String celebrity) {
         User from = userRepository.findUserByNickName(follower);
         User to = userRepository.findUserByNickName(celebrity);
         //TODO: 권한인증 코드 작성
-        Follow follow=followRepository.findFollowByFollowerAndCelebrity(from, to);
+        Follow follow = followRepository.findFollowByFollowerAndCelebrity(from, to);
         followRepository.delete(follow);
-        if (followRepository.existsById(follow.getSeq())){
+        if (followRepository.existsById(follow.getSeq())) {
             return false;
         }
         return true;
-
+    }
     /*
        작성자: 김영곤
        작성일: 19-10-19
@@ -137,6 +220,26 @@ public class UserServiceImpl implements UserService{
         return UserAuthenticationModel.builder()
                 .email(entity.getEmail())
                 .pw(entity.getPw())
+                .nickName(entity.getNickName())
                 .auth(new SimpleGrantedAuthority(entity.getAuth().toString())).build();
+    }
+
+    /*
+      작성자: 김영곤
+      작성일: 19-10-23
+      내용: 유저 수정 메소드
+    */
+    @Override
+    public boolean saveUser(UserModificationDTO userModificationDTO){
+        if(userRepository.findUserByNickName(userModificationDTO.getNickName())!=null) return false;
+        User entity = userRepository.findUserByEmail(userModificationDTO.getEmail());
+        entity.setNickName(userModificationDTO.getNickName());
+        entity.setPw(userModificationDTO.getPw());
+        entity.setTel(userModificationDTO.getTel());
+        List<Preference> preferences = new ArrayList<Preference>();
+        for(String preference:userModificationDTO.getPreferences()) preferences.add(new Preference(preference));
+        entity.setPreferences(preferences);
+        userRepository.save(entity);
+        return true;
     }
 }

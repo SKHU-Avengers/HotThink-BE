@@ -2,12 +2,18 @@ package skhu.ht.hotthink.api.idea.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import skhu.ht.hotthink.api.domain.BoardType;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.Date;
 import java.util.List;
 
 @Data
 public class FreeOutDTO {
-    private Long frSeq;
+    private Long bdSeq;
+    @Enumerated(EnumType.STRING)
+    private BoardType boardType;
     private Long seq;
     private Integer hits;
     private Date createAt;

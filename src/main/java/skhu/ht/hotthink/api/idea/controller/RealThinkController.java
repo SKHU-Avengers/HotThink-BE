@@ -4,16 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import skhu.ht.hotthink.api.MessageState;
+import skhu.ht.hotthink.api.domain.BoardType;
 import skhu.ht.hotthink.api.idea.model.*;
-import skhu.ht.hotthink.api.idea.service.IdeaServiceImpl;
+import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("realthink")
+@RequestMapping("api/realthink")
 public class RealThinkController {
     @Autowired
-    IdeaServiceImpl<RealInDTO,RealOutDTO,RealListDTO> ideaService;
+    BoardServiceImpl boardService;
     /*
             작성자: 홍민석
             작성일: 2019-10-07
@@ -21,9 +23,13 @@ public class RealThinkController {
             Pagination 정보를 JSON으로 입력받아
             해당하는 realthink 게시물 리스트 반환
     */
-    @GetMapping(value = "/")
-    public List<RealListDTO> realList(@RequestBody IdeaPagination pagination) {
-        return ideaService.getIdeaList(pagination);
+    @GetMapping
+    public ResponseEntity<?> realList(@RequestBody IdeaPagination pagination) {
+        List<RealListDTO> real = boardService.getBoardList(pagination,RealListDTO.class);
+        if(real==null){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity(real, HttpStatus.OK);
     }
 
     /*
@@ -35,9 +41,9 @@ public class RealThinkController {
     */
     @GetMapping(value = "/{realId}")
     public ResponseEntity<?> realRead(@PathVariable("realId") Long realId) {
-        RealOutDTO realOutDto = ideaService.getIdea(realId);
+        RealOutDTO realOutDto = boardService.getOne(realId,RealOutDTO.class);
         if(realOutDto == null){
-            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(realOutDto,HttpStatus.OK);
     }
@@ -50,14 +56,18 @@ public class RealThinkController {
         새로운 게시물 생성
     */
     @PostMapping(value = "/{nickname}/{category}")
-    public ResponseEntity<String> realCreate(@RequestBody RealInDTO realInDto,
+    public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
                                              @PathVariable("nickname") String nickname,
                                              @PathVariable("category") String category){
-        if(!ideaService.setIdea(realInDto, nickname, category)){
-            return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
-        }
+        switch(boardService.setOne(realInDto, nickname, category, BoardType.REAL.name())){
+            case Created:
+                return new ResponseEntity(HttpStatus.OK);
+            case NotExist:
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            default:
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
 
-        return new ResponseEntity("Success",HttpStatus.OK);
+        }
     }
 
     /*
@@ -69,13 +79,14 @@ public class RealThinkController {
         TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{realId}/{category}")
-    public ResponseEntity<String> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
+    public ResponseEntity<?> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
                                              @RequestBody RealInDTO realInDto){
-        if(!ideaService.putIdea(realId, category, realInDto)){
-            return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
+        switch(boardService.putOne(realId, category, realInDto)) {
+            case Success:
+                return new ResponseEntity(HttpStatus.OK);
+            default:
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity("Success",HttpStatus.OK);
     }
 
     /*
@@ -87,13 +98,14 @@ public class RealThinkController {
         TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{realId}")
-    public ResponseEntity<String> realDelete(@PathVariable("realId") Long realId,
+    public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,
                                              @RequestBody RealInDTO realInDto){
-
-        if(!ideaService.deleteIdea(realId, realInDto)){
-            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
+        switch(boardService.deleteOne(realId, realInDto)){
+            case Success:
+                return new ResponseEntity(HttpStatus.OK);
+            default:
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<String>("Success",HttpStatus.OK);
     }
 
 

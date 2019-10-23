@@ -11,5 +11,5 @@ public class NewUserDTO {
     protected String name;
     protected String pw;
     private String tel;
-    private List<String> preferences;
+    private List<String> preferenceList;
 }

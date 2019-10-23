@@ -11,14 +11,14 @@ import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 import java.util.List;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("api/user")
 public class FollowController {
     @Autowired
     UserServiceImpl userService;
     /*
-            작성자: 홍민석
-            작성일: 19-10-19
-            내용: 팔로우 CREATE
+        작성자: 홍민석
+        작성일: 19-10-19
+        내용: 팔로우 CREATE
     */
     @PostMapping("/{from}/follow/{to}")
     ResponseEntity<String> followCreate(@PathVariable("from") String from,
@@ -30,9 +30,9 @@ public class FollowController {
 
     }
     /*
-                작성자: 홍민석
-                작성일: 19-10-19
-                내용: 팔로우
+        작성자: 홍민석
+        작성일: 19-10-19
+        내용: 팔로우
     */
     @GetMapping("/{nickname}/follow/")
     ResponseEntity<List<FollowDTO>> followListRead(@PathVariable("nickname") String nickName){
@@ -42,9 +42,9 @@ public class FollowController {
     }
 
     /*
-                작성자: 홍민석
-                작성일: 19-10-19
-                내용: 팔로우
+        작성자: 홍민석
+        작성일: 19-10-19
+        내용: 팔로우
     */
     @GetMapping("/{nickname}/follower/")
     ResponseEntity<List<FollowDTO>> followerListRead(@PathVariable("nickname") String nickName){
@@ -54,10 +54,10 @@ public class FollowController {
     }
 
     /*
-                작성자: 홍민석
-                작성일: 19-10-19
-                내용: 팔로우 삭제
-                //TODO: 권한 인증 코드 작성
+        작성자: 홍민석
+        작성일: 19-10-19
+        내용: 팔로우 삭제
+        //TODO: 권한 인증 코드 작성
     */
     @DeleteMapping("/{from}/follow/{to}")
     ResponseEntity<String> followDelete(@PathVariable("from") String from,

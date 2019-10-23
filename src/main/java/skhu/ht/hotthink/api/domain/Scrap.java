@@ -7,10 +7,12 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Data
-@Entity(name="TB_SCRAP")
+@Entity(name="Scrap")
+@Table(name="TB_SCRAP")
 public class Scrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="SC_SEQ")
     private Long seq;
 
     @ManyToOne
@@ -18,14 +20,6 @@ public class Scrap {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "FR_SEQ")
-    private Free free;
-
-    @ManyToOne
-    @JoinColumn(name = "ID_SEQ")
-    private Idea idea;
-
-    @ManyToOne
-    @JoinColumn(name = "CODE")
-    private Category category;
+    @JoinColumn(name = "BD_SEQ")
+    private Board board;
 }

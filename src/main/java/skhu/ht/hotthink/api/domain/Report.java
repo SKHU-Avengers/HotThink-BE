@@ -4,7 +4,8 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Data
-@Entity(name="TB_REPORT")
+@Entity(name = "Report")
+@Table(name="TB_REPORT")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,22 +15,18 @@ public class Report {
     private String detail;
 
     @ManyToOne
-    @JoinColumn(name = "ct_code")
+    @JoinColumn(name = "CT_CODE")
     private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "ur_seq")
+    @JoinColumn(name = "UR_SEQ")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "id_seq")
-    private Idea idea;
+    @JoinColumn(name = "BD_SEQ")
+    private Board board;
 
     @ManyToOne
-    @JoinColumn(name = "fr_seq")
-    private Free free;
-
-    @ManyToOne
-    @JoinColumn(name = "re_seq")
+    @JoinColumn(name = "RE_SEQ")
     private Reply reply;
 }

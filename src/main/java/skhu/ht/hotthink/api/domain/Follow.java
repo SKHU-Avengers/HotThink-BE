@@ -4,10 +4,12 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Data
-@Entity(name="TB_FOLLOW")
+@Entity(name="Follow")
+@Table(name="TB_FOLLOW")
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="FL_SEQ")
     private int seq;
 
     @ManyToOne

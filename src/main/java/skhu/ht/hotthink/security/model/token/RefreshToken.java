@@ -6,12 +6,10 @@ import io.jsonwebtoken.Jws;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("unchecked")
 public class RefreshToken implements JwtToken {
     @Getter private Jws<Claims> claims;
 

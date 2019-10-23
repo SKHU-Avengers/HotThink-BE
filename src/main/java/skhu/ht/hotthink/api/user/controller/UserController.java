@@ -5,12 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
+import skhu.ht.hotthink.security.service.TokenVerificationService;
 
-//테스트중
-@RequestMapping("user")
-//@Controller
+@RequestMapping("api/user")
 @RestController
 public class UserController {
 
@@ -21,14 +22,24 @@ public class UserController {
             작성자: 홍민석
             작성일: 19-10-07
             내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
+            작성일: 19-10-23
+            내용: 이메일, 닉네임이 중복되면 CONFLICT 전달.
     */
     @ResponseBody
-    @PostMapping("/")
-    public ResponseEntity<String> userCreate(@RequestBody NewUserDTO newUserDto){
-        if(userService.setUser(newUserDto,0)==false){
-            return new ResponseEntity<String>("Fail", HttpStatus.BAD_REQUEST);
+    @PostMapping
+    public ResponseEntity<?> userCreate(@RequestBody NewUserDTO newUserDto){
+
+        switch(userService.setUser(newUserDto,0)){
+            case Created:
+                return new ResponseEntity(HttpStatus.CREATED);
+            case EmailConflict:
+                return new ResponseEntity(MessageState.EmailConflict.name(),HttpStatus.CONFLICT);
+            case NickNameConflict:
+                return new ResponseEntity(MessageState.NickNameConflict.name(),HttpStatus.CONFLICT);
+            default:
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+
         }
-        return new ResponseEntity<String>("Success", HttpStatus.OK);
     }
 
     /*@ResponseBody
@@ -43,8 +54,14 @@ public class UserController {
         return "home";
     }
 
-    @PostMapping("/register")
-    public String regiester(){
-        return "test";
+    /*
+           작성자: 김영곤
+           작성일: 19-10-22
+           내용: 회원정보 수정
+    */
+    @PutMapping
+    @ResponseBody
+    public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
+        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
  }

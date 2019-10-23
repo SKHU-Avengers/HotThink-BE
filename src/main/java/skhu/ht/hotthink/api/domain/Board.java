@@ -5,25 +5,33 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
-@ToString(exclude={"Reply"})
-@EqualsAndHashCode(exclude={"Reply"})
-@Entity(name = "TB_FREE")
-public class Free {
+@Entity(name="Board")
+@Table(name = "TB_BOARD")
+public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="FR_SEQ")
-    private Long frSeq;
+    @Column(name="BD_SEQ")
+    private Long bdSeq;
     private Long seq;
     private Integer hits;
-    private String title;
-    @JsonFormat(pattern="yyyy-MM-dd")
-    private Date createAt;
-    private String contents;
     private Integer good;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @Column(name="CREATE_AT")
+    private Date createAt;
+
+    private String title;
+    private String contents;
+
+    @Column(name="BOARD_TYPE")
+    private String boardType;
+
     @Column(name="thumbnailImg")
     private String image;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UR_SEQ")
     private User user;
@@ -31,9 +39,14 @@ public class Free {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CT_CODE")
     private Category category;
-/*
-    @JsonIgnore
-    @OneToMany(mappedBy = "SEQ")
-    List<Reply> replies;
- */
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "RL_SEQ")
+    private Real real;
+
+    @OneToMany(mappedBy = "board")
+    private List<History> histories;
+
+    @OneToMany(mappedBy = "board")
+    private List<Scrap> scraps;
 }
