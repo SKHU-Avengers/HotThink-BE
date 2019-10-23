@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ReplyRepository extends JpaRepository<Reply, Integer> {
-    @Query(value = "SELECT * FROM TB_REPLY WHERE FR_SEQ = ?1",nativeQuery =true)
-    public List<Reply> findReplyByFRSEQ(Long fr_seq);
+    @Query(value = "SELECT * FROM TB_REPLY WHERE BD_SEQ = ?1",nativeQuery =true)
+    public List<Reply> findReplyByBDSEQ(Long bd_seq);
 }

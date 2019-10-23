@@ -6,26 +6,28 @@ import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("api/user")
 public class ScrapController {
 
-/*
     @GetMapping("/{nickName}/scrap/freethink/{freeId}")
-    public void freeScrapListRead(@PathVariable("nickName") String nickName,
+    public ResponseEntity<?> freeScrapListRead(@PathVariable("nickName") String nickName,
                               @PathVariable("freeId") String frSeq){
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping("/{nickName}/scrap/freethink/")
+    @PostMapping("/{nickName}/scrap/freethink")
     public ResponseEntity<?> freeScrapCreate(@PathVariable("nickName") String nickName,
                                       @RequestBody ScrapInfoDTO scrapInfoDto){
 
 
-        return new ResponseEntity("Success", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/{nickName}/scrap/realthink/{realId}")
-    public void realScrapListRead(@PathVariable("nickName") String nickName,
+    public ResponseEntity<?> realScrapListRead(@PathVariable("nickName") String nickName,
                               @PathVariable("realId") String IdSeq){
+        return new ResponseEntity(HttpStatus.OK);
+
     }
 
     @PostMapping("/{nickName}/scrap/realthink/")
@@ -33,12 +35,14 @@ public class ScrapController {
                                          @RequestBody ScrapInfoDTO scrapInfoDto){
 
 
-        return new ResponseEntity("Success", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/{nickName}/scrap/hotthink/{realId}")
-    public void hotScrapListRead(@PathVariable("nickName") String nickName,
+    public ResponseEntity<?> hotScrapListRead(@PathVariable("nickName") String nickName,
                                   @PathVariable("hotId") String IdSeq){
+        return new ResponseEntity(HttpStatus.OK);
+
     }
 
     @PostMapping("/{nickName}/scrap/hotthink/")
@@ -46,12 +50,7 @@ public class ScrapController {
                                              @RequestBody ScrapInfoDTO scrapInfoDto){
 
 
-        return new ResponseEntity("Success", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    @DeleteMapping("/")
-    public void scrapDelete(){
-
-    }
-*/
 }

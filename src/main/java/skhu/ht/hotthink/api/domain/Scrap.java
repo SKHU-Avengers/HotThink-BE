@@ -11,6 +11,7 @@ import javax.persistence.*;
 public class Scrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="SC_SEQ")
     private Long seq;
 
     @ManyToOne
@@ -18,12 +19,8 @@ public class Scrap {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "FR_SEQ")
-    private Free free;
-
-    @ManyToOne
-    @JoinColumn(name = "ID_SEQ")
-    private Idea idea;
+    @JoinColumn(name = "BD_SEQ")
+    private Board board;
 
     @ManyToOne
     @JoinColumn(name = "CODE")

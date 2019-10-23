@@ -7,10 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhu.ht.hotthink.api.domain.Follow;
-import skhu.ht.hotthink.api.domain.Preference;
-import skhu.ht.hotthink.api.domain.RoleName;
-import skhu.ht.hotthink.api.domain.User;
+import skhu.ht.hotthink.api.MessageState;
+import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.user.model.FollowDTO;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
@@ -18,7 +16,9 @@ import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
+import javax.mail.Message;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,43 +34,34 @@ public class UserServiceImpl implements UserService{
     ModelMapper modelMapper;
 
     /*
-        작성자: 홍민석
+        작성자: 홍민석, 김영곤
         작성일: 19-10-07
-        내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
-    */
-    @Override
-    public boolean setUser(NewUserDTO newUserDTO, int initPoint) {
+        내용: 회원가입 정보를 바탕으로 새로운 계정생성.
+        작성일: 19-10-22
+        내용: 중복확인 추가
+        작성일: 19-10-23
+        내용: 반환형 MessageState로 수정.
+*/
+    public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
+        User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
+        if(entity != null && entity.getNickName().equals(newUserDTO.getNickName())) return MessageState.Conflict;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
+        user.setUseAt(UseAt.Y);//사용유무 설정
+        List<Preference> preferenceList = new ArrayList<Preference>();
+        for(String prefer : newUserDTO.getPreferenceList()) preferenceList.add(new Preference(prefer));
+        user.setPreferences(preferenceList);
         userRepository.save(user);
-        Preference preference = new Preference();
-        preference.setUser(user);
-        for(String s : newUserDTO.getPreferences()){
-            preference.setPreference(s);
-            preferenceRepository.save(preference);
-        }
-        return true;
+
+        return MessageState.Created;
     }
 
-
-    @Override
     public List<User> findAll(){
         return userRepository.findAll();
     }
 
-
-    @Override
-    public boolean saveUser(User user){
-        userRepository.save(user);
-        return true;
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return null;
-    }
 
     /*
         작성자: 홍민석
@@ -85,6 +76,13 @@ public class UserServiceImpl implements UserService{
         }
         return true;
     }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: nickname을 팔로우하는 사람 목록 불러오기.
+     */
+
     @Transactional
     public List<FollowDTO> getFollowerList(String nickName) {
         User celebrity = userRepository.findUserByNickName(nickName);
@@ -93,6 +91,11 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: nickname이 팔로우하는 사람 목록 불러오기.
+     */
     @Transactional
     public List<FollowDTO> getFollowList(String nickName) {
         User follower = userRepository.findUserByNickName(nickName);
@@ -101,6 +104,11 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
 
     }
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 팔로우 시작.
+     */
     @Transactional
     public boolean setFollow(String follower,String celebrity) {
         Follow follow = new Follow();
@@ -111,19 +119,23 @@ public class UserServiceImpl implements UserService{
         }
         return true;
     }
-
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 팔로우 취소.
+     */
     @Transactional
     public boolean deleteFollow(String follower,String celebrity) {
         User from = userRepository.findUserByNickName(follower);
         User to = userRepository.findUserByNickName(celebrity);
         //TODO: 권한인증 코드 작성
-        Follow follow=followRepository.findFollowByFollowerAndCelebrity(from, to);
+        Follow follow = followRepository.findFollowByFollowerAndCelebrity(from, to);
         followRepository.delete(follow);
-        if (followRepository.existsById(follow.getSeq())){
+        if (followRepository.existsById(follow.getSeq())) {
             return false;
         }
         return true;
-
+    }
     /*
        작성자: 김영곤
        작성일: 19-10-19

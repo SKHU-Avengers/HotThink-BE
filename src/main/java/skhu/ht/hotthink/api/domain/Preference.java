@@ -8,10 +8,15 @@ import javax.persistence.*;
 public class Preference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="FR_SEQ")
     private Long seq;
     private String preference;
 
     @ManyToOne
     @JoinColumn(name="UR_SEQ")
     private User user;
+
+    public Preference(String preference){
+        this.preference = preference;
+    }
 }

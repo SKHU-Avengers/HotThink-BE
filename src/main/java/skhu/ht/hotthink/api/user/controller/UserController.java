@@ -3,15 +3,12 @@ package skhu.ht.hotthink.api.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
-//테스트중
-@RequestMapping("user")
-//@Controller
 @RestController
+@RequestMapping("api/user")
 public class UserController {
 
     @Autowired
@@ -23,12 +20,16 @@ public class UserController {
             내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
     */
     @ResponseBody
-    @PostMapping("/")
-    public ResponseEntity<String> userCreate(@RequestBody NewUserDTO newUserDto){
-        if(userService.setUser(newUserDto,0)==false){
-            return new ResponseEntity<String>("Fail", HttpStatus.BAD_REQUEST);
+    @PostMapping
+    public ResponseEntity<?> userCreate(@RequestBody NewUserDTO newUserDto){
+
+        switch(userService.setUser(newUserDto,0)){
+            case Created:
+                return new ResponseEntity(HttpStatus.CREATED);
+            default:
+                return new ResponseEntity(HttpStatus.CONFLICT);
+
         }
-        return new ResponseEntity<String>("Success", HttpStatus.OK);
     }
 
     /*@ResponseBody
