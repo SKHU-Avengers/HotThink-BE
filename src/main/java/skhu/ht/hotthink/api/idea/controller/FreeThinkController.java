@@ -46,7 +46,7 @@ public class FreeThinkController {
         if(freeOutDto == null){
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        freeOutDto.setReplies(boardService.getReplyList(freeOutDto.getFrSeq()));
+        freeOutDto.setReplies(boardService.getReplyList(freeOutDto.getBdSeq()));
         return new ResponseEntity(freeOutDto,HttpStatus.OK);
     }
 

@@ -5,7 +5,8 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Data
-@Entity(name="TB_LIKE")
+@Entity(name = "Like")
+@Table(name = "TB_LIKE")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
