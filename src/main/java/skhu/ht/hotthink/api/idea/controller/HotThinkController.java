@@ -5,15 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.idea.model.*;
-import skhu.ht.hotthink.api.idea.service.IdeaServiceImpl;
+import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("hotthink")
+@RequestMapping("api/hotthink")
 public class HotThinkController {
     @Autowired
-    IdeaServiceImpl<HotInDTO, HotOutDTO, HotListDTO> ideaService;
+    BoardServiceImpl boardService;
     /*
             작성자: 홍민석
             작성일: 2019-10-07
@@ -21,9 +21,13 @@ public class HotThinkController {
             Pagination 정보를 JSON으로 입력받아
             해당하는 hotthink 게시물 리스트 반환
     */
-    @GetMapping(value = "/")
-    public List<HotListDTO> hotList(@RequestBody IdeaPagination pagination) {
-        return ideaService.getIdeaList(pagination);
+    @GetMapping
+    public ResponseEntity<?> hotList(@RequestBody IdeaPagination pagination) {
+        List<HotListDTO> hot = boardService.getBoardList(pagination, HotListDTO.class);
+        if(hot == null){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity(hot, HttpStatus.OK);
     }
 
     /*
@@ -35,9 +39,9 @@ public class HotThinkController {
     */
     @GetMapping(value = "/{hotId}")
     public ResponseEntity<?> hotRead(@PathVariable("hotId") Long hotId) {
-        HotOutDTO hotOutDto = ideaService.getIdea(hotId);
+        HotOutDTO hotOutDto = boardService.getOne(hotId,HotOutDTO.class);
         if(hotOutDto == null){
-            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(hotOutDto,HttpStatus.OK);
     }
@@ -71,11 +75,13 @@ public class HotThinkController {
     @PutMapping(value = "/{hotId}/{category}")
     public ResponseEntity<String> hotUpdate(@PathVariable("hotId") Long hotId, @PathVariable("category") String category,
                                              @RequestBody HotInDTO hotInDto){
-        if(!ideaService.putIdea(hotId, category, hotInDto)){
-            return new ResponseEntity("Fail",HttpStatus.BAD_REQUEST);
+        switch(boardService.putOne(hotId, category, hotInDto)){
+            case Success:
+                return new ResponseEntity(HttpStatus.OK);
+            default:
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity("Success",HttpStatus.OK);
     }
 
     /*
@@ -90,9 +96,11 @@ public class HotThinkController {
     public ResponseEntity<String> hotDelete(@PathVariable("hotId") Long hotId,
                                              @RequestBody HotInDTO hotInDto){
 
-        if(!ideaService.deleteIdea(hotId, hotInDto)){
-            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
+        switch(boardService.deleteOne(hotId, hotInDto)){
+            case Success:
+                return new ResponseEntity(HttpStatus.OK);
+            default:
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<String>("Success",HttpStatus.OK);
     }
 }
