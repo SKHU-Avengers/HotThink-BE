@@ -3,7 +3,8 @@ package skhu.ht.hotthink.api.domain;
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity(name="TB_REAL")
+@Entity(name="Real")
+@Table(name="TB_REAL")
 public class Real {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

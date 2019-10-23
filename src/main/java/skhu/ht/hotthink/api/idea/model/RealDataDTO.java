@@ -1,18 +1,18 @@
 package skhu.ht.hotthink.api.idea.model;
 
-import lombok.Data;
 import skhu.ht.hotthink.api.domain.IdeaState;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.Date;
 
-@Data
-public class RealInDTO {
-    private String title;
-    private String contents;
+public class RealDataDTO {
+    private Long seq;
     @Enumerated(EnumType.STRING)
     private IdeaState state;
+    private Integer myScore;
+    private Integer sellerScore;
+
+    private Date updateAt;
     private String review;
-    private String pmaterial;
-    private String image;
 }

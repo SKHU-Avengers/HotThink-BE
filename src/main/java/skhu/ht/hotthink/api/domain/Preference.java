@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Data
-@Entity(name="TB_PREFERENCE")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity(name = "Preference")
+@Table(name = "TB_PREFERENCE")
 public class Preference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

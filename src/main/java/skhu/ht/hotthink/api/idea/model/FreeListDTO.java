@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Data
 public class FreeListDTO {
-    private Long frSeq;
+    private Long bdSeq;
     private Long seq;
     private Integer hits;
     private String title;

@@ -6,5 +6,7 @@ public enum MessageState {
     Created, //생성 성공
     Error, //에러발생
     Conflict, //중복데이터 발생시
-    NotExist //존재하지 않음.
+    NotExist, //존재하지 않음.
+    EmailConflict, //이메일 중복
+    NickNameConflict //닉네임 중복
 }

@@ -5,7 +5,8 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Data
-@Entity(name = "TB_CATEG")
+@Entity(name = "Category")
+@Table(name = "TB_CATEG")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
