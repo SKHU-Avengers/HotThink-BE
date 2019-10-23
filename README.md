@@ -10,9 +10,3 @@ HotThink
 - lombok
 - JPA
 - Hibernate
-
-### DB 규칙
-TB_CATEG(CATEGORI)
-- IT - IT서비스
-- MARKETING - 마케팅/금융
-- DESIGN - 디자인
