@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Entity(name = "TB_BOARD")
+@Entity(name="Board")
+@Table(name = "TB_BOARD")
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +46,7 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<History> histories;
+
+    @OneToMany(mappedBy = "board")
+    private List<Scrap> scraps;
 }

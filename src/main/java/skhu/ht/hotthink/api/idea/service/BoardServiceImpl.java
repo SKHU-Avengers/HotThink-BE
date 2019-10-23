@@ -5,23 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.MessageState;
-import skhu.ht.hotthink.api.domain.Board;
-import skhu.ht.hotthink.api.domain.Category;
-import skhu.ht.hotthink.api.domain.Like;
-import skhu.ht.hotthink.api.domain.Reply;
+import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.idea.model.*;
-import skhu.ht.hotthink.api.idea.repository.BoardRepository;
-import skhu.ht.hotthink.api.idea.repository.CategoryRepository;
-import skhu.ht.hotthink.api.idea.repository.LikeRepository;
-import skhu.ht.hotthink.api.idea.repository.ReplyRepository;
+import skhu.ht.hotthink.api.idea.repository.*;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
+import skhu.ht.hotthink.api.idea.repository.RealRepository;
 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class BoardServiceImpl{
+public class BoardServiceImpl {
 
     @Autowired
     BoardRepository boardRepository;
@@ -33,6 +28,9 @@ public class BoardServiceImpl{
     UserRepository userRepository;
     @Autowired
     CategoryRepository categoryRepository;
+    @Autowired
+    RealRepository realRepository;
+
     @Autowired
     ModelMapper modelMapper = new ModelMapper();
 
@@ -87,6 +85,7 @@ public class BoardServiceImpl{
             if(board.getUser()!=null) {
                 board.setBoardType(boardType);
                 board.setHits(0);
+                board.setGood(0);
                 board.setCreateAt(new Date());
                 if (boardRepository.save(board) != null) {
                     return MessageState.Created;

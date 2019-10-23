@@ -6,7 +6,8 @@ import org.springframework.data.convert.ThreeTenBackPortConverters;
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity(name = "TB_BOARD")
+@Entity(name = "History")
+@Table(name = "TB_HISTORY")
 public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

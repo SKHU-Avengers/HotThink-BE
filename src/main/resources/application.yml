@@ -11,6 +11,13 @@ spring:
   jackson:
     deserialization:
       fail_on_unknown_properties: true #잘못된 값 전달시 BAD_REQUEST 응답
+  #파일 업로드 용량 제한 설정
+  servlet:
+    multipart:
+      max-file-size: 5MB #default 1MB
+      max-request-size: 20MB #default 10MB
+file:
+  upload-dir: ./uploads
 
 hot-think:
   security:
@@ -20,6 +27,9 @@ hot-think:
       refresh-token-exp-time: 43200
       token-signing-key: test123test456test789
 
+
+temp:
+  path:
 logging:
   level:
     org:

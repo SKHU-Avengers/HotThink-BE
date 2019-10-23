@@ -9,7 +9,8 @@ import javax.persistence.*;
         내용: Preference 필드 삭제
     */
 @Data
-@Entity(name = "TB_USER")
+@Entity(name = "User")
+@Table(name = "TB_USER")
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -10,9 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.domain.*;
-import skhu.ht.hotthink.api.user.model.*;
+import skhu.ht.hotthink.api.idea.repository.BoardRepository;
+import skhu.ht.hotthink.api.user.model.FollowDTO;
+import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
+import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
+import skhu.ht.hotthink.api.user.repository.ScrapRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
@@ -27,6 +32,10 @@ public class UserServiceImpl implements UserService{
     PreferenceRepository preferenceRepository;
     @Autowired
     FollowRepository followRepository;
+    @Autowired
+    ScrapRepository scrapRepository;
+    @Autowired
+    BoardRepository boardRepository;
     @Autowired
     ModelMapper modelMapper;
 
@@ -58,8 +67,61 @@ public class UserServiceImpl implements UserService{
         return MessageState.Created;
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 스크랩한 게시물 리스트 반환
 
-    @Override
+     */
+    public List<ScrapInfoDTO> getScrapList(String nickName){
+        User user = userRepository.findUserByNickName(nickName);
+        return scrapRepository.findAllByUser(user).stream()
+                .map(s -> modelMapper.map(s, ScrapInfoDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 특정 게시판에서 스크랩한 게시물 리스트 반환
+
+     */
+    public List<ScrapInfoDTO> getScrapList(String nickName, String boardType){
+        User user = userRepository.findUserByNickName(nickName);
+        return scrapRepository.findAllByUserAndBoardType(user,boardType).stream()
+                .map(s -> modelMapper.map(s, ScrapInfoDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 게시판 스크랩 작성.
+        성공시 CREATED 반환
+     */
+    public MessageState setScrap(String nickName, Long bdSeq){
+        User user = userRepository.findUserByNickName(nickName);
+        Board board = boardRepository.findBoardByBdSeq(bdSeq);
+        Scrap scrap = new Scrap();
+        scrap.setUser(user);
+        scrap.setBoard(board);
+        if(scrapRepository.save(scrap)!=null) {
+            return MessageState.Created;
+        }
+        return MessageState.Fail;
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-23
+        내용: 게시판 스크랩 삭제.
+        성공시 Success 반환
+
+     */
+    public MessageState deleteScrap(){
+        return MessageState.Success;
+    }
+
     public List<User> findAll(){
         return userRepository.findAll();
     }
