@@ -17,16 +17,16 @@ public class UserController {
     UserServiceImpl userService;
 
     /*
-            작성자: 홍민석
-            작성일: 19-10-07
+            작성자: 홍민석, 수정자: 김영곤
+            작성일: 19-10-07, 수정일: 19-10-23
             내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
     */
     @ResponseBody
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<String> userCreate(@RequestBody NewUserDTO newUserDto){
-        if(userService.setUser(newUserDto,0)==false){
-            return new ResponseEntity<String>("Fail", HttpStatus.BAD_REQUEST);
-        }
+        int result = userService.setUser(newUserDto);
+        if(result==1) return new ResponseEntity<String>("Email Overlap", HttpStatus.valueOf(409));
+        else if(result==2) return new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
         return new ResponseEntity<String>("Success", HttpStatus.OK);
     }
 
@@ -42,10 +42,15 @@ public class UserController {
         return "home";
     }
 
+    /*
+           작성자: 김영곤
+           작성일: 19-10-22
+           내용: 회원정보 수정
+    */
     @PutMapping
     @ResponseBody
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
-        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("Fail", HttpStatus.valueOf(408));
+        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
 
 }

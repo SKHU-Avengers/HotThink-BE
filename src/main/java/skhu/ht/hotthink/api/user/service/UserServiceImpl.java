@@ -19,7 +19,6 @@ import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,24 +35,23 @@ public class UserServiceImpl implements UserService{
     ModelMapper modelMapper;
 
     /*
-        작성자: 홍민석
-        작성일: 19-10-07
+        작성자: 홍민석, 수정자: 김영곤
+        작성일: 19-10-07, 수정일: 19-10-23
         내용: 회원가입 정보를 바탕으로 새로운 계정을 생성합니다.
     */
     @Override
-    public boolean setUser(NewUserDTO newUserDTO, int initPoint) {
+    public int setUser(NewUserDTO newUserDTO) {
+        if(userRepository.findUserByEmail(newUserDTO.getEmail())!=null) return 1;
+        else if(userRepository.findUserByNickName(newUserDTO.getNickName())!=null) return 2;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
-        user.setPoint(initPoint);//초기 포인트 설정
+        user.setPoint(0);//초기 포인트 설정
         user.setRealTicket(0);
+        List<Preference> preferenceList = new ArrayList<Preference>();
+        for(String s : newUserDTO.getPreferences()) preferenceList.add(new Preference(s));
+        user.setPreferences(preferenceList);
         userRepository.save(user);
-//        Preference preference = new Preference();
-//        preference.setUser(user);
-//        for(String s : newUserDTO.getPreferences()){
-//            preference.setPreference(s);
-//            preferenceRepository.save(preference);
-//        }
-        return true;
+        return 0;
     }
 
 
@@ -122,7 +120,7 @@ public class UserServiceImpl implements UserService{
 
     /*
        작성자: 김영곤
-       작성일: 19-10-19
+       작성일: 19-10-22
        내용: 아이디와 비밀번호로 유저를 찾고 유저권한모델로 맵핑
    */
     public UserAuthenticationModel findUserByEmailAndPw(String email, String pw){

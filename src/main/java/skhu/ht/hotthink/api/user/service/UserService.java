@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserService {
     public List<User> findAll();
-    public boolean setUser(NewUserDTO newUserDTO, int initPoint);
+    public int setUser(NewUserDTO newUserDTO);
     public boolean saveUser(UserModificationDTO user);
     public User findByEmail(String email);
     public UserAuthenticationModel findUserByEmailAndPw(String email, String pw);
