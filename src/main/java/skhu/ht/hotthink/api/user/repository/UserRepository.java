@@ -6,7 +6,6 @@ import skhu.ht.hotthink.api.domain.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-
     User findUserByEmail(String email);
     User findUserByNickName(String nickName);
 }

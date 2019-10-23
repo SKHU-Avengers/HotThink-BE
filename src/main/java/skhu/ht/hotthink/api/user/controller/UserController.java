@@ -3,13 +3,16 @@ package skhu.ht.hotthink.api.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
+import skhu.ht.hotthink.security.service.TokenVerificationService;
 
-@RestController
 @RequestMapping("api/user")
+@RestController
 public class UserController {
 
     @Autowired
@@ -51,8 +54,14 @@ public class UserController {
         return "home";
     }
 
-    @PostMapping("/register")
-    public String regiester(){
-        return "test";
+    /*
+           작성자: 김영곤
+           작성일: 19-10-22
+           내용: 회원정보 수정
+    */
+    @PutMapping
+    @ResponseBody
+    public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
+        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
  }

@@ -12,6 +12,7 @@ import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.idea.repository.BoardRepository;
 import skhu.ht.hotthink.api.user.model.FollowDTO;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
@@ -21,6 +22,7 @@ import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
 import javax.mail.Message;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -127,6 +129,11 @@ public class UserServiceImpl implements UserService{
     }
 
 
+    @Override
+    public User findByEmail(String email) {
+        return null;
+    }
+
     /*
         작성자: 홍민석
         작성일: 19-10-07
@@ -213,6 +220,26 @@ public class UserServiceImpl implements UserService{
         return UserAuthenticationModel.builder()
                 .email(entity.getEmail())
                 .pw(entity.getPw())
+                .nickName(entity.getNickName())
                 .auth(new SimpleGrantedAuthority(entity.getAuth().toString())).build();
+    }
+
+    /*
+      작성자: 김영곤
+      작성일: 19-10-23
+      내용: 유저 수정 메소드
+    */
+    @Override
+    public boolean saveUser(UserModificationDTO userModificationDTO){
+        if(userRepository.findUserByNickName(userModificationDTO.getNickName())!=null) return false;
+        User entity = userRepository.findUserByEmail(userModificationDTO.getEmail());
+        entity.setNickName(userModificationDTO.getNickName());
+        entity.setPw(userModificationDTO.getPw());
+        entity.setTel(userModificationDTO.getTel());
+        List<Preference> preferences = new ArrayList<Preference>();
+        for(String preference:userModificationDTO.getPreferences()) preferences.add(new Preference(preference));
+        entity.setPreferences(preferences);
+        userRepository.save(entity);
+        return true;
     }
 }

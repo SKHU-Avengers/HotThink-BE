@@ -1,6 +1,9 @@
 package skhu.ht.hotthink.api.domain;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Data

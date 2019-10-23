@@ -13,11 +13,13 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.exceptions.JwtExpiredTokenException;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 import skhu.ht.hotthink.security.model.error.LoginError;
 import skhu.ht.hotthink.security.model.token.JwtToken;
 import skhu.ht.hotthink.security.model.token.JwtTokenFactory;
+import skhu.ht.hotthink.security.model.token.UserLoginToken;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,11 +49,10 @@ public class AuthenticationHandler implements AuthenticationSuccessHandler, Auth
         UserAuthenticationModel user =(UserAuthenticationModel)authentication.getPrincipal();
         JwtToken accessToken = tokenFactory.createAccessJwtToken(user);
         JwtToken refreshToken = tokenFactory.createRefreshToken(user);
-
         Map<String, String> tokens = new HashMap<String, String>();
         tokens.put("token", accessToken.getToken());
         tokens.put("refreshToken", refreshToken.getToken());
-
+        tokens.put("nickName", ((UserAuthenticationModel) authentication.getPrincipal()).getNickName());
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         mapper.writeValue(response.getWriter(), tokens);
