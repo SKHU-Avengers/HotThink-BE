@@ -23,7 +23,7 @@ public class UserController {
             내용: 이메일, 닉네임이 중복되면 CONFLICT 전달.
     */
     @ResponseBody
-    @PostMapping("user")
+    @PostMapping("user/create")
     public ResponseEntity<?> userCreate(@RequestBody NewUserDTO newUserDto){
 
         switch(userService.setUser(newUserDto,0)){
@@ -45,7 +45,7 @@ public class UserController {
            내용: 회원정보 수정
     */
     @ResponseBody
-    @PutMapping("user")
+    @PutMapping("user/update")
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
         return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }

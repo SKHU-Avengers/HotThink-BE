@@ -51,10 +51,9 @@ public class UserServiceImpl implements UserService{
         내용: 유저모델 수정
     */
     public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
-        User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
-        if(entity != null) return MessageState.EmailConflict;
-        entity = userRepository.findUserByNickName(newUserDTO.getNickName());
-        if(entity != null) return MessageState.NickNameConflict;
+        //닉네임 중복 추가
+        if(userRepository.findUserByEmail(newUserDTO.getEmail())!=null||
+                userRepository.findUserByNickName(newUserDTO.getNickName())!=null) return MessageState.Conflict;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
