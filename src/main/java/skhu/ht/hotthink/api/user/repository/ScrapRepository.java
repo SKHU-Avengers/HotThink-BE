@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface ScrapRepository extends JpaRepository<Scrap,Integer> {
-    Collection<Object> findAllByUser(User user);
+    List<Scrap> findAllByUser(User user);
     @Query("SELECT S FROM Scrap S INNER JOIN S.board B WHERE S.user=?1 AND B.boardType = ?2")
     List<Scrap> findAllByUserAndBoardType(User user, String boardType);
 }

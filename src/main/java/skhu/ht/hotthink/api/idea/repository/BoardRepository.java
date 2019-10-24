@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Board;
+import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.idea.model.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.Option;
 import skhu.ht.hotthink.api.idea.model.Pagination;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -83,4 +85,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Page<Board> findByCategoryAndBoardType(String category, Pageable pageable);
     Board findBoardByBdSeq(Long bdSeq);
     //Free findFreeBySeqAndCategory(Long seq, Category category);
+
+    public List<Board> findAllByUser(User user);
 }

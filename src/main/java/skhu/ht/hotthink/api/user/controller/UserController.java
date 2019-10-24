@@ -3,12 +3,9 @@ package skhu.ht.hotthink.api.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.MessageState;
-import skhu.ht.hotthink.api.user.model.NewUserDTO;
-import skhu.ht.hotthink.api.user.model.UserBase;
-import skhu.ht.hotthink.api.user.model.UserModificationDTO;
+import skhu.ht.hotthink.api.user.model.*;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
 @RequestMapping("api")
@@ -60,8 +57,7 @@ public class UserController {
     */
 
     @GetMapping("me")
-    public ResponseEntity<?> myPage(){
-        System.out.println(userService.findUserInfoByEmail(((UserBase)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail()));
-        return null;
+    public @ResponseBody UserInfoDTO myPage(){
+        return userService.findUserInfo();
     }
  }

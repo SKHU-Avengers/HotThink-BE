@@ -1,10 +1,11 @@
 package skhu.ht.hotthink.api.user.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@AllArgsConstructor
-@Getter
+@Getter @Setter
+@ToString
 public class UserInfoBoardModel {
     protected String title;
     protected String image;

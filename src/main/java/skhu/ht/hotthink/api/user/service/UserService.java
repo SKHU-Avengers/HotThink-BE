@@ -15,5 +15,5 @@ public interface UserService {
     public boolean saveUser(UserModificationDTO user);
     public User findByEmail(String email);
     public UserAuthenticationModel findUserAuthByEmailAndPw(String email, String pw);
-    public UserInfoDTO findUserInfoByEmail(String email);
+    public UserInfoDTO findUserInfo();
 }

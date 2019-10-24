@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.user.service;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,8 @@ import skhu.ht.hotthink.api.user.repository.ScrapRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -220,13 +223,28 @@ public class UserServiceImpl implements UserService{
 
     /*
        작성자: 김영곤
-       작성일: 19-10-23
+       작성일: 19-10-24
        내용: 이메일로 유저 조회하여 마이페이지 모델로 맵핑
     */
     @Override
-    public UserInfoDTO findUserInfoByEmail(String email) {
-        User entity = userRepository.findUserByEmail(email);
-        UserInfoDTO user = modelMapper.map(userRepository.findUserByEmail(email), UserInfoDTO.class);
+    public UserInfoDTO findUserInfo() {
+        //유저 기본 정보
+        User entity = userRepository.findUserByEmail(getUserEmailFromSecurity());
+        UserInfoDTO user = modelMapper.map(entity, UserInfoDTO.class);
+        //내가 쓴글
+        Type listType = new TypeToken<List<UserInfoBoardModel>>() {}.getType();
+        List<Board> boards = boardRepository.findAllByUser(entity);
+        List<UserInfoBoardModel> myBoards = modelMapper.map(boards, listType);
+        user.setBoards(myBoards);
+        //스크랩
+        boards.clear();
+        for(Scrap scrap : scrapRepository.findAllByUser(entity)) boards.add(scrap.getBoard());
+        List<UserInfoBoardModel> scrapBoards = modelMapper.map(boards, listType);
+        user.setScraps(scrapBoards);
+        //Preference
+        List<String> preferences = new ArrayList<String>();
+        for(Preference preference:preferenceRepository.findAllByUser(entity)) preferences.add(preference.getPreference());
+        user.setPreferences(preferences);
         return user;
     }
 
