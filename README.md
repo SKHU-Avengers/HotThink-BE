@@ -10,7 +10,7 @@ HotThink
 
 
 
-사용기술
+HOT-THINK REST SERVER's Skill List
 ==========
 ### Spring Boot Data
 - lombok
@@ -19,9 +19,16 @@ HotThink
 - ModelMapper
 
 ### Spring Sequrity
-- JWT 인증방식
+- JWT기반 인증방식
 
 
 - file upload
 - mail(예정)
 - websocket(예정)
+
+
+### MariaDB(10.4)
+
+### 배포
+- AWS(WEB SERVICE)
+- RDS(DATABASE)
