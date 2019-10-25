@@ -12,14 +12,16 @@ HotThink
 
 사용기술
 ==========
-## Spring Boot Data
+### Spring Boot Data
 - lombok
 - JPA
 - Hibernate
 - ModelMapper
-- file upload
-- mail(예정)
-- websocket(예정)
 
 ### Spring Sequrity
 - JWT 인증방식
+
+
+- file upload
+- mail(예정)
+- websocket(예정)
