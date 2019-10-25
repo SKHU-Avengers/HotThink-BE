@@ -21,7 +21,7 @@ HOT-THINK REST SERVER's Skill List
 ### Spring Sequrity
 - JWT기반 인증방식
 
-
+### Spring Boot
 - file upload
 - mail(예정)
 - websocket(예정)
