@@ -1,7 +1,7 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://hotthinkrds.cjditpwe7bq8.ap-northeast-2.rds.amazonaws.com:3306/innodb
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://hotthinkrds.cjditpwe7bq8.ap-northeast-2.rds.amazonaws.com:3306/innodb
     username: root
     password: test1234
   jpa:

@@ -12,7 +12,6 @@ import java.io.UnsupportedEncodingException;
 /*
  작성일: 2019-10-20
  기능: 메세지 전송을 도와주는 유틸리티입니다.
-
  */
 public class MailUtil {
 
