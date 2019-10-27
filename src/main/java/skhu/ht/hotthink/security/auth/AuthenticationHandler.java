@@ -50,9 +50,8 @@ public class AuthenticationHandler implements AuthenticationSuccessHandler, Auth
         Map<String, String> tokens = new HashMap<String, String>();
         tokens.put("token", accessToken.getToken());
         tokens.put("refreshToken", refreshToken.getToken());
-        tokens.put("nickName", ((UserAuthenticationModel) authentication.getPrincipal()).getNickName());
         response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         mapper.writeValue(response.getWriter(), tokens);
 
         clearAuthenticationAttributes(request);

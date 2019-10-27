@@ -51,9 +51,10 @@ public class UserServiceImpl implements UserService{
         내용: 유저모델 수정
     */
     public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
-        //닉네임 중복 추가
-        if(userRepository.findUserByEmail(newUserDTO.getEmail())!=null||
-                userRepository.findUserByNickName(newUserDTO.getNickName())!=null) return MessageState.Conflict;
+        User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
+        if(entity != null) return MessageState.EmailConflict;
+        entity = userRepository.findUserByNickName(newUserDTO.getNickName());
+        if(entity != null) return MessageState.NickNameConflict;
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
@@ -126,6 +127,16 @@ public class UserServiceImpl implements UserService{
         return userRepository.findAll();
     }
 
+
+    /*
+        작성자: 김영곤
+        작성일: 19-10-27
+        내용: 로그인 토큰 발급 후 로그인 중 인지 체크
+    */
+    public User loginCheck() {
+        String email = getUserEmailFromSecurity();
+        return userRepository.findUserByEmail(email);
+    }
 
     @Override
     public User findByEmail(String email) {

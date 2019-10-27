@@ -19,6 +19,6 @@ import java.io.IOException;
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
-        httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "권한 없음");
+        httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "UnAuthorized!");
     }
 }

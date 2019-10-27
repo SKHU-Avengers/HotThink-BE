@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,7 +28,6 @@ import java.util.List;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String API_ROOT_URL = "/api";
     public static final String LOGIN_PROCESSING_URL = "/api/login/processing";
-    public static final String USER_CREATE_URL = "/api/user/create";
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String REFRESH_TOKEN_URL = "/auth/token";
 
@@ -49,8 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() {
-        List<String> pathsToSkip = Arrays.asList(API_ROOT_URL, REFRESH_TOKEN_URL, USER_CREATE_URL);
-        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, "/api/**");
+        List<String> pathsToSkip = Arrays.asList(API_ROOT_URL, REFRESH_TOKEN_URL);
+        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip);
         JwtTokenAuthenticationProcessingFilter filter
                 = new JwtTokenAuthenticationProcessingFilter(authenticationHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
@@ -91,10 +91,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                     .authorizeRequests()
                     .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
-
-//                .and()
-//                    .authorizeRequests()
-//                    .anyRequest().authenticated()
+                    .antMatchers(HttpMethod.POST, "/api/user").permitAll()
+                    .anyRequest().authenticated()
 
                 .and()
                     .addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class)

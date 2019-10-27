@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.MessageState;
+import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.user.model.*;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
@@ -23,7 +24,7 @@ public class UserController {
             내용: 이메일, 닉네임이 중복되면 CONFLICT 전달.
     */
     @ResponseBody
-    @PostMapping("user/create")
+    @PostMapping("user")
     public ResponseEntity<?> userCreate(@RequestBody NewUserDTO newUserDto){
 
         switch(userService.setUser(newUserDto,0)){
@@ -45,7 +46,7 @@ public class UserController {
            내용: 회원정보 수정
     */
     @ResponseBody
-    @PutMapping("user/update")
+    @PutMapping("user")
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
         return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
@@ -55,6 +56,11 @@ public class UserController {
            작성일: 19-10-22
            내용: 마이페이지
     */
+
+    @PostMapping("login/check")
+    public @ResponseBody User loginCheck(){
+        return userService.loginCheck();
+    }
 
     @GetMapping("me")
     public @ResponseBody UserInfoDTO myPage(){

@@ -29,10 +29,10 @@ public class LoginProcessingFilter extends AbstractAuthenticationProcessingFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         logger.info("로그인 필터 진입");
-        if(request.getContentType().matches(MediaType.APPLICATION_JSON_VALUE)){
+        if(request.getContentType().matches(MediaType.APPLICATION_JSON_UTF8_VALUE)){
             UserLoginRequestModel user = objectMapper.readValue(request.getReader(), UserLoginRequestModel.class);
             return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPw()));
-        }else throw new AccessDeniedException(request.getContentType()+" 쓰지마셈");
+        }else throw new AccessDeniedException(request.getContentType()+"not allowed");
     }
 
     @Override
