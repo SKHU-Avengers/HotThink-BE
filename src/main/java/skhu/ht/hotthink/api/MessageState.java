@@ -8,5 +8,9 @@ public enum MessageState {
     Conflict, //중복데이터 발생시
     NotExist, //존재하지 않음.
     EmailConflict, //이메일 중복
-    NickNameConflict //닉네임 중복
+    NickNameConflict, //닉네임 중복
+
+    Password_Error, //패스워드 오류
+    Authentication_Fail, //검증 실패
+    User_not_Found //유저 찾기 실패
 }

@@ -10,4 +10,6 @@ public class UserInfoBoardModel {
     protected String title;
     protected String image;
     protected String contents;
+    protected Integer hits;
+    protected Integer good;
 }

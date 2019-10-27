@@ -17,7 +17,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenFactory {
     private final JwtSetting setting;
-
     @Autowired
     public JwtTokenFactory(JwtSetting setting){
         this.setting = setting;
@@ -56,7 +55,7 @@ public class JwtTokenFactory {
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setIssuer(setting.getTokenIssuer())
-                .setId(UUID.randomUUID().toString())
+                .setId(setting.getJti())
                 .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(Date.from(currentTime
                         .plusMinutes(setting.getRefreshTokenExpTime())

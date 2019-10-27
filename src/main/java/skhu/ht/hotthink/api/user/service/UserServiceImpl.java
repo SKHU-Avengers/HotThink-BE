@@ -17,6 +17,7 @@ import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.ScrapRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
+import skhu.ht.hotthink.security.exceptions.PasswordErrorException;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
 import java.lang.reflect.Type;
@@ -38,7 +39,6 @@ public class UserServiceImpl implements UserService{
     BoardRepository boardRepository;
     @Autowired
     ModelMapper modelMapper;
-
     /*
         작성자: 홍민석, 김영곤
         작성일: 19-10-07
@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService{
         내용: 중복확인 추가
         작성일: 19-10-23
         내용: 반환형 MessageState로 수정.
-        작성일: 19-10-23
-        내용: 유저모델 수정
+        작성일: 19-10-27
+        내용: Preference 리스트 맵핑
     */
     public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
         User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
@@ -60,11 +60,8 @@ public class UserServiceImpl implements UserService{
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
         user.setUseAt(UseAt.Y);//사용유무 설정
+        setPreference(user, user.getPreferenceList());
         userRepository.save(user);
-        for(String str:newUserDTO.getPreferences()) {
-            Preference preference = new Preference(str, user);
-            preferenceRepository.save(preference);
-        }
         return MessageState.Created;
     }
 
@@ -121,26 +118,6 @@ public class UserServiceImpl implements UserService{
      */
     public MessageState deleteScrap(){
         return MessageState.Success;
-    }
-
-    public List<User> findAll(){
-        return userRepository.findAll();
-    }
-
-
-    /*
-        작성자: 김영곤
-        작성일: 19-10-27
-        내용: 로그인 토큰 발급 후 로그인 중 인지 체크
-    */
-    public User loginCheck() {
-        String email = getUserEmailFromSecurity();
-        return userRepository.findUserByEmail(email);
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findUserByEmail(email);
     }
 
     /*
@@ -223,8 +200,8 @@ public class UserServiceImpl implements UserService{
    */
     public UserAuthenticationModel findUserAuthByEmailAndPw(String email, String pw){
         User entity = userRepository.findUserByEmail(email);
-        if(entity == null) throw new UsernameNotFoundException("");
-        else if(!entity.getPw().equals(pw)) throw new BadCredentialsException("");
+        if(entity == null) throw new UsernameNotFoundException(MessageState.User_not_Found.toString());
+        else if(!entity.getPw().equals(pw)) throw new PasswordErrorException(MessageState.Password_Error.toString());
         return UserAuthenticationModel.builder()
                 .email(entity.getEmail())
                 .pw(entity.getPw())
@@ -252,10 +229,7 @@ public class UserServiceImpl implements UserService{
         for(Scrap scrap : scrapRepository.findAllByUser(entity)) boards.add(scrap.getBoard());
         List<UserInfoBoardModel> scrapBoards = modelMapper.map(boards, listType);
         user.setScraps(scrapBoards);
-        //Preference
-        List<String> preferences = new ArrayList<String>();
-        for(Preference preference:preferenceRepository.findAllByUser(entity)) preferences.add(preference.getPreference());
-        user.setPreferences(preferences);
+        user.setSeq((long) -892);
         return user;
     }
 
@@ -263,6 +237,8 @@ public class UserServiceImpl implements UserService{
       작성자: 김영곤
       작성일: 19-10-24
       내용: 유저 수정 메소드
+      작성일: 19-10-27
+      내용: Preference 리스트 수정 완료
     */
     @Override
     @Transactional
@@ -274,16 +250,32 @@ public class UserServiceImpl implements UserService{
         entity.setPw(userModificationDTO.getPw());
         entity.setTel(userModificationDTO.getTel());
         entity.setNickName(userModificationDTO.getNickName());
-        userRepository.save(entity);
-        //Preference 수정
-        List<Preference> preferences = preferenceRepository.findAllByUser(entity);
-        for(Preference preference:preferences)
-            if(!userModificationDTO.getPreferences().contains(preference.getPreference())) preferenceRepository.delete(preference);//없어진것 삭제
-        for(String preference:userModificationDTO.getPreferences())
-            if(!preferences.contains(new Preference(preference,null))) preferenceRepository.save(new Preference(preference, entity));//새로 추가
+        setPreference(entity, userModificationDTO.getPreferenceList());
+        entity.getPreferenceList().removeAll(comparePreferenceList(entity.getPreferenceList(), userModificationDTO.getPreferenceList()));
+        entity.getPreferenceList().addAll(comparePreferenceList(userModificationDTO.getPreferenceList(), entity.getPreferenceList()));
         return true;
     }
 
+    /*
+      작성자: 김영곤
+      작성일: 19-10-27
+      내용: Preference 리스트들 유저 셋팅
+    */
+    private static void setPreference(User user, List<Preference> preferenceList){
+        for(Preference preference:preferenceList) preference.setUser(user);
+    }
+
+    /*
+      작성자: 김영곤
+      작성일: 19-10-27
+      내용: Preference 리스트 비교 후 없는 리스트 반환
+    */
+    private List<Preference> comparePreferenceList(List<Preference> source, List<Preference> destination){
+        List<Preference> preferenceList = new ArrayList<>();
+        for(Preference preference:source)
+            if (!destination.contains(preference)) preferenceList.add(preference);
+        return preferenceList;
+    }
 
     /*
       작성자: 김영곤

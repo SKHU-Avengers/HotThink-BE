@@ -19,7 +19,7 @@ public class RawAccessJwtToken implements JwtToken {
             return Jwts.parser().setSigningKey(signingKey.trim()).parseClaimsJws(this.token);
         } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException | SignatureException ex) {
             logger.error("Invalid JWT Token", ex);
-            throw new BadCredentialsException("Invalid JWT token: ", ex);
+            throw new BadCredentialsException("Invalid JWT token");
         } catch (ExpiredJwtException expiredEx) {
             logger.info("JWT Token is expired", expiredEx);
             throw new JwtExpiredTokenException(this, "JWT Token expired", expiredEx);

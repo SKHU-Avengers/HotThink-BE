@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.MessageState;
-import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.user.model.*;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
+import skhu.ht.hotthink.config.ResponseMessage;
 
 @RequestMapping("api")
 @RestController
@@ -47,23 +47,21 @@ public class UserController {
     */
     @ResponseBody
     @PutMapping("user")
-    public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
-        return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
+    public ResponseEntity<?> userUpdate(@RequestBody UserModificationDTO userDTO){
+        return userService.saveUser(userDTO)?
+                new ResponseEntity<>(ResponseMessage.of("User Update Success" ,MessageState.Success.toString()), HttpStatus.OK) :
+                new ResponseEntity<>(ResponseMessage.of("User Update Failed", MessageState.NickNameConflict.toString()), HttpStatus.CONFLICT);
     }
 
     /*
            작성자: 김영곤
            작성일: 19-10-22
            내용: 마이페이지
+           작성일: 19-10-27
+           내용: 문혁이의 부탁으로 url 로그인 체크로 변경
     */
-
-    @PostMapping("login/check")
-    public @ResponseBody User loginCheck(){
-        return userService.loginCheck();
-    }
-
-    @GetMapping("me")
+    @GetMapping("login/check")
     public @ResponseBody UserInfoDTO myPage(){
         return userService.findUserInfo();
     }
- }
+}
