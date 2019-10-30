@@ -21,13 +21,12 @@ public class FollowController {
         내용: 팔로우 CREATE
     */
     @PostMapping("/{from}/follow/{to}")
-    ResponseEntity<String> followCreate(@PathVariable("from") String from,
+    ResponseEntity<?> followCreate(@PathVariable("from") String from,
                                         @PathVariable("to") String to){
-        if(!userService.setFollow(from, to)){
-            return new ResponseEntity<String>("Fail", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<String>("Success", HttpStatus.OK);
+        if(userService.setFollow(from, to))return new ResponseEntity<>(HttpStatus.OK);
 
+
+        return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
     }
     /*
         작성자: 홍민석
@@ -60,13 +59,12 @@ public class FollowController {
         //TODO: 권한 인증 코드 작성
     */
     @DeleteMapping("/{from}/follow/{to}")
-    ResponseEntity<String> followDelete(@PathVariable("from") String from,
+    ResponseEntity<?> followDelete(@PathVariable("from") String from,
                       @PathVariable("to") String to){
 
         FollowDTO followInDTO = new FollowDTO();
-        if(!userService.deleteFollow(from, to)){
-            return new ResponseEntity<String>("Fail",HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<String>("Success",HttpStatus.OK);
+        if(userService.deleteFollow(from, to)) return new ResponseEntity<>(HttpStatus.OK);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

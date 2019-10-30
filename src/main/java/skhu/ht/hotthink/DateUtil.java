@@ -1,13 +1,9 @@
 package skhu.ht.hotthink;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import skhu.ht.hotthink.api.MessageState;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class DateUtil {

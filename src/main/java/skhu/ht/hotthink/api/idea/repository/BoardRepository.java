@@ -8,9 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Board;
-import skhu.ht.hotthink.api.idea.model.IdeaPagination;
-import skhu.ht.hotthink.api.idea.model.Option;
-import skhu.ht.hotthink.api.idea.model.Pagination;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
+import skhu.ht.hotthink.api.idea.model.page.Option;
+import skhu.ht.hotthink.api.idea.model.page.Pagination;
 
 import java.util.List;
 
@@ -29,18 +30,19 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
         Page<Board> page;
         String category = pagination.getCategory();
         String searchText = pagination.getSearchText();
+        BoardType boardType = pagination.getBoardType();
         switch(pagination.getSearchBy()){
             case 1:
-                page = this.findByCategoryAndUserAndBoardType(category,searchText, pageable);
+                page = this.findByCategoryAndUserAndBoardType(category,searchText, pageable, boardType);
                 break;
             case 2:
-                page = this.findByCategoryAndTitleAndBoardType(category, searchText, pageable);
+                page = this.findByCategoryAndTitleAndBoardType(category, searchText, pageable, boardType);
                 break;
             case 3:
-                page = this.findByCategoryAndContentsAndBoardType(category, searchText, pageable);
+                page = this.findByCategoryAndContentsAndBoardType(category, searchText, pageable, boardType);
                 break;
             default:
-                page = this.findByCategoryAndBoardType(category, pageable);
+                page = this.findByCategoryAndBoardType(category, pageable, boardType);
         }
         return page.getContent();
     }
@@ -52,18 +54,19 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
         Page<Board> page;
         String category = pagination.getCategory();
         String searchText = pagination.getSearchText();
+        BoardType boardType = pagination.getBoardType();
         switch(pagination.getSearchBy()){
             case 1:
-                page = this.findByCategoryAndUserAndBoardType(category,searchText, pageable);
+                page = this.findByCategoryAndUserAndBoardType(category,searchText, pageable, boardType);
                 break;
             case 2:
-                page = this.findByCategoryAndTitleAndBoardType(category, searchText, pageable);
+                page = this.findByCategoryAndTitleAndBoardType(category, searchText, pageable, boardType);
                 break;
             case 3:
-                page = this.findByCategoryAndContentsAndBoardType(category, searchText, pageable);
+                page = this.findByCategoryAndContentsAndBoardType(category, searchText, pageable, boardType);
                 break;
             default:
-                page = this.findByCategoryAndBoardType(category, pageable);
+                page = this.findByCategoryAndBoardType(category, pageable, boardType);
         }
         return page.getContent();
     }
@@ -71,16 +74,15 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     @Query(value = "SELECT getBD_Seq(?1)", nativeQuery = true)
     Long findBoardSeq(String category);
 
-    @Query(value = "CALL likeFree(?1)", nativeQuery = true)
-    void likeFree(Long freeId);
 
     //@Query(value = "SELECT BD.BD_SEQ FROM TB_BOARD BD INNER JOIN CATEGORY CT ON BD.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
     //Long findBdSeq(Long seq, String category);
 
-    Page<Board> findByCategoryAndContentsAndBoardType(String category, String Contents, Pageable pageable);
-    Page<Board> findByCategoryAndTitleAndBoardType(String category, String Title, Pageable pageable);
-    Page<Board> findByCategoryAndUserAndBoardType(String category, String User, Pageable pageable);
-    Page<Board> findByCategoryAndBoardType(String category, Pageable pageable);
+    Page<Board> findByCategoryAndContentsAndBoardType(String category, String Contents, Pageable pageable, BoardType boardType);
+    Page<Board> findByCategoryAndTitleAndBoardType(String category, String Title, Pageable pageable, BoardType boardType);
+    Page<Board> findByCategoryAndUserAndBoardType(String category, String User, Pageable pageable, BoardType boardType);
+    Page<Board> findByCategoryAndBoardType(String category, Pageable pageable, BoardType boardType);
     Board findBoardByBdSeq(Long bdSeq);
-    //Free findFreeBySeqAndCategory(Long seq, Category category);
+    @Query("UPDATE Board B SET B.good = B.good + 1 WHERE B.bdSeq = ?1")
+    Integer likeFreeByBdSeq(Long boardId);
 }

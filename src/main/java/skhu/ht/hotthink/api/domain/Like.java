@@ -1,6 +1,8 @@
 package skhu.ht.hotthink.api.domain;
 
+import lombok.Builder;
 import lombok.Data;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
 
@@ -17,4 +19,7 @@ public class Like {
     private User user;
     @Column(name="BD_SEQ")
     private Long bdSeq;
+    @Enumerated(EnumType.STRING)
+    @Column(name="BOARD_TYPE")
+    private BoardType boardType;
 }

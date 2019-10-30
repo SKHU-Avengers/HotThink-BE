@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skhu.ht.hotthink.api.MessageState;
-import skhu.ht.hotthink.api.domain.BoardType;
-import skhu.ht.hotthink.api.idea.model.*;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.model.PutDTO;
+import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
+import skhu.ht.hotthink.api.idea.model.boardin.RealInDTO;
+import skhu.ht.hotthink.api.idea.model.boardlist.RealListDTO;
+import skhu.ht.hotthink.api.idea.model.boardout.RealOutDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
 import java.util.List;
@@ -26,9 +29,6 @@ public class RealThinkController {
     @GetMapping
     public ResponseEntity<?> realList(@RequestBody IdeaPagination pagination) {
         List<RealListDTO> real = boardService.getBoardList(pagination,RealListDTO.class);
-        if(real==null){
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity(real, HttpStatus.OK);
     }
 
@@ -42,9 +42,6 @@ public class RealThinkController {
     @GetMapping(value = "/{realId}")
     public ResponseEntity<?> realRead(@PathVariable("realId") Long realId) {
         RealOutDTO realOutDto = boardService.getOne(realId,RealOutDTO.class);
-        if(realOutDto == null){
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity(realOutDto,HttpStatus.OK);
     }
 
@@ -59,15 +56,10 @@ public class RealThinkController {
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
                                              @PathVariable("nickname") String nickname,
                                              @PathVariable("category") String category){
-        switch(boardService.setOne(realInDto, nickname, category, BoardType.REAL.name())){
-            case Created:
-                return new ResponseEntity(HttpStatus.OK);
-            case NotExist:
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
-            default:
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
-
+        if(boardService.setOne(realInDto, nickname, category, BoardType.REAL)) {
+            return new ResponseEntity(HttpStatus.OK);
         }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
@@ -81,12 +73,18 @@ public class RealThinkController {
     @PutMapping(value = "/{realId}/{category}")
     public ResponseEntity<?> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
                                              @RequestBody RealInDTO realInDto){
-        switch(boardService.putOne(realId, category, realInDto)) {
-            case Success:
-                return new ResponseEntity(HttpStatus.OK);
-            default:
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
+        PutDTO putDto = PutDTO.builder()
+                .bdSeq(realId)
+                .title(realInDto.getTitle())
+                .contents(realInDto.getContents())
+                .image(realInDto.getImage())
+                .real(realInDto.getReal())
+                .boardType(BoardType.REAL)
+                .build();
+
+        if(boardService.putOne(putDto)) return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+
     }
 
     /*
@@ -100,14 +98,7 @@ public class RealThinkController {
     @DeleteMapping(value = "/{realId}")
     public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,
                                              @RequestBody RealInDTO realInDto){
-        switch(boardService.deleteOne(realId, realInDto)){
-            case Success:
-                return new ResponseEntity(HttpStatus.OK);
-            default:
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+        if(boardService.deleteOne(realId, realInDto)) return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
-
-
-
 }

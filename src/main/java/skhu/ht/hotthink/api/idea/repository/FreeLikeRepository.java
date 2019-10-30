@@ -8,9 +8,4 @@ import skhu.ht.hotthink.api.domain.Like;
 
 @Repository
 public interface FreeLikeRepository extends JpaRepository<Like, Integer> {
-
-    @Query(value="SELECT COUNT(*) FROM TB_LIKE WHERE FR_SEQ=?1", nativeQuery = true)
-    Integer findLikeOfFree(Long frSeq);
-
-
 }

@@ -7,22 +7,19 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.domain.*;
+import skhu.ht.hotthink.api.domain.enums.UseAt;
 import skhu.ht.hotthink.api.idea.repository.BoardRepository;
-import skhu.ht.hotthink.api.user.model.FollowDTO;
-import skhu.ht.hotthink.api.user.model.NewUserDTO;
-import skhu.ht.hotthink.api.user.model.UserModificationDTO;
-import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
+import skhu.ht.hotthink.api.user.exception.ScrapNotFoundException;
+import skhu.ht.hotthink.api.user.exception.UserConflictException;
+import skhu.ht.hotthink.api.user.model.*;
 import skhu.ht.hotthink.api.user.repository.PreferenceRepository;
 import skhu.ht.hotthink.api.user.repository.FollowRepository;
 import skhu.ht.hotthink.api.user.repository.ScrapRepository;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
+import skhu.ht.hotthink.error.ErrorCode;
 import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
-import javax.mail.Message;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,25 +45,24 @@ public class UserServiceImpl implements UserService{
         내용: 회원가입 정보를 바탕으로 새로운 계정생성.
         작성일: 19-10-22
         내용: 중복확인 추가
-        작성일: 19-10-23
-        내용: 반환형 MessageState로 수정.
 */
-    public MessageState setUser(NewUserDTO newUserDTO, int initPoint) {
+    @Transactional
+    public boolean setUser(NewUserDTO newUserDTO, int initPoint) {
         User entity = userRepository.findUserByEmail(newUserDTO.getEmail());
-        if(entity != null) return MessageState.EmailConflict;
+        if(entity != null) throw new UserConflictException(ErrorCode.EMAIL_CONFLICT);
         entity = userRepository.findUserByNickName(newUserDTO.getNickName());
-        if(entity != null) return MessageState.NickNameConflict;
+        if(entity != null) throw new UserConflictException(ErrorCode.NICKNAME_CONFLICT);
         User user = modelMapper.map(newUserDTO,User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
-        user.setUseAt(UseAt.Y);//사용유무 설정
+        user.setUseAt(UseAt.N);//사용유무 설정
         List<Preference> preferenceList = new ArrayList<Preference>();
         for(String prefer : newUserDTO.getPreferenceList()) preferenceList.add(new Preference(prefer));
         user.setPreferences(preferenceList);
         userRepository.save(user);
 
-        return MessageState.Created;
+        return true;
     }
 
     /*
@@ -81,6 +77,7 @@ public class UserServiceImpl implements UserService{
                 .map(s -> modelMapper.map(s, ScrapInfoDTO.class))
                 .collect(Collectors.toList());
     }
+
 
     /*
         작성자: 홍민석
@@ -101,16 +98,15 @@ public class UserServiceImpl implements UserService{
         내용: 게시판 스크랩 작성.
         성공시 CREATED 반환
      */
-    public MessageState setScrap(String nickName, Long bdSeq){
+    @Transactional
+    public boolean setScrap(String nickName, ScrapInDTO scrapInDto){
         User user = userRepository.findUserByNickName(nickName);
-        Board board = boardRepository.findBoardByBdSeq(bdSeq);
+        Board board = boardRepository.findBoardByBdSeq(scrapInDto.getBdSeq());
         Scrap scrap = new Scrap();
         scrap.setUser(user);
         scrap.setBoard(board);
-        if(scrapRepository.save(scrap)!=null) {
-            return MessageState.Created;
-        }
-        return MessageState.Fail;
+        if(scrapRepository.save(scrap)!=null) throw new ScrapNotFoundException();
+        return true;
     }
 
     /*
@@ -120,18 +116,21 @@ public class UserServiceImpl implements UserService{
         성공시 Success 반환
 
      */
-    public MessageState deleteScrap(){
-        return MessageState.Success;
+    public boolean deleteScrap(String nickName, Long bdSeq){
+        Scrap scrap = scrapRepository.findScrapByUserAndBoard(
+                userRepository.findUserByNickName(nickName)
+                ,boardRepository.findBoardByBdSeq(bdSeq)
+        );
+        scrapRepository.delete(scrap);
+
+        if(scrapRepository.existsById(Integer.parseInt(scrap.getSeq().toString()))){
+            return false;
+        }
+        return true;
     }
 
     public List<User> findAll(){
         return userRepository.findAll();
-    }
-
-
-    @Override
-    public User findByEmail(String email) {
-        return null;
     }
 
     /*
@@ -139,7 +138,6 @@ public class UserServiceImpl implements UserService{
         작성일: 19-10-07
         내용: 아이디가 중복되었는지 검사합니다.
     */
-    @Transactional
     public Boolean checkOverlap(String email) {
         User user = userRepository.findUserByEmail(email);
         if(user == null){
@@ -153,7 +151,6 @@ public class UserServiceImpl implements UserService{
         작성일: 19-10-23
         내용: nickname을 팔로우하는 사람 목록 불러오기.
      */
-
     @Transactional
     public List<FollowDTO> getFollowerList(String nickName) {
         User celebrity = userRepository.findUserByNickName(nickName);

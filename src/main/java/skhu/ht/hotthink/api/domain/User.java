@@ -1,7 +1,7 @@
 package skhu.ht.hotthink.api.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import skhu.ht.hotthink.api.domain.enums.UseAt;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,7 +20,8 @@ public class User{
     @Column(name="UNAME")
     protected String name;
     protected String pw;
-
+    @Column(name="PROFILE_IMG")
+    private String profileImg;
     private String tel;
 
     @Enumerated(EnumType.STRING)
@@ -30,7 +31,6 @@ public class User{
     private Integer point;
     private Integer realTicket;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Preference> preferences;
 
