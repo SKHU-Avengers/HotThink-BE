@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.api.domain;
+package skhu.ht.hotthink.api.domain.enums;
 
 public enum RoleName {
     ROLE_NONE,

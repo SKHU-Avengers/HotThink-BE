@@ -3,7 +3,7 @@ package skhu.ht.hotthink.api.user.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import skhu.ht.hotthink.api.domain.RoleName;
+import skhu.ht.hotthink.api.domain.enums.RoleName;
 
 import java.util.List;
 

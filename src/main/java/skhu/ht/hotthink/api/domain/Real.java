@@ -18,6 +18,7 @@ public class Real {
     private Long seq;
 
     private IdeaState state;
+    @Column(name="UPDATE_AT")
     private Date updateAt;
     private String review;
     private String pMaterial;

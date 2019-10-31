@@ -17,7 +17,7 @@ public class Like {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="UR_SEQ")
     private User user;
-    @Column(name="BD_SEQ")
+    @Column(name="BOARD_SEQ")
     private Long bdSeq;
     @Enumerated(EnumType.STRING)
     @Column(name="BOARD_TYPE")

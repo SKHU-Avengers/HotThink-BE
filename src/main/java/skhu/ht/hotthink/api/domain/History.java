@@ -13,9 +13,12 @@ import java.util.Date;
 public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="HT_SEQ")
     private Long seq;
+    @Column(name="UPDATE_AT")
     private Date updateAt;
     private String title;
+    @Column(name="THUMBNAIL_IMG")
     private String image;
     private String contents;
 

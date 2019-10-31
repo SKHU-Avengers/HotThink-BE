@@ -41,7 +41,7 @@ public class RealThinkController {
     */
     @GetMapping(value = "/{realId}")
     public ResponseEntity<?> realRead(@PathVariable("realId") Long realId) {
-        RealOutDTO realOutDto = boardService.getOne(realId,RealOutDTO.class);
+        RealOutDTO realOutDto = boardService.getOne(realId,BoardType.REAL, RealOutDTO.class);
         return new ResponseEntity(realOutDto,HttpStatus.OK);
     }
 

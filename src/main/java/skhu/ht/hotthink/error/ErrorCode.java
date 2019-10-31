@@ -8,8 +8,10 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(404,"C003","Entity Not Found"),
     INTERNAL_SERVER_ERROR(500,"C004","Server Error"),
     INVALID_TYPE_VALUE(400,"C005","Invalid Type Value"),
+    UNAUTHORIZED(401,"C005","Unauthorized Access"),
     EMAIL_CONFLICT(409,"U001","이메일 중복"),
-    NICKNAME_CONFLICT(409,"U002","닉네임 중복")
+    NICKNAME_CONFLICT(409,"U002","닉네임 중복"),
+
     ;
     /*
     Fail, //잘못된 입력값으로 조건에 안맞아 끝나는 경우

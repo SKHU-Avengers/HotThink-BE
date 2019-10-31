@@ -11,6 +11,7 @@ import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.FreeListDTO;
 import skhu.ht.hotthink.api.idea.model.boardout.FreeOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
@@ -32,7 +33,7 @@ public class FreeThinkController {
         해당하는 realthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> freeList(@RequestBody @Valid Pagination pagination) {
+    public ResponseEntity<?> freeList(@RequestBody Pagination pagination) {
         pagination.setBoardType(BoardType.FREE);
         List<FreeListDTO> free = boardService.getBoardList(pagination,FreeListDTO.class);
         return new ResponseEntity(free,HttpStatus.OK);
@@ -47,7 +48,7 @@ public class FreeThinkController {
     */
     @GetMapping(value = "/{freeId}")
     public ResponseEntity<?> freeRead(@PathVariable("freeId") Long freeId) {
-        FreeOutDTO freeOutDto = boardService.getOne(freeId,FreeOutDTO.class);
+        FreeOutDTO freeOutDto = boardService.getOne(freeId, BoardType.FREE, FreeOutDTO.class);
         freeOutDto.setReplies(boardService.getReplyList(freeOutDto.getBdSeq()));
         return new ResponseEntity(freeOutDto,HttpStatus.OK);
     }
@@ -155,8 +156,27 @@ public class FreeThinkController {
         작성일: 19-10-25
         내용: 댓글 CREATE.
     */
-    @PostMapping(value = "/reply")
-    public ResponseEntity<?> replyCreate(@RequestBody ReplyInDTO replyInDto){
+    @PostMapping(value = "{boardId}/reply")
+    public ResponseEntity<?> replyCreate(@PathVariable("boardId") Long boardId,
+                                         @RequestBody ReplyInDTO replyInDto){
+        replyInDto.setBdSeq(boardId);
+        if(boardService.setReply(replyInDto)){
+            return new ResponseEntity(HttpStatus.CREATED);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-10-25
+        내용: 대댓글 CREATE.
+    */
+    @PostMapping(value = "{freeId}/reply/{replyId}")
+    public ResponseEntity<?> subreplyCreate(@PathVariable("freeId") Long boardId,
+                                         @PathVariable("replyId")Long replyId,
+                                         @RequestBody @Valid ReplyInDTO replyInDto){
+        replyInDto.setBdSeq(boardId);
+        replyInDto.setSuperRpSeq(replyId);
         if(boardService.setReply(replyInDto)){
             return new ResponseEntity(HttpStatus.CREATED);
         }
@@ -169,8 +189,13 @@ public class FreeThinkController {
         내용: 댓글 UPDATE.
         TODO:권한 인증 코드 작성
     */
-    @PutMapping(value = "/reply/{replyId}")
-    public void replyUpdate(){
+    @PutMapping(value = "{freeId}/reply/{replyId}")
+    public ResponseEntity<?> replyUpdate(@PathVariable("freeId") Long boardId,//rest 및 이후 예외처리 위해 만듦.
+                            @PathVariable("replyId") Long replyId,
+                            @RequestBody ReplyPutDTO replyPutDto){
+        if(boardService.putReply(replyPutDto,replyId))
+            return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
@@ -180,9 +205,10 @@ public class FreeThinkController {
         TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{freeId}/reply/{replyId}")
-    public void replyDelete(@PathVariable("freeId") Long freeId,
+    public ResponseEntity<?> replyDelete(@PathVariable("freeId") Long freeId,
                             @PathVariable("replyId") Long replyId){
-        boardService.deleteReply(freeId,replyId);
+        if(boardService.deleteReply(freeId,replyId)) return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
 
     }
 }

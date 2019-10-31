@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.domain;
 
 import lombok.*;
+import skhu.ht.hotthink.api.domain.enums.RoleName;
 import skhu.ht.hotthink.api.domain.enums.UseAt;
 
 import javax.persistence.*;
@@ -34,6 +35,7 @@ public class User{
     @OneToMany(mappedBy = "user")
     private List<Preference> preferences;
 
+    @Column(name="USE_AT")
     @Enumerated(EnumType.STRING)
     private UseAt useAt;
 }

@@ -1,5 +1,6 @@
 package skhu.ht.hotthink.api.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
+import skhu.ht.hotthink.api.domain.enums.RoleName;
 import skhu.ht.hotthink.api.domain.enums.UseAt;
 import skhu.ht.hotthink.api.idea.repository.BoardRepository;
 import skhu.ht.hotthink.api.user.exception.ScrapNotFoundException;

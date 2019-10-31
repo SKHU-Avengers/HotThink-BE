@@ -1,14 +1,17 @@
 package skhu.ht.hotthink.api.idea.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.ReplyAdopt;
 import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
 import skhu.ht.hotthink.api.idea.exception.IdeaNotFoundException;
 import skhu.ht.hotthink.api.idea.exception.ReplyNotFoundException;
+import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.BoardInDTO;
@@ -18,6 +21,7 @@ import skhu.ht.hotthink.api.idea.model.boardout.BoardOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.repository.*;
 import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
@@ -70,9 +74,11 @@ public class BoardServiceImpl {
         해당하는 RealThink게시물을 반환합니다.
     */
     @Transactional
-    public <Tout extends BoardOutDTO> Tout getOne(Long seq, Class<? extends Tout> classLiteral){
+    public <Tout extends BoardOutDTO> Tout getOne(Long seq,BoardType boardType, Class<? extends Tout> classLiteral){
         Board board = boardRepository.findBoardByBdSeq(seq);
         if(board == null) throw new IdeaNotFoundException();
+        if(!board.getBoardType().equals(boardType))
+            throw new IdeaInvalidException(boardType.name().concat("게시물이 아닙니다."));
         board.setHits(board.getHits() + 1);
         boardRepository.save(board);
         return modelMapper.map(board, classLiteral);
@@ -198,12 +204,36 @@ public class BoardServiceImpl {
     @Transactional
     public boolean setReply(ReplyInDTO replyInDTO) {
         Reply reply = modelMapper.map(replyInDTO, Reply.class);
+        reply.setAdopt(ReplyAdopt.N);
+        reply.setAt(new Date());
+        reply.setGood(0);
         reply.setUser(userRepository.findUserByNickName(replyInDTO.getNickName()));
-        reply.setBoard(boardRepository.findBoardByBdSeq(replyInDTO.getSeq()));
+        reply.setBoard(boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq()));
+        if(reply.getBoard()==null) throw new IdeaNotFoundException();
         if(replyRepository.save(reply)==null) throw new ReplyNotFoundException();
+        if(replyInDTO.getSuperRpSeq()!=null){
+            Reply suReply=replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
+            suReply.setReply(reply);
+            replyRepository.save(suReply);
+        }
         return true;
     }
+    /*
+            작성자: 홍민석
+            작성일: 19-11-01
+            내용: 댓글 수정
+    */
+    @Transactional
+    public boolean putReply(ReplyPutDTO replyPutDTO, Long rpSeq) {
+        Reply reply = replyRepository.findReplyByRpSeq(rpSeq);
+        if(!reply.getUser().getNickName().equals(replyPutDTO.getNickName()))
+            throw new UserUnauthorizedException("Access Deny");
+        //TODO: 권한 인증 코드 작성
 
+        reply.setContents(replyPutDTO.getContents());
+        replyRepository.save(reply);
+        return true;
+    }
     /*
             작성자: 홍민석
             작성일: 19-10-24
@@ -213,10 +243,9 @@ public class BoardServiceImpl {
     public boolean deleteReply(Long bdSeq, Long replyId) {
         Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
         //TODO: 권한 인증 코드 작성
-        replyRepository.delete(reply);
-        if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString()))){
-            return false;
-        }
+        if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString())))
+            replyRepository.delete(reply);
+        if(reply!=null) return false;
         return true;
     }
     /*

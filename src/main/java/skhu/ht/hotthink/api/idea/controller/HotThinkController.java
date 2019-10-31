@@ -47,7 +47,7 @@ public class HotThinkController {
     */
     @GetMapping(value = "/{hotId}")
     public ResponseEntity<?> hotRead(@PathVariable("hotId") Long hotId) {
-        HotOutDTO hotOutDto = boardService.getOne(hotId,HotOutDTO.class);
+        HotOutDTO hotOutDto = boardService.getOne(hotId,BoardType.HOT, HotOutDTO.class);
         if(hotOutDto == null){
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

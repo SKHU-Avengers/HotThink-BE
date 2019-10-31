@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.domain;
 
 import lombok.Data;
+import skhu.ht.hotthink.api.domain.enums.ReplyAdopt;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,11 +14,12 @@ public class Reply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="RP_SEQ")
     private Long rpSeq;
-    private Long seq;
 
-    private String adopt;
+    @Enumerated(EnumType.STRING)
+    private ReplyAdopt adopt;
     private String contents;
-    private Date date;
+
+    private Date at;
     private Integer good;
 
     @ManyToOne
@@ -25,8 +27,8 @@ public class Reply {
     private Board board;
 
     @ManyToOne
-    @JoinColumn(name = "RE_SEQ")
-    private Report report;
+    @JoinColumn(name = "SUB_RP_SEQ")
+    private Reply reply;
 
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
