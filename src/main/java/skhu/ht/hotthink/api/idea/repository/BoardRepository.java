@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Board;
+import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.page.Option;
@@ -85,4 +86,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Board findBoardByBdSeq(Long bdSeq);
     @Query("UPDATE Board B SET B.good = B.good + 1 WHERE B.bdSeq = ?1")
     Integer likeFreeByBdSeq(Long boardId);
+
+    List<Board> findAllByUser(User entity);
 }
