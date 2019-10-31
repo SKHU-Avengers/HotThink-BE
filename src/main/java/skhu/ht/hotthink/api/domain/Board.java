@@ -2,6 +2,7 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -27,9 +28,10 @@ public class Board {
     private String contents;
 
     @Column(name="BOARD_TYPE")
-    private String boardType;
+    @Enumerated(EnumType.STRING)
+    private BoardType boardType;
 
-    @Column(name="thumbnailImg")
+    @Column(name="THUMBNAIL_IMG")
     private String image;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,9 +42,9 @@ public class Board {
     @JoinColumn(name = "CT_CODE")
     private Category category;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "RL_SEQ")
-    private Real real;
+    private List<Real> reals;
 
     @OneToMany(mappedBy = "board")
     private List<History> histories;

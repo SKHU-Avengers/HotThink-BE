@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skhu.ht.hotthink.api.user.model.ScrapInfoDTO;
-import skhu.ht.hotthink.api.user.service.ScrapServiceImpl;
+import skhu.ht.hotthink.api.user.model.ScrapInDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
 @RestController
@@ -15,6 +14,31 @@ public class ScrapController {
     @Autowired
     UserServiceImpl userService;
 
+    /*
+        작성일: 2019-10-24
+        작성자: 홍민석
+        내용: 스크랩 생성,
+        삭제 성공시 CREATED 반환
+     */
+    @PostMapping("/{nickName}/scrap")
+    public ResponseEntity<?> ScrapCreate(@PathVariable("nickName") String nickName,
+                                             @RequestBody ScrapInDTO scrapInDto){
+        if(userService.setScrap(nickName, scrapInDto))return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+    /*
+        작성일: 2019-10-24
+        작성자: 홍민석
+        내용: 존재하는 스크랩 삭제,
+        삭제 성공시 OK 반환
+     */
+    @DeleteMapping("/{nickName}/scrap/{boardId}")
+    public ResponseEntity<?> ScrapDelete(@PathVariable("nickName") String nickName,
+                                             @PathVariable("boardId") Long boardId){
+        if(userService.deleteScrap(nickName, boardId)) return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+/*
     @GetMapping("/{nickName}/scrap/freethink/{freeId}")
     public ResponseEntity<?> freeScrapListRead(@PathVariable("nickName") String nickName,
                               @PathVariable("freeId") Long seq){
@@ -28,12 +52,6 @@ public class ScrapController {
 
     }
 
-    @PostMapping("/{nickName}/scrap/freethink")
-    public ResponseEntity<?> freeScrapCreate(@PathVariable("nickName") String nickName,
-                                      @RequestBody ScrapInfoDTO scrapInfoDto){
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
     @GetMapping("/{nickName}/scrap/realthink/{realId}")
     public ResponseEntity<?> realScrapListRead(@PathVariable("nickName") String nickName,
                               @PathVariable("realId") Long seq){
@@ -41,23 +59,11 @@ public class ScrapController {
 
     }
 
-    @PostMapping("/{nickName}/scrap/realthink/")
-    public ResponseEntity<?> realScrapCreate(@PathVariable("nickName") String nickName,
-                                         @RequestBody ScrapInfoDTO scrapInfoDto){
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
     @GetMapping("/{nickName}/scrap/hotthink/{realId}")
     public ResponseEntity<?> hotScrapListRead(@PathVariable("nickName") String nickName,
                                   @PathVariable("hotId") Long seq){
         return new ResponseEntity(HttpStatus.OK);
-
     }
-
-    @PostMapping("/{nickName}/scrap/hotthink/")
-    public ResponseEntity<?> hotScrapCreate(@PathVariable("nickName") String nickName,
-                                             @RequestBody ScrapInfoDTO scrapInfoDto){
-        return new ResponseEntity(HttpStatus.OK);
-    }
+*/
 
 }

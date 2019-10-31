@@ -1,13 +1,29 @@
 package skhu.ht.hotthink.api.idea.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhu.ht.hotthink.api.MessageState;
 import skhu.ht.hotthink.api.domain.*;
-import skhu.ht.hotthink.api.idea.model.*;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.ReplyAdopt;
+import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
+import skhu.ht.hotthink.api.idea.exception.IdeaNotFoundException;
+import skhu.ht.hotthink.api.idea.exception.ReplyNotFoundException;
+import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
+import skhu.ht.hotthink.api.idea.model.LikeDTO;
+import skhu.ht.hotthink.api.idea.model.PutDTO;
+import skhu.ht.hotthink.api.idea.model.boardin.BoardInDTO;
+import skhu.ht.hotthink.api.idea.model.boardin.SubRealInDTO;
+import skhu.ht.hotthink.api.idea.model.boardlist.BoardListDTO;
+import skhu.ht.hotthink.api.idea.model.boardout.BoardOutDTO;
+import skhu.ht.hotthink.api.idea.model.page.Pagination;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.repository.*;
+import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.api.idea.repository.RealRepository;
 
@@ -30,6 +46,8 @@ public class BoardServiceImpl {
     CategoryRepository categoryRepository;
     @Autowired
     RealRepository realRepository;
+    @Autowired
+    HistoryRepository historyRepository;
 
     @Autowired
     ModelMapper modelMapper = new ModelMapper();
@@ -37,29 +55,16 @@ public class BoardServiceImpl {
     /*
         작성자: 홍민석
         작성일: 19-10-04
-        내용: RealThink게시판 리스트를 반환합니다.
+        내용: Free, Hot, RealThink게시판 리스트를 반환합니다.
     */
     @Transactional
-    public <Tlist> List<Tlist> getBoardList(IdeaPagination pagination,Class<? extends Tlist> classLiteral) {
-        List<Board> mapper;
-        Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
-        return (List<Tlist>)boardRepository.findAll(pagination)
+    public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
+        List<Tlist> tlist = boardRepository.findAll(pagination)
                 .stream()
-                .map(s -> convertTo(s,classLiteral))
+                .map(e -> convertTo(e, classLiteral))
                 .collect(Collectors.toList());
-    }
-
-    /*
-        작성자: 홍민석
-        작성일: 19-10-04
-        내용: Free, HotThink게시판 리스트를 반환합니다.
-    */
-    @Transactional
-    public <Tlist> List<Tlist> getBoardList(Pagination pagination,Class<? extends Tlist> classLiteral) {
-        return boardRepository.findAll(pagination)
-                .stream()
-                .map(e->convertTo(e,classLiteral))
-                .collect(Collectors.toList());
+        if(tlist==null) throw new IdeaNotFoundException();
+        return tlist;
     }
 
     /*
@@ -69,53 +74,90 @@ public class BoardServiceImpl {
         해당하는 RealThink게시물을 반환합니다.
     */
     @Transactional
-    public <Tout> Tout getOne(Long seq, Class<? extends Tout> classLiteral){
+    public <Tout extends BoardOutDTO> Tout getOne(Long seq,BoardType boardType, Class<? extends Tout> classLiteral){
         Board board = boardRepository.findBoardByBdSeq(seq);
+        if(board == null) throw new IdeaNotFoundException();
+        if(!board.getBoardType().equals(boardType))
+            throw new IdeaInvalidException(boardType.name().concat("게시물이 아닙니다."));
+        board.setHits(board.getHits() + 1);
+        boardRepository.save(board);
         return modelMapper.map(board, classLiteral);
     }
-
+    /*
+        작성자: 홍민석
+        작성일: 19-10-22
+        내용: 게시물을 생성합니다.
+     */
     @Transactional
-    public <Tin> MessageState setOne(Tin inDto, String nickname, String category, String boardType) {
+    public <Tin extends BoardInDTO> boolean setOne(Tin inDto, String nickname, String category, BoardType boardType) {
         Long seq;
         Board board = modelMapper.map(inDto, Board.class);
         board.setCategory(categoryRepository.findCategoryByCategory(category));
-        if ((seq = boardRepository.findBoardSeq(category)) != -1) {
-            board.setSeq(seq);
-            board.setUser(userRepository.findUserByNickName(nickname));
-            if(board.getUser()!=null) {
-                board.setBoardType(boardType);
-                board.setHits(0);
-                board.setGood(0);
-                board.setCreateAt(new Date());
-                if (boardRepository.save(board) != null) {
-                    return MessageState.Created;
-                }
-            }else{
-                 return MessageState.NotExist;
+        if ((seq = boardRepository.findBoardSeq(category)) == -1) throw new IdeaInvalidException();
+        board.setSeq(seq);
+        board.setUser(userRepository.findUserByNickName(nickname));
+        if(board.getUser()==null) throw new UserNotFoundException();
+        board.setBoardType(boardType);
+        board.setHits(0);
+        board.setGood(0);
+        board.setCreateAt(new Date());
+        if (boardRepository.save(board) == null) return false;
+        return true;
+    }
+    /*
+            작성자: 홍민석
+            작성일: 19-10-26
+            내용: FreeThink, RealThink, HotThink 게시물을 수정합니다.
+    */
+    @Transactional
+    public boolean putOne(PutDTO putDto) {
+        if(putDto.getBoardType()==null) {
+            throw new IdeaInvalidException("Board Type Not Found");
+        }
+        Board board = boardRepository.findBoardByBdSeq(putDto.getBdSeq());
+        BoardInDTO original = modelMapper.map(board,BoardInDTO.class);
+        BoardInDTO recent = modelMapper.map(putDto,BoardInDTO.class);
+
+        if(!original.getTitle().equals(recent.getTitle())||
+                !original.getContents().equals(recent.getContents())||
+                !original.getImage().equals(recent.getImage())) {
+            History history = modelMapper.map(original,History.class);
+            history.setSeq(putDto.getBdSeq());
+            history.setBoard(board);
+            history.setUpdateAt(new Date());
+            historyRepository.save(history);
+            board.setTitle(recent.getTitle());
+            board.setContents(recent.getContents());
+            board.setImage(recent.getImage());
+            boardRepository.save(board);
+        }
+        if(putDto.getBoardType()==BoardType.REAL) {
+            SubRealInDTO rOriginal = modelMapper.map(board.getReals().get(0),SubRealInDTO.class);
+            SubRealInDTO rRecent = putDto.getReal();
+            if(!rOriginal.getReview().equals(rRecent.getReview())||
+                    !rOriginal.getState().equals(rRecent.getState())||
+                    !rOriginal.getPMaterial().equals(rRecent.getPMaterial())){
+                Real real = modelMapper.map(rRecent,Real.class);
+                real.setBoard(board);
+                real.setUpdateAt(new Date());
+                realRepository.save(real);
             }
         }
-        return MessageState.Fail;
+        return true;
     }
 
-    public <Tin> MessageState putOne(Long seq, String category, Tin inDto) {
-            Board board = modelMapper.map(inDto, Board.class);
-
-            if(boardRepository.save(board)==null){
-                return MessageState.Fail;
-            }
-            return MessageState.Success;
-    }
-
+    /*
+        작성자: 홍민석
+        작성일: 19-10-22
+        내용: 게시물을 삭제합니다.
+     */
     @Transactional
-    public <Tin> MessageState deleteOne(Long seq, Tin inDto) {
+    public <Tin extends BoardInDTO> boolean deleteOne(Long seq, Tin inDto) {
         Board board = boardRepository.findBoardByBdSeq(seq);
         //TODO : 권한 인증 코드 작성
         boardRepository.delete(board);
-
-        if(boardRepository.existsById(Integer.parseInt(seq.toString()))){
-            return MessageState.Fail;
-        }
-        return MessageState.Success;
+        if(boardRepository.existsById(Integer.parseInt(seq.toString()))) return false;
+        return true;
     }
     /*
         작성자: 홍민석
@@ -125,14 +167,22 @@ public class BoardServiceImpl {
         게시판 좋아요(good)을 1만큼 증가시킵니다.
     */
     @Transactional
-    public MessageState setFreeLike(Long bdSeq, String nickName) {
+    public boolean setLike(LikeDTO likeDto) {
         Like like = new Like();
-        like.setBdSeq(bdSeq);
-        like.setUser(userRepository.findUserByNickName(nickName));
+        like.setBdSeq(likeDto.getBoardId());
+        like.setBoardType(likeDto.getBoardType());
+        like.setUser(userRepository.findUserByNickName(likeDto.getNickName()));
         likeRepository.save(like);
-
-        //freeRepository.likeFree(bdSeq); TODO:기능추가 해야함
-        return MessageState.Success;
+        switch(likeDto.getBoardType()){
+            case FREE:
+                boardRepository.likeFreeByBdSeq(likeDto.getBoardId());
+                return true;
+            case REPLY:
+                replyRepository.likeReplyByRpSeqAndBdSeq(likeDto.getReplyId(),likeDto.getBoardId());
+                return true;
+            default:
+                throw new IdeaInvalidException("Invalid Board Type Exception");
+        }
     }
 
     /*
@@ -143,7 +193,7 @@ public class BoardServiceImpl {
     */
     @Transactional
     public List<ReplyOutDTO> getReplyList(Long bdSeq) {
-        return replyRepository.findReplyByBDSEQ(bdSeq).stream().map(s->modelMapper.map(s, ReplyOutDTO.class)).collect(Collectors.toList());
+        return replyRepository.findReplyByBdSeq(bdSeq).stream().map(s->modelMapper.map(s, ReplyOutDTO.class)).collect(Collectors.toList());
     }
 
     /*
@@ -152,29 +202,54 @@ public class BoardServiceImpl {
         내용: 댓글 작성, bdSeq와 category는 ReplyInDTO 클래스에 존재.
     */
     @Transactional
-    public MessageState setReply(ReplyInDTO replyInDTO) {
+    public boolean setReply(ReplyInDTO replyInDTO) {
         Reply reply = modelMapper.map(replyInDTO, Reply.class);
+        reply.setAdopt(ReplyAdopt.N);
+        reply.setAt(new Date());
+        reply.setGood(0);
         reply.setUser(userRepository.findUserByNickName(replyInDTO.getNickName()));
-        reply.setBoard(boardRepository.findBoardByBdSeq(replyInDTO.getSeq()));
-        if(replyRepository.save(reply)==null) {
-            return MessageState.Error;
+        reply.setBoard(boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq()));
+        if(reply.getBoard()==null) throw new IdeaNotFoundException();
+        if(replyRepository.save(reply)==null) throw new ReplyNotFoundException();
+        if(replyInDTO.getSuperRpSeq()!=null){
+            Reply suReply=replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
+            suReply.setReply(reply);
+            replyRepository.save(suReply);
         }
-        return MessageState.Created;
+        return true;
     }
-
     /*
             작성자: 홍민석
-            작성일: 19-10-10
-            내용: 댓글 삭제.
-            성공시 true, 실패시 false를 반환합니다.
+            작성일: 19-11-01
+            내용: 댓글 수정
     */
-    public MessageState deleteReply(String bdSeq, Long replyId) {
+    @Transactional
+    public boolean putReply(ReplyPutDTO replyPutDTO, Long rpSeq) {
+        Reply reply = replyRepository.findReplyByRpSeq(rpSeq);
+        if(!reply.getUser().getNickName().equals(replyPutDTO.getNickName()))
+            throw new UserUnauthorizedException("Access Deny");
         //TODO: 권한 인증 코드 작성
 
-        return MessageState.Success;
+        reply.setContents(replyPutDTO.getContents());
+        replyRepository.save(reply);
+        return true;
     }
     /*
-     * 공통 매퍼
+            작성자: 홍민석
+            작성일: 19-10-24
+            내용: 글 번호, 댓글 번호를 인자로 전달받아
+                해당하는 댓글을 삭제합니다.
+    */
+    public boolean deleteReply(Long bdSeq, Long replyId) {
+        Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
+        //TODO: 권한 인증 코드 작성
+        if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString())))
+            replyRepository.delete(reply);
+        if(reply!=null) return false;
+        return true;
+    }
+    /*
+     공통 매퍼
      */
     public <T, E> T convertTo(E source, Class<? extends T> classLiteral) {
         return modelMapper.map(source, classLiteral);

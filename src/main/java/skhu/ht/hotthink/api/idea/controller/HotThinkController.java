@@ -4,7 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skhu.ht.hotthink.api.idea.model.*;
+import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.model.PutDTO;
+import skhu.ht.hotthink.api.idea.model.boardin.HotInDTO;
+import skhu.ht.hotthink.api.idea.model.boardlist.HotListDTO;
+import skhu.ht.hotthink.api.idea.model.boardout.HotOutDTO;
+import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
 import java.util.List;
@@ -22,7 +27,10 @@ public class HotThinkController {
             해당하는 hotthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> hotList(@RequestBody IdeaPagination pagination) {
+    public ResponseEntity<?> hotList(@RequestBody Pagination pagination) {
+        if(pagination.getBoardType().equals(BoardType.HOT)){
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
         List<HotListDTO> hot = boardService.getBoardList(pagination, HotListDTO.class);
         if(hot == null){
             return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -39,7 +47,7 @@ public class HotThinkController {
     */
     @GetMapping(value = "/{hotId}")
     public ResponseEntity<?> hotRead(@PathVariable("hotId") Long hotId) {
-        HotOutDTO hotOutDto = boardService.getOne(hotId,HotOutDTO.class);
+        HotOutDTO hotOutDto = boardService.getOne(hotId,BoardType.HOT, HotOutDTO.class);
         if(hotOutDto == null){
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
@@ -75,13 +83,15 @@ public class HotThinkController {
     @PutMapping(value = "/{hotId}/{category}")
     public ResponseEntity<String> hotUpdate(@PathVariable("hotId") Long hotId, @PathVariable("category") String category,
                                              @RequestBody HotInDTO hotInDto){
-        switch(boardService.putOne(hotId, category, hotInDto)){
-            case Success:
-                return new ResponseEntity(HttpStatus.OK);
-            default:
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
-
+        PutDTO putDto = PutDTO.builder()
+                .bdSeq(hotId)
+                .title(hotInDto.getTitle())
+                .contents(hotInDto.getContents())
+                .image(hotInDto.getImage())
+                .boardType(BoardType.HOT)
+                .build();
+        if(boardService.putOne(putDto)) return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
@@ -96,11 +106,9 @@ public class HotThinkController {
     public ResponseEntity<String> hotDelete(@PathVariable("hotId") Long hotId,
                                              @RequestBody HotInDTO hotInDto){
 
-        switch(boardService.deleteOne(hotId, hotInDto)){
-            case Success:
-                return new ResponseEntity(HttpStatus.OK);
-            default:
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        if(boardService.deleteOne(hotId, hotInDto)) {
+            return new ResponseEntity(HttpStatus.OK);
         }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 }

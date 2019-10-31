@@ -1,7 +1,7 @@
 package skhu.ht.hotthink.api.idea.model;
 
 import lombok.Data;
-import skhu.ht.hotthink.api.domain.RoleName;
+import skhu.ht.hotthink.api.domain.enums.RoleName;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
