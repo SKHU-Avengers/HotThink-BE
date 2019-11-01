@@ -62,7 +62,8 @@ public class BoardServiceImpl {
     */
     @Transactional
     public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
-        List<Tlist> tlist = boardRepository.findAll(pagination)
+        Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
+        List<Tlist> tlist = boardRepository.findAll(pagination,category)
                 .stream()
                 .map(e -> convertTo(e, classLiteral))
                 .collect(Collectors.toList());
