@@ -3,8 +3,10 @@ package skhu.ht.hotthink.api.idea.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
@@ -14,14 +16,19 @@ import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
+import skhu.ht.hotthink.api.user.model.UserBase;
+import skhu.ht.hotthink.api.user.service.UserService;
+import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("api/freethink")
 public class FreeThinkController {
-
+    @Autowired
+    UserServiceImpl userService;
     @Autowired
     BoardServiceImpl boardService;
 
@@ -59,12 +66,16 @@ public class FreeThinkController {
         내용: freethink 게시물 CREATE.
         쓰고자 하는 게시물 정보(FreeInDTO)를 JSON으로 입력받아
         새로운 게시물 생성
+        작성일: 2019-11-01
+        내용: 권한 인증 작성
     */
-    @PostMapping(value = "/{nickname}/{category}")
+    @PostMapping(value = "/{category}")
     public ResponseEntity<?> freeCreate(@RequestBody @Valid FreeInDTO freeInDto,
-                           @PathVariable("nickname") String nickname,
-                           @PathVariable("category") String category) {
-        if(boardService.setOne(freeInDto, nickname, category, BoardType.FREE)){
+                                        @PathVariable("category") String category,
+                                        Principal principal) {
+        UserBase userBase = (UserBase)principal;
+        if(userBase.getNickName()==null) throw new UserUnauthorizedException("Access Deny");
+        if(boardService.setOne(freeInDto, userBase.getNickName(), category, BoardType.FREE)){
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -73,7 +84,7 @@ public class FreeThinkController {
     /*
         작성자: 홍민석
         작성일: 2019-10-07
-        내용: realthink 게시물 UPDATE.
+        내용: freethink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(FreeInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
         TODO:권한 인증 코드 작성
@@ -155,10 +166,15 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-25
         내용: 댓글 CREATE.
+        작성일: 19-11-01
+        내용: 권한인증 코드작성
     */
     @PostMapping(value = "{boardId}/reply")
     public ResponseEntity<?> replyCreate(@PathVariable("boardId") Long boardId,
-                                         @RequestBody ReplyInDTO replyInDto){
+                                         @RequestBody ReplyInDTO replyInDto,
+                                         Principal principal){
+        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
+        replyInDto.setNickName(((UserBase)principal).getNickName());
         replyInDto.setBdSeq(boardId);
         if(boardService.setReply(replyInDto)){
             return new ResponseEntity(HttpStatus.CREATED);
@@ -170,11 +186,16 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-25
         내용: 대댓글 CREATE.
+        작성일: 19-11-01
+        내용: 권한인증 코드작성
     */
     @PostMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> subreplyCreate(@PathVariable("freeId") Long boardId,
                                          @PathVariable("replyId")Long replyId,
-                                         @RequestBody @Valid ReplyInDTO replyInDto){
+                                         @RequestBody @Valid ReplyInDTO replyInDto,
+                                            Principal principal){
+        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
+        replyInDto.setNickName(((UserBase)principal).getNickName());
         replyInDto.setBdSeq(boardId);
         replyInDto.setSuperRpSeq(replyId);
         if(boardService.setReply(replyInDto)){
@@ -187,28 +208,30 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-25
         내용: 댓글 UPDATE.
-        TODO:권한 인증 코드 작성
+        작성일: 19-11-01
+        내용: 권한인증 코드작성
     */
     @PutMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> replyUpdate(@PathVariable("freeId") Long boardId,//rest 및 이후 예외처리 위해 만듦.
                             @PathVariable("replyId") Long replyId,
-                            @RequestBody ReplyPutDTO replyPutDto){
-        if(boardService.putReply(replyPutDto,replyId))
-            return new ResponseEntity(HttpStatus.OK);
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                            @RequestBody ReplyPutDTO replyPutDto,
+                                         Principal principal){
+        if(((UserBase)principal).getNickName().equals(replyPutDto.getNickName()))
+            throw new UserUnauthorizedException("Access Deny");
+        return boardService.putReply(replyPutDto,replyId)?
+                new ResponseEntity(HttpStatus.OK): new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
         작성자: 홍민석
-        작성일:
-        내용: 댓글 DELETE.
-        TODO:권한 인증 코드 작성
+        작성일: 2019-11-01
+        내용: 댓글 DELETE
+        서비스에 권한인증 코드작성
     */
     @DeleteMapping(value = "/{freeId}/reply/{replyId}")
     public ResponseEntity<?> replyDelete(@PathVariable("freeId") Long freeId,
                             @PathVariable("replyId") Long replyId){
         if(boardService.deleteReply(freeId,replyId)) return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
-
     }
 }

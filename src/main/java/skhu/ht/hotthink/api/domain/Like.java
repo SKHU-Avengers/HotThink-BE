@@ -7,6 +7,7 @@ import skhu.ht.hotthink.api.domain.enums.BoardType;
 import javax.persistence.*;
 
 @Data
+@Builder
 @Entity(name = "Like")
 @Table(name = "TB_LIKE")
 public class Like {
