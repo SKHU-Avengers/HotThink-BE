@@ -1,12 +1,16 @@
 package skhu.ht.hotthink.api.idea.controller;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
+import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
@@ -17,13 +21,15 @@ import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 import skhu.ht.hotthink.api.user.model.UserBase;
-import skhu.ht.hotthink.api.user.service.UserService;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/freethink")
 public class FreeThinkController {
@@ -40,8 +46,21 @@ public class FreeThinkController {
         해당하는 realthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> freeList(@RequestBody Pagination pagination) {
-        pagination.setBoardType(BoardType.FREE);
+    public ResponseEntity<?> freeList(@RequestParam(value = "sb",defaultValue = "0") Integer searchBy,
+                                      @RequestParam("sz") @NonNull Integer size,
+                                      @RequestParam("pg") @NonNull Integer page,
+                                      @RequestParam(name="ob", defaultValue = "0") Integer orderBy,
+                                      @RequestParam(name="category") CategoryDTO category,
+                                      @RequestParam(name="st", required = false) String searchText) {
+        Pagination pagination = Pagination.builder()
+                .category(category.name())
+                .page(page)
+                .boardType(BoardType.FREE)
+                .size(size)
+                .orderBy(orderBy)
+                .searchBy(searchBy)
+                .searchText(searchText)
+                .build();
         List<FreeListDTO> free = boardService.getBoardList(pagination,FreeListDTO.class);
         return new ResponseEntity(free,HttpStatus.OK);
     }
@@ -72,9 +91,12 @@ public class FreeThinkController {
     @PostMapping(value = "/{category}")
     public ResponseEntity<?> freeCreate(@RequestBody @Valid FreeInDTO freeInDto,
                                         @PathVariable("category") String category,
-                                        Principal principal) {
-        UserBase userBase = (UserBase)principal;
-        if(userBase.getNickName()==null) throw new UserUnauthorizedException("Access Deny");
+                                        @AuthenticationPrincipal UserBase userBase) {
+        if(userBase == null){
+            log.error("userBase is null");
+        }
+        log.debug("인증된 사용자 정보"+userBase.getNickName());
+        //if(userBase.getNickName()==null) throw new UserUnauthorizedException("Access Deny");
         if(boardService.setOne(freeInDto, userBase.getNickName(), category, BoardType.FREE)){
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -107,7 +129,7 @@ public class FreeThinkController {
     /*
         작성자: 홍민석
         작성일: 2019-10-07
-        내용: realthink 게시물 DELETE.
+        내용: freethink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
         TODO:권한 인증 코드 작성
@@ -115,7 +137,6 @@ public class FreeThinkController {
     @DeleteMapping(value = "/{freeId}")
     public ResponseEntity<?> freeDelete(@PathVariable("freeId") Long freeId,
                            @RequestBody @Valid FreeInDTO freeInDto){
-
         if(boardService.deleteOne(freeId, freeInDto)) {
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -127,11 +148,13 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-26
         내용: freethink 좋아요 기능입니다.
-        TODO: nickName여부 프런트와 상의 필요
     */
-    @PostMapping(value="/{freeId}/fan/{nickname}")
+    @PostMapping(value="/{freeId}/fan")
     public ResponseEntity<String> freeLike(@PathVariable("freeId") Long bdSeq,
-                                                 @PathVariable("nickname") String nickName){
+                                           Principal principal){
+        String nickName;
+        if((nickName = ((UserBase)principal).getNickName())==null)
+            throw new UserUnauthorizedException("Access Deny");
         LikeDTO likeDTO = LikeDTO.builder()
                 .boardId(bdSeq)
                 .nickName(nickName)
@@ -144,12 +167,15 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-26
         내용: freethink 댓글 좋아요 기능입니다.
-        TODO: nickName여부 프런트와 상의 필요
     */
-    @PostMapping(value="/{freeId}/reply/{replyId}/fan/{nickname}")
+    @PostMapping(value="/{freeId}/reply/{replyId}/fan")
     public ResponseEntity<String> freeReplyLike(@PathVariable("freeId") Long bdSeq,
                                                  @PathVariable("replyId") Long rpSeq,
-                                                 @PathVariable("nickname") String nickName){
+                                                Principal principal){
+        String nickName;
+        if((nickName = ((UserBase)principal).getNickName())==null)
+            throw new UserUnauthorizedException("Access Deny");
+
         LikeDTO likeDTO = LikeDTO.builder()
                 .boardId(bdSeq)
                 .replyId(rpSeq)

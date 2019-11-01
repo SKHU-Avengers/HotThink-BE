@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Board;
@@ -23,7 +24,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Option[] searchBy = { new Option(0,"검색없음"), new Option(1,"글쓴이"),
                           new Option(2,"제목"), new Option(3,"내용")};
     Option[] orderBy = { new Option(0,"최근 글"), new Option(1, "오래된 글"),
-                         new Option(2, "글쓴이")};
+                         new Option(2, "생성날짜")};
     Sort[] sort = { new Sort(Sort.Direction.DESC, "bdSeq"),
              new Sort(Sort.Direction.ASC, "bdSeq"),
              new Sort(Sort.Direction.ASC, "createAt")};
@@ -84,6 +85,8 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Page<Board> findByCategoryAndUserAndBoardType(Category category, String User, BoardType boardType, Pageable pageable);
     Page<Board> findByCategoryAndBoardType(Category category, BoardType boardType, Pageable pageable);
     Board findBoardByBdSeq(Long bdSeq);
+
+    @Modifying
     @Query("UPDATE Board B SET B.good = B.good + 1 WHERE B.bdSeq = ?1")
     Integer likeFreeByBdSeq(Long boardId);
 
