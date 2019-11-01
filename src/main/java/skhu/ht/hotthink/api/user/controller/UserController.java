@@ -12,6 +12,7 @@ import skhu.ht.hotthink.api.user.service.EmailService;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
 @RestController
+@RequestMapping("api")
 public class UserController {
 
     @Autowired
@@ -59,7 +60,7 @@ public class UserController {
            내용: 회원정보 수정
     */
     @ResponseBody
-    @PutMapping("api/user")
+    @PutMapping("user")
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
         return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
