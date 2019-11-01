@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.user.model.NewUserDTO;
+import skhu.ht.hotthink.api.user.model.UserInfoDTO;
 import skhu.ht.hotthink.api.user.model.UserModificationDTO;
 import skhu.ht.hotthink.api.user.service.EmailService;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
@@ -62,4 +63,17 @@ public class UserController {
     public ResponseEntity<String> userUpdate(@RequestBody UserModificationDTO userDTO){
         return userService.saveUser(userDTO)? new ResponseEntity<String>("Success", HttpStatus.OK) : new ResponseEntity<String>("NickName Overlap", HttpStatus.valueOf(408));
     }
- }
+
+    /*
+           작성자: 김영곤
+           작성일: 19-10-22
+           내용: 마이페이지
+           작성일: 19-10-27
+           내용: 문혁이의 부탁으로 url 로그인 체크로 변경
+    */
+    @GetMapping("login/check")
+    public @ResponseBody UserInfoDTO myPage(){
+        return userService.findUserInfo();
+    }
+
+}
