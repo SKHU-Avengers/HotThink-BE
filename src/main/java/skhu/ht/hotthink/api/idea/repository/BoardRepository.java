@@ -24,9 +24,9 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
                           new Option(2,"제목"), new Option(3,"내용")};
     Option[] orderBy = { new Option(0,"최근 글"), new Option(1, "오래된 글"),
                          new Option(2, "글쓴이")};
-    Sort[] sort = { new Sort(Sort.Direction.DESC, "id"),
-             new Sort(Sort.Direction.ASC, "id"),
-             new Sort(Sort.Direction.ASC, "user_name")};
+    Sort[] sort = { new Sort(Sort.Direction.DESC, "bdSeq"),
+             new Sort(Sort.Direction.ASC, "bdSeq"),
+             new Sort(Sort.Direction.ASC, "createAt")};
 
     default List<Board> findAll(IdeaPagination pagination, Category category){
         Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
