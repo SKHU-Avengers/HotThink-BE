@@ -1,17 +1,23 @@
 package skhu.ht.hotthink.api.idea.controller;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.IdeaState;
+import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
-import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.boardin.RealInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.RealListDTO;
 import skhu.ht.hotthink.api.idea.model.boardout.RealOutDTO;
+import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
+import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 
 @RestController
@@ -27,7 +33,23 @@ public class RealThinkController {
             해당하는 realthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> realList(@RequestBody IdeaPagination pagination) {
+    public ResponseEntity<?> realList(@RequestParam(value = "sb",defaultValue = "0") Integer searchBy,
+                                      @RequestParam("sz") @NonNull Integer size,
+                                      @RequestParam("pg") @NonNull Integer page,
+                                      @RequestParam(name="ob", defaultValue = "0") Integer orderBy,
+                                      @RequestParam(name="category") CategoryDTO category,
+                                      @RequestParam(name="st", required = false) String searchText,
+                                      @RequestParam(name="state",required = false) IdeaState ideaState) {
+        IdeaPagination pagination = IdeaPagination.ideaBuilder()
+                .category(category.name())
+                .page(page)
+                .boardType(BoardType.REAL)
+                .size(size)
+                .orderBy(orderBy)
+                .searchBy(searchBy)
+                .searchText(searchText)
+                .type(ideaState)
+                .build();
         List<RealListDTO> real = boardService.getBoardList(pagination,RealListDTO.class);
         return new ResponseEntity(real, HttpStatus.OK);
     }

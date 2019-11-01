@@ -1,6 +1,5 @@
 package skhu.ht.hotthink.api.idea.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
-import skhu.ht.hotthink.api.domain.enums.ReplyAdopt;
 import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
 import skhu.ht.hotthink.api.idea.exception.IdeaNotFoundException;
 import skhu.ht.hotthink.api.idea.exception.ReplyNotFoundException;
@@ -28,7 +26,6 @@ import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
 import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.api.idea.repository.RealRepository;
-import skhu.ht.hotthink.api.user.service.UserService;
 
 import java.util.Date;
 import java.util.List;
@@ -63,6 +60,7 @@ public class BoardServiceImpl {
     @Transactional
     public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
         Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
+
         List<Tlist> tlist = boardRepository.findAll(pagination,category)
                 .stream()
                 .map(e -> convertTo(e, classLiteral))
@@ -151,10 +149,14 @@ public class BoardServiceImpl {
         작성자: 홍민석
         작성일: 19-10-22
         내용: 게시물을 삭제합니다.
+        작성일: 19-111-01
+        내용: 권한 인증 코드 작성
      */
     @Transactional
     public <Tin extends BoardInDTO> boolean deleteOne(Long seq, Tin inDto) {
         Board board = boardRepository.findBoardByBdSeq(seq);
+        if(!isWriter(board.getUser().getNickName()))
+            throw new UserUnauthorizedException("Access Deny");
         boardRepository.delete(board);
         return boardRepository.existsById(Integer.parseInt(seq.toString()))?false:true;
     }

@@ -1,10 +1,12 @@
 package skhu.ht.hotthink.api.idea.controller;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.HotInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.HotListDTO;
@@ -27,10 +29,21 @@ public class HotThinkController {
             해당하는 hotthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> hotList(@RequestBody Pagination pagination) {
-        if(pagination.getBoardType().equals(BoardType.HOT)){
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> hotList(@RequestParam(value = "sb",defaultValue = "0") Integer searchBy,
+                                     @RequestParam("sz") @NonNull Integer size,
+                                     @RequestParam("pg") @NonNull Integer page,
+                                     @RequestParam(name="ob", defaultValue = "0") Integer orderBy,
+                                     @RequestParam(name="category") CategoryDTO category,
+                                     @RequestParam(name="st", required = false) String searchText) {
+        Pagination pagination = Pagination.builder()
+                .category(category.name())
+                .page(page)
+                .boardType(BoardType.HOT)
+                .size(size)
+                .orderBy(orderBy)
+                .searchBy(searchBy)
+                .searchText(searchText)
+                .build();
         List<HotListDTO> hot = boardService.getBoardList(pagination, HotListDTO.class);
         if(hot == null){
             return new ResponseEntity(HttpStatus.NOT_FOUND);

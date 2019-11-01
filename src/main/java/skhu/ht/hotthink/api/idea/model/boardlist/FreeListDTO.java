@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class FreeListDTO extends BoardListDTO {
     private Integer hits;
-    private Integer like;
+    private Integer good;
 }
