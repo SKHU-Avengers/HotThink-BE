@@ -8,6 +8,7 @@ import java.util.Date;
 @Data
 public class ReplyInDTO{
     private String contents;
+    @JsonIgnore
     private String nickName;
     @JsonIgnore
     private Long bdSeq;

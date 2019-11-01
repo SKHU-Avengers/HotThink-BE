@@ -3,6 +3,7 @@ package skhu.ht.hotthink.api.idea.service;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
@@ -24,8 +25,10 @@ import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.repository.*;
 import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
+import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.api.idea.repository.RealRepository;
+import skhu.ht.hotthink.api.user.service.UserService;
 
 import java.util.Date;
 import java.util.List;
@@ -101,8 +104,7 @@ public class BoardServiceImpl {
         board.setHits(0);
         board.setGood(0);
         board.setCreateAt(new Date());
-        if (boardRepository.save(board) == null) return false;
-        return true;
+        return boardRepository.save(board) == null?false:true;
     }
     /*
             작성자: 홍민석
@@ -115,16 +117,16 @@ public class BoardServiceImpl {
             throw new IdeaInvalidException("Board Type Not Found");
         }
         Board board = boardRepository.findBoardByBdSeq(putDto.getBdSeq());
+        if(!isWriter(board.getUser().getNickName())) throw new UserUnauthorizedException("Access Deny");
         BoardInDTO original = modelMapper.map(board,BoardInDTO.class);
         BoardInDTO recent = modelMapper.map(putDto,BoardInDTO.class);
-
-        if(!original.getTitle().equals(recent.getTitle())||
-                !original.getContents().equals(recent.getContents())||
-                !original.getImage().equals(recent.getImage())) {
-            History history = modelMapper.map(original,History.class);
-            history.setSeq(putDto.getBdSeq());
-            history.setBoard(board);
-            history.setUpdateAt(new Date());
+        if(!original.equals(recent)) {
+            History history = History.builder()
+                    .board(board)
+                    .image(original.getImage())
+                    .contents(original.getContents())
+                    .title(original.getTitle())
+                    .build();
             historyRepository.save(history);
             board.setTitle(recent.getTitle());
             board.setContents(recent.getContents());
@@ -134,9 +136,7 @@ public class BoardServiceImpl {
         if(putDto.getBoardType()==BoardType.REAL) {
             SubRealInDTO rOriginal = modelMapper.map(board.getReals().get(0),SubRealInDTO.class);
             SubRealInDTO rRecent = putDto.getReal();
-            if(!rOriginal.getReview().equals(rRecent.getReview())||
-                    !rOriginal.getState().equals(rRecent.getState())||
-                    !rOriginal.getPMaterial().equals(rRecent.getPMaterial())){
+            if(!rOriginal.equals(rRecent)){
                 Real real = modelMapper.map(rRecent,Real.class);
                 real.setBoard(board);
                 real.setUpdateAt(new Date());
@@ -154,10 +154,8 @@ public class BoardServiceImpl {
     @Transactional
     public <Tin extends BoardInDTO> boolean deleteOne(Long seq, Tin inDto) {
         Board board = boardRepository.findBoardByBdSeq(seq);
-        //TODO : 권한 인증 코드 작성
         boardRepository.delete(board);
-        if(boardRepository.existsById(Integer.parseInt(seq.toString()))) return false;
-        return true;
+        return boardRepository.existsById(Integer.parseInt(seq.toString()))?false:true;
     }
     /*
         작성자: 홍민석
@@ -168,9 +166,10 @@ public class BoardServiceImpl {
     */
     @Transactional
     public boolean setLike(LikeDTO likeDto) {
-        Like like = new Like();
-        like.setBdSeq(likeDto.getBoardId());
-        like.setBoardType(likeDto.getBoardType());
+        Like like = Like.builder()
+                .bdSeq(likeDto.getBoardId())
+                .boardType(likeDto.getBoardType())
+                .build();
         like.setUser(userRepository.findUserByNickName(likeDto.getNickName()));
         likeRepository.save(like);
         switch(likeDto.getBoardType()){
@@ -203,16 +202,18 @@ public class BoardServiceImpl {
     */
     @Transactional
     public boolean setReply(ReplyInDTO replyInDTO) {
-        Reply reply = modelMapper.map(replyInDTO, Reply.class);
-        reply.setAdopt(ReplyAdopt.N);
-        reply.setAt(new Date());
-        reply.setGood(0);
-        reply.setUser(userRepository.findUserByNickName(replyInDTO.getNickName()));
-        reply.setBoard(boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq()));
-        if(reply.getBoard()==null) throw new IdeaNotFoundException();
+        Board board = boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq());
+        if(board==null) throw new IdeaNotFoundException();
+        User user = userRepository.findUserByNickName(replyInDTO.getNickName());
+        if(user==null) throw new UserNotFoundException();
+        final Reply reply = Reply.BySetBuilder()
+                .contents(replyInDTO.getContents())
+                .board(board)
+                .user(user)
+                .build();
         if(replyRepository.save(reply)==null) throw new ReplyNotFoundException();
         if(replyInDTO.getSuperRpSeq()!=null){
-            Reply suReply=replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
+            Reply suReply = replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
             suReply.setReply(reply);
             replyRepository.save(suReply);
         }
@@ -238,20 +239,36 @@ public class BoardServiceImpl {
             작성자: 홍민석
             작성일: 19-10-24
             내용: 글 번호, 댓글 번호를 인자로 전달받아
-                해당하는 댓글을 삭제합니다.
+            해당하는 댓글을 삭제합니다.
+            작성일: 19-11-01
+            내용: 권한인증 코드 작성
     */
     public boolean deleteReply(Long bdSeq, Long replyId) {
         Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
-        //TODO: 권한 인증 코드 작성
+        if(isWriter(reply.getUser().getNickName()))throw new UserUnauthorizedException("Access Deny");
+
         if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString())))
             replyRepository.delete(reply);
-        if(reply!=null) return false;
-        return true;
+        return (reply!=null)?false:true;
     }
     /*
      공통 매퍼
      */
     public <T, E> T convertTo(E source, Class<? extends T> classLiteral) {
         return modelMapper.map(source, classLiteral);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 2019-11-01
+        내용: 권한 인증
+     */
+    private static boolean isWriter(String nickName){
+        return ((UserBase) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal())
+                .getNickName()
+                .equals(nickName);
     }
 }

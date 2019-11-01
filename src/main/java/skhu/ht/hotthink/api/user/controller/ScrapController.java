@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skhu.ht.hotthink.api.user.model.ScrapInDTO;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
 @RestController
@@ -19,11 +18,13 @@ public class ScrapController {
         작성자: 홍민석
         내용: 스크랩 생성,
         삭제 성공시 CREATED 반환
+        2019-11-01
+        내용: ScrapInDTO제거
      */
-    @PostMapping("/{nickName}/scrap")
+    @PostMapping("/{nickName}/scrap/{boardId}")
     public ResponseEntity<?> ScrapCreate(@PathVariable("nickName") String nickName,
-                                             @RequestBody ScrapInDTO scrapInDto){
-        if(userService.setScrap(nickName, scrapInDto))return new ResponseEntity(HttpStatus.OK);
+                                             @PathVariable("boardId") Long boardId){
+        if(userService.setScrap(nickName, boardId))return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     /*
