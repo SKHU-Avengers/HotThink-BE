@@ -7,7 +7,6 @@ import skhu.ht.hotthink.api.domain.enums.BoardType;
 import javax.persistence.*;
 
 @Data
-@Builder
 @Entity(name = "Like")
 @Table(name = "TB_LIKE")
 public class Like {
@@ -23,4 +22,11 @@ public class Like {
     @Enumerated(EnumType.STRING)
     @Column(name="BOARD_TYPE")
     private BoardType boardType;
+
+    @Builder(builderClassName = "ByCreateBuilder", builderMethodName = "ByCreateBuilder")
+    public Like(User user, Long bdSeq, BoardType boardType) {
+        this.user = user;
+        this.bdSeq = bdSeq;
+        this.boardType = boardType;
+    }
 }

@@ -90,14 +90,8 @@ public class FreeThinkController {
     */
     @PostMapping(value = "/{category}")
     public ResponseEntity<?> freeCreate(@RequestBody @Valid FreeInDTO freeInDto,
-                                        @PathVariable("category") String category,
-                                        @AuthenticationPrincipal UserBase userBase) {
-        if(userBase == null){
-            log.error("userBase is null");
-        }
-        log.debug("인증된 사용자 정보"+userBase.getNickName());
-        //if(userBase.getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        if(boardService.setOne(freeInDto, userBase.getNickName(), category, BoardType.FREE)){
+                                        @PathVariable("category") String category) {
+        if(boardService.setOne(freeInDto, category, BoardType.FREE)){
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -150,14 +144,9 @@ public class FreeThinkController {
         내용: freethink 좋아요 기능입니다.
     */
     @PostMapping(value="/{freeId}/fan")
-    public ResponseEntity<String> freeLike(@PathVariable("freeId") Long bdSeq,
-                                           Principal principal){
-        String nickName;
-        if((nickName = ((UserBase)principal).getNickName())==null)
-            throw new UserUnauthorizedException("Access Deny");
+    public ResponseEntity<String> freeLike(@PathVariable("freeId") Long bdSeq){
         LikeDTO likeDTO = LikeDTO.builder()
-                .boardId(bdSeq)
-                .nickName(nickName)
+                .seq(bdSeq)
                 .boardType(BoardType.FREE)
                 .build();
         if(boardService.setLike(likeDTO)) return new ResponseEntity(HttpStatus.OK);
@@ -170,16 +159,10 @@ public class FreeThinkController {
     */
     @PostMapping(value="/{freeId}/reply/{replyId}/fan")
     public ResponseEntity<String> freeReplyLike(@PathVariable("freeId") Long bdSeq,
-                                                 @PathVariable("replyId") Long rpSeq,
-                                                Principal principal){
-        String nickName;
-        if((nickName = ((UserBase)principal).getNickName())==null)
-            throw new UserUnauthorizedException("Access Deny");
+                                                 @PathVariable("replyId") Long rpSeq){
 
         LikeDTO likeDTO = LikeDTO.builder()
-                .boardId(bdSeq)
-                .replyId(rpSeq)
-                .nickName(nickName)
+                .seq(rpSeq)
                 .boardType(BoardType.REPLY)
                 .build();
         if(boardService.setLike(likeDTO)){
@@ -197,10 +180,7 @@ public class FreeThinkController {
     */
     @PostMapping(value = "{boardId}/reply")
     public ResponseEntity<?> replyCreate(@PathVariable("boardId") Long boardId,
-                                         @RequestBody ReplyInDTO replyInDto,
-                                         Principal principal){
-        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        replyInDto.setNickName(((UserBase)principal).getNickName());
+                                         @RequestBody ReplyInDTO replyInDto){
         replyInDto.setBdSeq(boardId);
         if(boardService.setReply(replyInDto)){
             return new ResponseEntity(HttpStatus.CREATED);
@@ -218,10 +198,7 @@ public class FreeThinkController {
     @PostMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> subreplyCreate(@PathVariable("freeId") Long boardId,
                                          @PathVariable("replyId")Long replyId,
-                                         @RequestBody @Valid ReplyInDTO replyInDto,
-                                            Principal principal){
-        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        replyInDto.setNickName(((UserBase)principal).getNickName());
+                                         @RequestBody @Valid ReplyInDTO replyInDto){
         replyInDto.setBdSeq(boardId);
         replyInDto.setSuperRpSeq(replyId);
         if(boardService.setReply(replyInDto)){
@@ -240,10 +217,7 @@ public class FreeThinkController {
     @PutMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> replyUpdate(@PathVariable("freeId") Long boardId,//rest 및 이후 예외처리 위해 만듦.
                             @PathVariable("replyId") Long replyId,
-                            @RequestBody ReplyPutDTO replyPutDto,
-                                         Principal principal){
-        if(((UserBase)principal).getNickName().equals(replyPutDto.getNickName()))
-            throw new UserUnauthorizedException("Access Deny");
+                            @RequestBody ReplyPutDTO replyPutDto){
         return boardService.putReply(replyPutDto,replyId)?
                 new ResponseEntity(HttpStatus.OK): new ResponseEntity(HttpStatus.BAD_REQUEST);
     }

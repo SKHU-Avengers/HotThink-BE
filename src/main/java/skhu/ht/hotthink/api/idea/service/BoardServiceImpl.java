@@ -22,10 +22,12 @@ import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.repository.*;
+import skhu.ht.hotthink.api.user.exception.UserConflictException;
 import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
 import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.repository.UserRepository;
 import skhu.ht.hotthink.api.idea.repository.RealRepository;
+import skhu.ht.hotthink.error.ErrorCode;
 
 import java.util.Date;
 import java.util.List;
@@ -60,7 +62,6 @@ public class BoardServiceImpl {
     @Transactional
     public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
         Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
-
         List<Tlist> tlist = boardRepository.findAll(pagination,category)
                 .stream()
                 .map(e -> convertTo(e, classLiteral))
@@ -91,13 +92,13 @@ public class BoardServiceImpl {
         내용: 게시물을 생성합니다.
      */
     @Transactional
-    public <Tin extends BoardInDTO> boolean setOne(Tin inDto, String nickname, String category, BoardType boardType) {
+    public <Tin extends BoardInDTO> boolean setOne(Tin inDto, String category, BoardType boardType) {
         Long seq;
         Board board = modelMapper.map(inDto, Board.class);
         board.setCategory(categoryRepository.findCategoryByCategory(category));
         if ((seq = boardRepository.findBoardSeq(category)) == -1) throw new IdeaInvalidException();
         board.setSeq(seq);
-        board.setUser(userRepository.findUserByNickName(nickname));
+        board.setUser(userRepository.findUserByNickName(findEmailBySpringSecurity()));
         if(board.getUser()==null) throw new UserNotFoundException();
         board.setBoardType(boardType);
         board.setHits(0);
@@ -116,7 +117,7 @@ public class BoardServiceImpl {
             throw new IdeaInvalidException("Board Type Not Found");
         }
         Board board = boardRepository.findBoardByBdSeq(putDto.getBdSeq());
-        if(!isWriter(board.getUser().getNickName())) throw new UserUnauthorizedException("Access Deny");
+        if(!isWriter(board.getUser().getEmail())) throw new UserUnauthorizedException("Access Deny");
         BoardInDTO original = modelMapper.map(board,BoardInDTO.class);
         BoardInDTO recent = modelMapper.map(putDto,BoardInDTO.class);
         if(!original.equals(recent)) {
@@ -155,7 +156,7 @@ public class BoardServiceImpl {
     @Transactional
     public <Tin extends BoardInDTO> boolean deleteOne(Long seq, Tin inDto) {
         Board board = boardRepository.findBoardByBdSeq(seq);
-        if(!isWriter(board.getUser().getNickName()))
+        if(!isWriter(board.getUser().getEmail()))
             throw new UserUnauthorizedException("Access Deny");
         boardRepository.delete(board);
         return boardRepository.existsById(Integer.parseInt(seq.toString()))?false:true;
@@ -169,22 +170,30 @@ public class BoardServiceImpl {
     */
     @Transactional
     public boolean setLike(LikeDTO likeDto) {
-        Like like = Like.builder()
-                .bdSeq(likeDto.getBoardId())
+        String email;
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        Like like = Like.ByCreateBuilder()
+                .bdSeq(likeDto.getSeq())
                 .boardType(likeDto.getBoardType())
+                .user(user)
                 .build();
-        like.setUser(userRepository.findUserByNickName(likeDto.getNickName()));
-        likeRepository.save(like);
         switch(likeDto.getBoardType()){
             case FREE:
-                boardRepository.likeFreeByBdSeq(likeDto.getBoardId());
-                return true;
+                Board board = boardRepository.findBoardByBdSeq(likeDto.getSeq());
+                email = board.getUser().getEmail();
+                boardRepository.likeFreeByBdSeq(likeDto.getSeq());
+                break;
             case REPLY:
-                replyRepository.likeReplyByRpSeqAndBdSeq(likeDto.getReplyId(),likeDto.getBoardId());
-                return true;
+                Reply reply = replyRepository.findReplyByRpSeq(likeDto.getSeq());
+                email = reply.getUser().getEmail();
+                replyRepository.likeReplyByRpSeq(likeDto.getSeq());
+                break;
             default:
                 throw new IdeaInvalidException("Invalid Board Type Exception");
         }
+        if(isWriter(email))throw new UserConflictException("자기자신 좋아요",ErrorCode.EMAIL_CONFLICT);
+        likeRepository.save(like);
+        return true;
     }
 
     /*
@@ -195,7 +204,10 @@ public class BoardServiceImpl {
     */
     @Transactional
     public List<ReplyOutDTO> getReplyList(Long bdSeq) {
-        return replyRepository.findReplyByBdSeq(bdSeq).stream().map(s->modelMapper.map(s, ReplyOutDTO.class)).collect(Collectors.toList());
+        return replyRepository.findReplyByBdSeq(bdSeq)
+                .stream()
+                .map(s->modelMapper.map(s, ReplyOutDTO.class))
+                .collect(Collectors.toList());
     }
 
     /*
@@ -207,7 +219,7 @@ public class BoardServiceImpl {
     public boolean setReply(ReplyInDTO replyInDTO) {
         Board board = boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq());
         if(board==null) throw new IdeaNotFoundException();
-        User user = userRepository.findUserByNickName(replyInDTO.getNickName());
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
         if(user==null) throw new UserNotFoundException();
         final Reply reply = Reply.BySetBuilder()
                 .contents(replyInDTO.getContents())
@@ -230,7 +242,7 @@ public class BoardServiceImpl {
     @Transactional
     public boolean putReply(ReplyPutDTO replyPutDTO, Long rpSeq) {
         Reply reply = replyRepository.findReplyByRpSeq(rpSeq);
-        if(!reply.getUser().getNickName().equals(replyPutDTO.getNickName()))
+        if(!isWriter(reply.getUser().getNickName()))
             throw new UserUnauthorizedException("Access Deny");
         //TODO: 권한 인증 코드 작성
 
@@ -248,8 +260,7 @@ public class BoardServiceImpl {
     */
     public boolean deleteReply(Long bdSeq, Long replyId) {
         Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
-        if(isWriter(reply.getUser().getNickName()))throw new UserUnauthorizedException("Access Deny");
-
+        if(!isWriter(reply.getUser().getEmail()))throw new UserUnauthorizedException("Access Deny");
         if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString())))
             replyRepository.delete(reply);
         return (reply!=null)?false:true;
@@ -266,12 +277,21 @@ public class BoardServiceImpl {
         작성일: 2019-11-01
         내용: 권한 인증
      */
-    private static boolean isWriter(String nickName){
-        return ((UserBase) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal())
-                .getNickName()
-                .equals(nickName);
+    private static boolean isWriter(String email){
+        return ((UserBase) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getEmail().equals(email);
     }
+
+    /*
+        작성자: 홍민석
+        작성일: 2019-11-03
+        내용: 권한 인증
+        로그인 안되어 있을시 예외처리
+     */
+    private static String findEmailBySpringSecurity(){
+        String email = ((UserBase) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
+        if(email == null){ throw new UserUnauthorizedException("권한없는 사용자"); }
+        return email;
+    }
+
 }

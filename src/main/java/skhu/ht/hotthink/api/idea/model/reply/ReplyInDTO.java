@@ -9,8 +9,6 @@ import java.util.Date;
 public class ReplyInDTO{
     private String contents;
     @JsonIgnore
-    private String nickName;
-    @JsonIgnore
     private Long bdSeq;
     @JsonIgnore
     private Long superRpSeq;

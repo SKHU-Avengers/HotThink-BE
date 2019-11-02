@@ -90,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //root,login,tokenRefresh 빼고 나머지는 권한 요청
                 .and()
                     .authorizeRequests()
-                    .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL,"/swagger-ui.html#/").permitAll()
+                    .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
                     .antMatchers(HttpMethod.POST, "/api/user").permitAll()
                     .anyRequest().authenticated()
 

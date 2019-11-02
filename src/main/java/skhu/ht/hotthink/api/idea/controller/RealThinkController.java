@@ -78,7 +78,7 @@ public class RealThinkController {
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
                                              @PathVariable("nickname") String nickname,
                                              @PathVariable("category") String category){
-        if(boardService.setOne(realInDto, nickname, category, BoardType.REAL)) {
+        if(boardService.setOne(realInDto, category, BoardType.REAL)) {
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
