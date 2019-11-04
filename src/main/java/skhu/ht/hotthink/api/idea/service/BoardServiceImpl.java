@@ -159,7 +159,7 @@ public class BoardServiceImpl {
         if(!isWriter(board.getUser().getEmail()))
             throw new UserUnauthorizedException("Access Deny");
         boardRepository.delete(board);
-        return boardRepository.existsById(Integer.parseInt(seq.toString()))?false:true;
+        return true;
     }
     /*
         작성자: 홍민석
