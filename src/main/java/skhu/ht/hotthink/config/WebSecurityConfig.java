@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import skhu.ht.hotthink.security.auth.jwt.SkipPathRequestMatcher;
 import skhu.ht.hotthink.security.auth.login.LoginAuthenticationProvier;
 import skhu.ht.hotthink.security.auth.login.LoginProcessingFilter;
@@ -73,9 +75,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception{
-
         httpSecurity
-                //csrf 공격 방어기능 비활성화
+                 //csrf 공격 방어기능 비활성화
                 .csrf().disable()
 
                 //인증되지 않은 request -> 401 status

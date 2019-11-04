@@ -98,7 +98,7 @@ public class BoardServiceImpl {
         board.setCategory(categoryRepository.findCategoryByCategory(category));
         if ((seq = boardRepository.findBoardSeq(category)) == -1) throw new IdeaInvalidException();
         board.setSeq(seq);
-        board.setUser(userRepository.findUserByNickName(findEmailBySpringSecurity()));
+        board.setUser(userRepository.findUserByEmail(findEmailBySpringSecurity()));
         if(board.getUser()==null) throw new UserNotFoundException();
         board.setBoardType(boardType);
         board.setHits(0);

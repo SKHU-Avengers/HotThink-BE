@@ -91,6 +91,7 @@ public class FreeThinkController {
     @PostMapping(value = "/{category}")
     public ResponseEntity<?> freeCreate(@RequestBody @Valid FreeInDTO freeInDto,
                                         @PathVariable("category") String category) {
+        log.debug(category);
         if(boardService.setOne(freeInDto, category, BoardType.FREE)){
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -129,9 +130,8 @@ public class FreeThinkController {
         TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{freeId}")
-    public ResponseEntity<?> freeDelete(@PathVariable("freeId") Long freeId,
-                           @RequestBody @Valid FreeInDTO freeInDto){
-        if(boardService.deleteOne(freeId, freeInDto)) {
+    public ResponseEntity<?> freeDelete(@PathVariable("freeId") Long freeId){
+        if(boardService.deleteOne(freeId, null)) {
             return new ResponseEntity(HttpStatus.OK);
         }
 
