@@ -96,7 +96,7 @@ public class BoardServiceImpl {
         Long seq;
         Board board = modelMapper.map(inDto, Board.class);
         board.setCategory(categoryRepository.findCategoryByCategory(category));
-        if ((seq = boardRepository.findBoardSeq(category)) == -1) throw new IdeaInvalidException();
+        if ((seq = boardRepository.findBoardSeq(category, boardType)) == -1) throw new IdeaInvalidException();
         board.setSeq(seq);
         board.setUser(userRepository.findUserByEmail(findEmailBySpringSecurity()));
         if(board.getUser()==null) throw new UserNotFoundException();

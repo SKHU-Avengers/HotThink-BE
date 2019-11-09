@@ -50,5 +50,8 @@ public class Board {
     private List<History> histories;
 
     @OneToMany(mappedBy = "board")
+    private List<Reply> replies;
+
+    @OneToMany(mappedBy = "board")
     private List<Scrap> scraps;
 }

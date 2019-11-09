@@ -11,6 +11,7 @@ public enum ErrorCode {
     UNAUTHORIZED(401,"C005","Unauthorized Access"),
     EMAIL_CONFLICT(409,"U001","이메일 중복"),
     NICKNAME_CONFLICT(409,"U002","닉네임 중복"),
+    NOT_ENOUGH_MONEY(400,"P001","금액이 부족합니다.")
 
     ;
     /*

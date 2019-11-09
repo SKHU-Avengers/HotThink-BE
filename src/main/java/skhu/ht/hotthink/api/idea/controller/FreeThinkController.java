@@ -5,11 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
-import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
@@ -17,17 +14,16 @@ import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.FreeListDTO;
 import skhu.ht.hotthink.api.idea.model.boardout.FreeOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
-import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.Valid;
-import java.security.Principal;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController

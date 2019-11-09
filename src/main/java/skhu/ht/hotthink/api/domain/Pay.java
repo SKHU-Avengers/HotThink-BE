@@ -2,7 +2,6 @@ package skhu.ht.hotthink.api.domain;
 
 
 import lombok.Data;
-import skhu.ht.hotthink.api.domain.enums.SubscribeType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -18,9 +17,6 @@ public class Pay {
 
     private Date start;
     private Date end;
-
-    @Column(name = "SUBSCRIBE_TYPE")
-    private SubscribeType subscribeType;
 
     @MapsId
     @OneToOne

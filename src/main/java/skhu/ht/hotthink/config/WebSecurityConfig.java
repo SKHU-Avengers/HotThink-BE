@@ -93,12 +93,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
                     .antMatchers(HttpMethod.POST, "/api/user").permitAll()
-                    .anyRequest().authenticated()
+//                    .anyRequest().authenticated()
 
                 .and()
                     .addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .addFilterBefore(buildLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(buildLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+//                    .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
 //                .failureUrl(LOGIN_ERROR_URL);
 //                .usernameParameter("email")
