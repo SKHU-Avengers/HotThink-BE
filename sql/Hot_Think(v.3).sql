@@ -153,17 +153,10 @@ CREATE TABLE TB_REAL
 (
 	RL_SEQ bigint unsigned NOT NULL AUTO_INCREMENT,
 	STATE varchar(15) NOT NULL,
-	-- 다른 회원이 평가한 점수
-	MYSCORE int COMMENT '다른 회원이 평가한 점수',
-	-- 구매자의 판매자 평가
-	SELLERSCORE int COMMENT '구매자의 판매자 평가',
 	UPDATE_AT datetime,
 	REVIEW text,
 	-- 유료정보
 	PMATERIAL text COMMENT '유료정보',
-	-- 판매자 후기
-	SELLER_COMMENTS varchar(1500) COMMENT '판매자 후기',
-	BUYER_COMMENTS varchar(1500),
 	BD_SEQ bigint unsigned NOT NULL,
 	PRIMARY KEY (RL_SEQ)
 );
@@ -198,10 +191,10 @@ CREATE TABLE TB_REPORT
 
 CREATE TABLE TB_REPUTATION
 (
-	BUYER_SCORE smallint unsigned NOT NULL,
-	BUYER_COMMENTS varchar(1500) NOT NULL,
-	SELLER_SCORE smallint unsigned NOT NULL,
-	SELLER_COMMENTS varchar(1500) NOT NULL,
+	BUYER_SCORE smallint unsigned,
+	BUYER_COMMENTS varchar(1500),
+	SELLER_SCORE smallint unsigned,
+	SELLER_COMMENTS varchar(1500),
 	IP_SEQ bigint unsigned NOT NULL,
 	BD_SEQ bigint unsigned NOT NULL,
 	UNIQUE (IP_SEQ),

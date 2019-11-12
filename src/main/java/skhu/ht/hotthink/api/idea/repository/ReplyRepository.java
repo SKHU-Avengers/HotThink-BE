@@ -16,7 +16,4 @@ public interface ReplyRepository extends JpaRepository<Reply, Integer> {
     @Query(value = "SELECT R FROM Reply R WHERE R.rpSeq =?1")
     public Reply findReplyByRpSeqAndBdSeq(Long rpSeq, Long bdSeq);
 
-    @Modifying
-    @Query(value = "UPDATE Reply R SET R.good = R.good + 1 WHERE R.rpSeq =?1")
-    boolean likeReplyByRpSeq(Long seq);
 }

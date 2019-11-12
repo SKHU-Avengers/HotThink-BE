@@ -5,7 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity(name="TB_PREFERENCE")
+@Entity(name = "Preference")
+@Table(name="TB_PREFERENCE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "preference")
 @ToString(of = "preference")

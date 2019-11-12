@@ -3,6 +3,8 @@ package skhu.ht.hotthink.api.user.service;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,6 +32,7 @@ public class EmailService {
     EmailConfirmRepository emailConfirmRepository;
     @Setter
     JavaMailSender emailSender;
+
     private final Integer minRange = 100000;
     private final Integer maxRange = 999999999;
     private final int expiredPeriod = 7; //7일간 유효
@@ -62,14 +65,14 @@ public class EmailService {
         emailConfirm.setRegisterAt(new Date());
         emailConfirm.setExpiredAt(DateUtil.addDate(new Date(),expiredPeriod));
         emailConfirmRepository.save(emailConfirm);
-        text.concat(url.concat("/user/").concat(newUserDTO.getNickName())
+        text.concat(url.concat("/user/").concat(newUserDTO.getEmail())
                 .concat("/key/").concat(emailConfirm.getEmailKey().toString()));
         sendSimpleMessage(newUserDTO.getEmail(),subject,text);
         return true;
     }
 
-    public boolean confirmEmail(String nickName, Long emailKey) {
-        User user = userRepository.findUserByNickName(nickName);
+    public boolean confirmEmail(String email, Long emailKey) {
+        User user = userRepository.findUserByEmail(email);
         EmailConfirm emailConfirm = emailConfirmRepository.findEmailConfirmByUser(user);
         if(DateUtil.isValid(emailConfirm.getExpiredAt()) && emailConfirm.getEmailKey().equals(emailKey)){
             user.setUseAt(UseAt.Y);//사용가능한 상태로 변경

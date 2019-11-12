@@ -20,8 +20,16 @@ public class Real {
     private IdeaState state;
     @Column(name="UPDATE_AT")
     private Date updateAt;
-    private String review;
+    private String difference;
     private String pMaterial;
+    private String inventor;
+    @Column(name="RIGHT_HOLDER")
+    private String rightHolder;
+    @Column(name="PROGRESS_RATE")
+    private Integer progressRate;
+    @OneToMany
+    @JoinColumn(name="RL_SEQ")
+    private List<Attach> attaches;
 
     @ManyToOne
     @JoinColumn(name = "BD_SEQ")

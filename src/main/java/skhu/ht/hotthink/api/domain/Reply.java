@@ -1,10 +1,12 @@
 package skhu.ht.hotthink.api.domain;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
 import skhu.ht.hotthink.api.domain.enums.ReplyAdopt;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Entity(name = "Reply")
@@ -22,8 +24,6 @@ public class Reply {
     private String contents;
     @NonNull
     private Date at;
-    @NonNull
-    private Integer good;
 
     @ManyToOne
     @JoinColumn(name = "BD_SEQ")
@@ -34,6 +34,11 @@ public class Reply {
     @JoinColumn(name = "SUB_RP_SEQ")
     private Reply reply;
 
+    @OneToMany
+    @JoinColumn(name = "BOARD_SEQ")
+    @Where(clause = "BOARD_TYPE='REPLY'")
+    private List<Like> likes;
+
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
     private User user;
@@ -42,7 +47,6 @@ public class Reply {
         this.adopt = ReplyAdopt.N;
         this.contents = contents;
         this.at = new Date();
-        this.good = 0;
         this.board = board;
         this.user = user;
     }

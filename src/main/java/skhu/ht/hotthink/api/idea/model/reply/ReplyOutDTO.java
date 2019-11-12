@@ -12,7 +12,6 @@ import java.util.Date;
 public class ReplyOutDTO extends ReplyPutDTO {
     private Long rpSeq;
     private Date at;
-    private Integer good;
 
     @Enumerated(EnumType.STRING)
     private ReplyAdopt adopt;

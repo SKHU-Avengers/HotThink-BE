@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
-import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
-import skhu.ht.hotthink.api.idea.exception.IdeaNotFoundException;
-import skhu.ht.hotthink.api.idea.exception.ReplyNotFoundException;
-import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
+import skhu.ht.hotthink.api.idea.exception.*;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.BoardInDTO;
@@ -102,7 +99,6 @@ public class BoardServiceImpl {
         if(board.getUser()==null) throw new UserNotFoundException();
         board.setBoardType(boardType);
         board.setHits(0);
-        board.setGood(0);
         board.setCreateAt(new Date());
         return boardRepository.save(board) == null?false:true;
     }
@@ -181,12 +177,10 @@ public class BoardServiceImpl {
             case FREE:
                 Board board = boardRepository.findBoardByBdSeq(likeDto.getSeq());
                 email = board.getUser().getEmail();
-                boardRepository.likeFreeByBdSeq(likeDto.getSeq());
                 break;
             case REPLY:
                 Reply reply = replyRepository.findReplyByRpSeq(likeDto.getSeq());
                 email = reply.getUser().getEmail();
-                replyRepository.likeReplyByRpSeq(likeDto.getSeq());
                 break;
             default:
                 throw new IdeaInvalidException("Invalid Board Type Exception");
@@ -196,6 +190,20 @@ public class BoardServiceImpl {
         return true;
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-11-12
+        내용: 좋아요 취소
+     */
+    @Transactional
+    public <Tin extends BoardInDTO> boolean deleteLike(LikeDTO likeDTO) {
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        Like like = likeRepository.findByBdSeqAndBoardTypeAndUser(likeDTO.getSeq(),likeDTO.getBoardType(),user);
+        if(like==null)
+            throw new LikeNotFoundException("Like Not Found Exception");
+        likeRepository.delete(like);
+        return true;
+    }
     /*
         작성자: 홍민석
         작성일: 19-10-07
@@ -289,7 +297,7 @@ public class BoardServiceImpl {
         로그인 안되어 있을시 예외처리
      */
     private static String findEmailBySpringSecurity(){
-        String email = ((UserBase) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
+        String email = (String)((UserBase) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail().toString();
         if(email == null){ throw new UserUnauthorizedException("권한없는 사용자"); }
         return email;
     }

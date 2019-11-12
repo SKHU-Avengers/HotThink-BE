@@ -2,6 +2,8 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.Where;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
@@ -18,7 +20,6 @@ public class Board {
     private Long bdSeq;
     private Long seq;
     private Integer hits;
-    private Integer good;
 
     @JsonFormat(pattern="yyyy-MM-dd")
     @Column(name="CREATE_AT")
@@ -54,4 +55,9 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<Scrap> scraps;
+
+    @OneToMany
+    @JoinColumn(name="BOARD_SEQ")
+    @Where(clause="BOARD_TYPE='FREE'")
+    private List<Like> likes;
 }

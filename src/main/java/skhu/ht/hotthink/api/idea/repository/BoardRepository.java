@@ -86,9 +86,5 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Page<Board> findByCategoryAndBoardType(Category category, BoardType boardType, Pageable pageable);
     Board findBoardByBdSeq(Long bdSeq);
 
-    @Modifying
-    @Query("UPDATE Board B SET B.good = B.good + 1 WHERE B.bdSeq = ?1")
-    Integer likeFreeByBdSeq(Long boardId);
-
     List<Board> findAllByUser(User entity);
 }
