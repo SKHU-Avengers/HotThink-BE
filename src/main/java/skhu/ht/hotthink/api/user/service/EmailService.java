@@ -59,8 +59,8 @@ public class EmailService {
                 .toUriString();
 
         EmailConfirm emailConfirm = new EmailConfirm();
-        emailConfirm.setUser(userRepository.findUserByEmail(newUserDTO.getNickName()));
-        if(emailConfirm.getUser()!=null) throw new UserConflictException(ErrorCode.EMAIL_CONFLICT);
+        emailConfirm.setUser(userRepository.findUserByEmail(newUserDTO.getEmail()));
+        //if(emailConfirm.getUser()!=null) throw new UserConflictException(ErrorCode.EMAIL_CONFLICT);
         emailConfirm.setEmailKey((long)(Math.random()*(maxRange-minRange+1))+minRange);
         emailConfirm.setRegisterAt(new Date());
         emailConfirm.setExpiredAt(DateUtil.addDate(new Date(),expiredPeriod));

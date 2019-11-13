@@ -18,6 +18,7 @@ public class Preference {
 
     @NonNull
     @Getter
+    @Setter
     private String preference;
 
     @JsonIgnore
