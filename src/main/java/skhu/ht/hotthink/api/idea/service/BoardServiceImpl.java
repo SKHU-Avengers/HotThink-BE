@@ -163,9 +163,11 @@ public class BoardServiceImpl {
         내용: freethink 게시물 좋아요 기능
         TB_LIKE에 좋아요 기록을 표시한 후,
         게시판 좋아요(good)을 1만큼 증가시킵니다.
+        작성일: 19-11-13
+        내용: 프론트 요청으로 email return
     */
     @Transactional
-    public boolean setLike(LikeDTO likeDto) {
+    public String setLike(LikeDTO likeDto) {
         String email;
         User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
         Like like = Like.ByCreateBuilder()
@@ -185,24 +187,26 @@ public class BoardServiceImpl {
             default:
                 throw new IdeaInvalidException("Invalid Board Type Exception");
         }
-        if(isWriter(email))throw new UserConflictException("자기자신 좋아요",ErrorCode.EMAIL_CONFLICT);
+        //if(isWriter(email))throw new UserConflictException("자기자신 좋아요",ErrorCode.EMAIL_CONFLICT);
         likeRepository.save(like);
-        return true;
+        return email;
     }
 
     /*
         작성자: 홍민석
         작성일: 19-11-12
         내용: 좋아요 취소
+        작성일: 19-11-13
+        내용: 프론트 요청으로 Email값 return.
      */
     @Transactional
-    public <Tin extends BoardInDTO> boolean deleteLike(LikeDTO likeDTO) {
+    public <Tin extends BoardInDTO> String deleteLike(LikeDTO likeDTO) {
         User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
         Like like = likeRepository.findByBdSeqAndBoardTypeAndUser(likeDTO.getSeq(),likeDTO.getBoardType(),user);
         if(like==null)
             throw new LikeNotFoundException("Like Not Found Exception");
         likeRepository.delete(like);
-        return true;
+        return user.getEmail();
     }
     /*
         작성자: 홍민석

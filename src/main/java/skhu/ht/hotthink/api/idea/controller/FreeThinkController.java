@@ -138,14 +138,17 @@ public class FreeThinkController {
         작성자: 홍민석
         작성일: 19-10-26
         내용: freethink 좋아요 기능입니다.
+        작성일: 19-11-13
+        내용: 프론트 요청으로 이메일 response코드 작성
     */
     @PostMapping(value="/{freeId}/fan")
-    public ResponseEntity<String> freeLike(@PathVariable("freeId") Long bdSeq){
+    public ResponseEntity<?> freeLike(@PathVariable("freeId") Long bdSeq){
+        String email = null;
         LikeDTO likeDTO = LikeDTO.builder()
                 .seq(bdSeq)
                 .boardType(BoardType.FREE)
                 .build();
-        if(boardService.setLike(likeDTO)) return new ResponseEntity(HttpStatus.OK);
+        if((email=boardService.setLike(likeDTO))!=null) return new ResponseEntity(email,HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
@@ -155,12 +158,13 @@ public class FreeThinkController {
         내용: freethink 좋아요 취소기능입니다.
     */
     @DeleteMapping(value="/{freeId}/fan")
-    public ResponseEntity<String> freeUnLike(@PathVariable("freeId") Long bdSeq){
+    public ResponseEntity<?> freeUnLike(@PathVariable("freeId") Long bdSeq){
+        String email = null;
         LikeDTO likeDTO = LikeDTO.builder()
                 .seq(bdSeq)
                 .boardType(BoardType.FREE)
                 .build();
-        if(boardService.deleteLike(likeDTO)) return new ResponseEntity(HttpStatus.OK);
+        if((email=boardService.deleteLike(likeDTO))!=null) return new ResponseEntity(email, HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     /*
@@ -169,15 +173,15 @@ public class FreeThinkController {
         내용: freethink 댓글 좋아요 기능입니다.
     */
     @PostMapping(value="/{freeId}/reply/{replyId}/fan")
-    public ResponseEntity<String> freeReplyLike(@PathVariable("freeId") Long bdSeq,
+    public ResponseEntity<?> freeReplyLike(@PathVariable("freeId") Long bdSeq,
                                                  @PathVariable("replyId") Long rpSeq){
-
+        String email = null;
         LikeDTO likeDTO = LikeDTO.builder()
                 .seq(rpSeq)
                 .boardType(BoardType.REPLY)
                 .build();
-        if(boardService.setLike(likeDTO)){
-            return new ResponseEntity(HttpStatus.OK);
+        if((email = boardService.setLike(likeDTO))!=null){
+            return new ResponseEntity(email, HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -187,13 +191,14 @@ public class FreeThinkController {
             내용: freethink 댓글 좋아요 취소기능입니다.
     */
     @DeleteMapping(value="/{freeId}/reply/{replyId}/fan")
-    public ResponseEntity<String> freeUnLike(@PathVariable("freeId") Long bdSeq,
+    public ResponseEntity<?> freeUnLike(@PathVariable("freeId") Long bdSeq,
                                              @PathVariable("replyId") Long rpSeq){
+        String email=null;
         LikeDTO likeDTO = LikeDTO.builder()
                 .seq(rpSeq)
                 .boardType(BoardType.REPLY)
                 .build();
-        if(boardService.deleteLike(likeDTO)) return new ResponseEntity(HttpStatus.OK);
+        if((email = boardService.deleteLike(likeDTO))!=null) return new ResponseEntity(email,HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     /*
