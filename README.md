@@ -23,7 +23,7 @@ HOT-THINK REST SERVER's Skill List
 
 ### Spring Boot
 - file upload
-- mail(예정)
+- mail
 - websocket(예정)
 
 
