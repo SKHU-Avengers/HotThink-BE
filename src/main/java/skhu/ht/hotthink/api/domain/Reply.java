@@ -34,14 +34,14 @@ public class Reply {
     @JoinColumn(name = "SUB_RP_SEQ")
     private Reply reply;
 
-    @OneToMany
-    @JoinColumn(name = "BOARD_SEQ")
-    @Where(clause = "BOARD_TYPE='REPLY'")
+    @OneToMany(mappedBy="bdSeq")
+    @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
 
     @ManyToOne
     @JoinColumn(name = "UR_SEQ")
     private User user;
+
     @Builder(builderClassName="BySetBuilder", builderMethodName = "BySetBuilder")
     public Reply(String contents, Board board, User user) {
         this.adopt = ReplyAdopt.N;

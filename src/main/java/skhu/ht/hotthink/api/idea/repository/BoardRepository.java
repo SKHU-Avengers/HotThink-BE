@@ -1,16 +1,15 @@
 package skhu.ht.hotthink.api.idea.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import skhu.ht.hotthink.api.domain.Board;
 import skhu.ht.hotthink.api.domain.Category;
+import skhu.ht.hotthink.api.domain.Like;
 import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
@@ -18,6 +17,7 @@ import skhu.ht.hotthink.api.idea.model.page.Option;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Integer> {
@@ -80,6 +80,8 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     //@Query(value = "SELECT BD.BD_SEQ FROM TB_BOARD BD INNER JOIN CATEGORY CT ON BD.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
     //Long findBdSeq(Long seq, String category);
 
+    @Query("SELECT L FROM ELike L JOIN Board B WHERE B.boardType=?1")
+    List<Like> findLikeByBdSeqAndBoardType(Long bdSeq, BoardType boardType);
     Page<Board> findByCategoryAndContentsAndBoardType(Category category, String Contents, BoardType boardType, Pageable pageable);
     Page<Board> findByCategoryAndTitleAndBoardType(Category category, String Title, BoardType boardType, Pageable pageable);
     Page<Board> findByCategoryAndUserAndBoardType(Category category, String User, BoardType boardType, Pageable pageable);

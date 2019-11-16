@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.Where;
+import org.springframework.security.core.parameters.P;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
@@ -56,8 +57,7 @@ public class Board {
     @OneToMany(mappedBy = "board")
     private List<Scrap> scraps;
 
-    @OneToMany
-    @JoinColumn(name="BOARD_SEQ")
-    @Where(clause="BOARD_TYPE='FREE'")
+    @OneToMany(mappedBy="bdSeq")
+    @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
 }

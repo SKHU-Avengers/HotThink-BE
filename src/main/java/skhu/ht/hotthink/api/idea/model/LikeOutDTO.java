@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class LikeOutDTO {
+    private Long bdSeq;
     private UserOutDTO user;
 }
