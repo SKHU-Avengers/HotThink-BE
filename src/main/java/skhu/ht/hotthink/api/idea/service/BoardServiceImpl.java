@@ -172,6 +172,9 @@ public class BoardServiceImpl {
     public String setLike(LikeDTO likeDto) {
         String email;
         User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        Like repeat = likeRepository.findByBdSeqAndBoardTypeAndUser(likeDto.getSeq(),likeDto.getBoardType(),user);
+        if(repeat != null) throw new LikeConflictException();
+
         Like like = Like.ByCreateBuilder()
                 .bdSeq(likeDto.getSeq())
                 .boardType(likeDto.getBoardType())
