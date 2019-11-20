@@ -201,19 +201,23 @@ public class FreeThinkController {
         if((email = boardService.deleteLike(likeDTO))!=null) return new ResponseEntity(email,HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
+
     /*
         작성자: 홍민석
         작성일: 19-10-25
         내용: 댓글 CREATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-21
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PostMapping(value = "{boardId}/reply")
     public ResponseEntity<?> replyCreate(@PathVariable("boardId") Long boardId,
                                          @RequestBody ReplyInDTO replyInDto){
         replyInDto.setBdSeq(boardId);
         if(boardService.setReply(replyInDto)){
-            return new ResponseEntity(HttpStatus.CREATED);
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies, HttpStatus.CREATED);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }

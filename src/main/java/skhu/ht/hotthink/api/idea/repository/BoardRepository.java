@@ -76,7 +76,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     @Query(value = "SELECT getBD_Seq(?1, ?2)", nativeQuery = true)
     Long findBoardSeq(String category, String boardType);
 
-
     //@Query(value = "SELECT BD.BD_SEQ FROM TB_BOARD BD INNER JOIN CATEGORY CT ON BD.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
     //Long findBdSeq(Long seq, String category);
 
