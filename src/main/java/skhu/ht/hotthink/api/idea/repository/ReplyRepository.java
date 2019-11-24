@@ -15,5 +15,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Integer> {
     Reply findReplyByRpSeq(Long rpSeq);
     @Query(value = "SELECT R FROM Reply R WHERE R.rpSeq =?1")
     public Reply findReplyByRpSeqAndBdSeq(Long rpSeq, Long bdSeq);
-
+    @Query(value = "SELECT COUNT(R) FROM Reply R WHERE R.superSeq = ?1")
+    public Long countRepliesBySuperSeq(Long SuperSeq);
 }

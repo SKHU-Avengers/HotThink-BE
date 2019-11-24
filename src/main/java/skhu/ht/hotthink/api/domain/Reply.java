@@ -29,10 +29,15 @@ public class Reply {
     @JoinColumn(name = "BD_SEQ")
     private Board board;
 
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "SUB_RP_SEQ")
-    private Reply reply;
+    @Column(name = "DEPTH")
+    private Integer depth;
+
+    @OneToMany
+    @JoinColumn(name="SUPER_SEQ")
+    private List<Reply> subReplies;
+
+    @Column(name = "SUPER_SEQ")
+    private Long superSeq;
 
     @OneToMany(mappedBy="bdSeq")
     @Where(clause = "BOARD_TYPE='FREE'")
@@ -49,5 +54,17 @@ public class Reply {
         this.at = new Date();
         this.board = board;
         this.user = user;
+        this.depth = 0;
+    }
+
+    @Builder(builderClassName="ReReplyBuilder", builderMethodName = "ReReplyBuilder")
+    public Reply(String contents, Board board, User user, Long superSeq, Integer depth) {
+        this.adopt = ReplyAdopt.N;
+        this.contents = contents;
+        this.at = new Date();
+        this.board = board;
+        this.user = user;
+        this.superSeq = superSeq;
+        this.depth = depth;
     }
 }

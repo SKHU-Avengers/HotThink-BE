@@ -61,6 +61,16 @@ public class BoardServiceImpl {
     @Transactional
     public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
         Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
+        List<Board> test = boardRepository.findAll(pagination,category);
+        for(Board one : test){
+            log.debug(one.getTitle());
+            for(Reply o : one.getReplies()) {
+                log.debug(o.getContents());
+                for(Reply re: o.getSubReplies()) {
+                    log.debug(re.getContents());
+                }
+            }
+        }
         List<Tlist> tlist = boardRepository.findAll(pagination,category)
                 .stream()
                 .map(e -> convertTo(e, classLiteral))
@@ -234,22 +244,40 @@ public class BoardServiceImpl {
     */
     @Transactional
     public boolean setReply(ReplyInDTO replyInDTO) {
+        Reply fReply=null; // 댓글 객체 포인터
+
         Board board = boardRepository.findBoardByBdSeq(replyInDTO.getBdSeq());
         if(board==null) throw new IdeaNotFoundException();
+
         User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
         if(user==null) throw new UserNotFoundException();
-        final Reply reply = Reply.BySetBuilder()
-                .contents(replyInDTO.getContents())
-                .board(board)
-                .user(user)
-                .build();
-        if(replyRepository.save(reply)==null) throw new ReplyNotFoundException();
-        if(replyInDTO.getSuperRpSeq()!=null){
-            Reply suReply = replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
-            suReply.setReply(reply);
-            replyRepository.save(suReply);
+
+        if(replyInDTO.getSuperRpSeq()==null) {
+            final Reply reply = Reply.BySetBuilder()
+                    .contents(replyInDTO.getContents())
+                    .board(board)
+                    .user(user)
+                    .build();
+            fReply=reply;
+        }else{
+            Reply superReply = replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
+            if(superReply.getSuperSeq()!=0) throw new ReplyInvalidException();
+            long depth = replyRepository.countRepliesBySuperSeq(replyInDTO.getSuperRpSeq()) + 1;
+            final Reply reply = Reply.ReReplyBuilder()
+                    .contents(replyInDTO.getContents())
+                    .board(board)
+                    .user(user)
+                    .superSeq(replyInDTO.getSuperRpSeq())
+                    .depth((int)depth)
+                    .build();
+            fReply = reply;
         }
-        return true;
+        if(fReply!=null) {
+            replyRepository.save(fReply);
+            if (replyRepository.save(fReply) == null) throw new ReplyNotFoundException();
+            return true;
+        }
+        return false;
     }
     /*
             작성자: 홍민석

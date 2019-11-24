@@ -32,6 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String LOGIN_PROCESSING_URL = "/api/login/processing";
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String REFRESH_TOKEN_URL = "/auth/token";
+    public static final String SWAGGER_TEST_URL = "/swagger-ui.html#!";
 
     @Autowired private AuthenticationHandler authenticationHandler;
     @Autowired private LoginAuthenticationProvier loginAuthenticationProvider;
@@ -93,12 +94,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
                     .antMatchers(HttpMethod.POST, "/api/user").permitAll()
-//                    .anyRequest().authenticated()
+                    .antMatchers(SWAGGER_TEST_URL).permitAll()
+                    .anyRequest().authenticated()
 
                 .and()
                     .addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .addFilterBefore(buildLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
-//                    .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(buildLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
 //                .failureUrl(LOGIN_ERROR_URL);
 //                .usernameParameter("email")
