@@ -39,10 +39,10 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
                 page = this.findByCategoryAndUserAndBoardType(category,searchText, boardType, pageable);
                 break;
             case 2:
-                page = this.findByCategoryAndTitleAndBoardType(category, searchText, boardType, pageable);
+                page = this.findByCategoryAndTitleContainsAndBoardType(category, searchText, boardType, pageable);
                 break;
             case 3:
-                page = this.findByCategoryAndContentsAndBoardType(category, searchText, boardType, pageable);
+                page = this.findByCategoryAndContentsContainsAndBoardType(category, searchText, boardType, pageable);
                 break;
             default:
                 page = this.findByCategoryAndBoardType(category, boardType, pageable);
@@ -56,12 +56,17 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     //@Query(value = "SELECT BD.BD_SEQ FROM TB_BOARD BD INNER JOIN CATEGORY CT ON BD.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
     //Long findBdSeq(Long seq, String category);
 
-    @Query("SELECT L FROM ELike L JOIN Board B WHERE B.boardType=?1")
-    List<Like> findLikeByBdSeqAndBoardType(Long bdSeq, BoardType boardType);
-    Page<Board> findByCategoryAndContentsAndBoardType(Category category, String Contents, BoardType boardType, Pageable pageable);
-    Page<Board> findByCategoryAndTitleAndBoardType(Category category, String Title, BoardType boardType, Pageable pageable);
+    //@Query("SELECT L FROM ELike L JOIN Board B WHERE B.boardType=?1")
+    //List<Like> findLikeByBdSeqAndBoardType(Long bdSeq, BoardType boardType);
+
+    //내용으로 검색
+    Page<Board> findByCategoryAndContentsContainsAndBoardType(Category category, String Contents, BoardType boardType, Pageable pageable);
+    //글 제목으로 검색
+    Page<Board> findByCategoryAndTitleContainsAndBoardType(Category category, String Title, BoardType boardType, Pageable pageable);
     Page<Board> findByCategoryAndUserAndBoardType(Category category, String User, BoardType boardType, Pageable pageable);
+    //기본 검색
     Page<Board> findByCategoryAndBoardType(Category category, BoardType boardType, Pageable pageable);
+
     Board findBoardByBdSeq(Long bdSeq);
 
     List<Board> findAllByUser(User entity);

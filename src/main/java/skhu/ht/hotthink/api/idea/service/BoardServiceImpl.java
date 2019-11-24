@@ -261,7 +261,7 @@ public class BoardServiceImpl {
             fReply=reply;
         }else{
             Reply superReply = replyRepository.findReplyByRpSeq(replyInDTO.getSuperRpSeq());
-            if(superReply.getSuperSeq()!=0) throw new ReplyInvalidException();
+            if(superReply.getSuperSeq()!=null) throw new ReplyInvalidException();
             long depth = replyRepository.countRepliesBySuperSeq(replyInDTO.getSuperRpSeq()) + 1;
             final Reply reply = Reply.ReReplyBuilder()
                     .contents(replyInDTO.getContents())

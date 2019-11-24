@@ -24,15 +24,14 @@ public class Reply {
     private String contents;
     @NonNull
     private Date at;
-
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "BD_SEQ")
     private Board board;
 
     @Column(name = "DEPTH")
     private Integer depth;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="SUPER_SEQ")
     private List<Reply> subReplies;
 

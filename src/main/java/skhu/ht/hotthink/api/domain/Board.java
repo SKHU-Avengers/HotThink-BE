@@ -48,17 +48,17 @@ public class Board {
     @JoinColumn(name = "RL_SEQ")
     private List<Real> reals;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<History> histories;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     @Where(clause = "SUPER_SEQ IS NULL")
     private List<Reply> replies;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Scrap> scraps;
 
-    @OneToMany(mappedBy="bdSeq")
+    @OneToMany(mappedBy="bdSeq", cascade = CascadeType.ALL)
     @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
 }
