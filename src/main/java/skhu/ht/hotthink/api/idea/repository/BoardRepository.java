@@ -29,29 +29,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
              new Sort(Sort.Direction.ASC, "bdSeq"),
              new Sort(Sort.Direction.ASC, "createAt")};
 
-    default List<Board> findAll(IdeaPagination pagination, Category category){
-        Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
-        Page<Board> page;
-        String searchText = pagination.getSearchText();
-        BoardType boardType = pagination.getBoardType();
-        switch(pagination.getSearchBy()){
-            case 1:
-                page = this.findByCategoryAndUserAndBoardType(category,searchText, boardType, pageable);
-                break;
-            case 2:
-                page = this.findByCategoryAndTitleAndBoardType(category, searchText, boardType, pageable);
-                break;
-            case 3:
-                page = this.findByCategoryAndContentsAndBoardType(category, searchText, boardType, pageable);
-                break;
-            default:
-                page = this.findByCategoryAndBoardType(category, boardType, pageable);
-        }
-        return page.getContent();
-    }
-
-
-
     default List<Board> findAll(Pagination pagination,Category category){
         Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
         Page<Board> page;

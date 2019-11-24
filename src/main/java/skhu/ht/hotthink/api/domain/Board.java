@@ -52,6 +52,7 @@ public class Board {
     private List<History> histories;
 
     @OneToMany(mappedBy = "board")
+    @Where(clause = "SUPER_SEQ IS NULL")
     private List<Reply> replies;
 
     @OneToMany(mappedBy = "board")

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface ReplyRepository extends JpaRepository<Reply, Integer> {
-    @Query(value = "SELECT R FROM Reply R INNER JOIN R.board B WHERE B.bdSeq = ?1")
+    @Query(value = "SELECT R FROM Reply R INNER JOIN R.board B WHERE R.superSeq IS NULL AND B.bdSeq = ?1")
     public List<Reply> findReplyByBdSeq(Long bdSeq);
     Reply findReplyByRpSeq(Long rpSeq);
     @Query(value = "SELECT R FROM Reply R WHERE R.rpSeq =?1")
