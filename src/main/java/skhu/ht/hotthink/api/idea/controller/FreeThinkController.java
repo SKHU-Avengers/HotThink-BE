@@ -228,6 +228,8 @@ public class FreeThinkController {
         내용: 대댓글 CREATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-24
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PostMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> subreplyCreate(@PathVariable("freeId") Long boardId,
@@ -236,7 +238,8 @@ public class FreeThinkController {
         replyInDto.setBdSeq(boardId);
         replyInDto.setSuperRpSeq(replyId);
         if(boardService.setReply(replyInDto)){
-            return new ResponseEntity(HttpStatus.CREATED);
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies, HttpStatus.CREATED);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -247,13 +250,18 @@ public class FreeThinkController {
         내용: 댓글 UPDATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-25
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PutMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> replyUpdate(@PathVariable("freeId") Long boardId,//rest 및 이후 예외처리 위해 만듦.
                             @PathVariable("replyId") Long replyId,
                             @RequestBody ReplyPutDTO replyPutDto){
-        return boardService.putReply(replyPutDto,replyId)?
-                new ResponseEntity(HttpStatus.OK): new ResponseEntity(HttpStatus.BAD_REQUEST);
+        if(boardService.putReply(replyPutDto,replyId)){
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
@@ -263,8 +271,8 @@ public class FreeThinkController {
         서비스에 권한인증 코드작성
     */
     @DeleteMapping(value = "/{freeId}/reply/{replyId}")
-    public ResponseEntity<?> replyDelete(@PathVariable("freeId") Long freeId,
-                            @PathVariable("replyId") Long replyId){
+    public ResponseEntity<?> replyDelete(@Valid @PathVariable("freeId") Long freeId,
+                            @Valid @PathVariable("replyId") Long replyId){
         if(boardService.deleteReply(freeId,replyId)) return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }

@@ -287,7 +287,7 @@ public class BoardServiceImpl {
     @Transactional
     public boolean putReply(ReplyPutDTO replyPutDTO, Long rpSeq) {
         Reply reply = replyRepository.findReplyByRpSeq(rpSeq);
-        if(!isWriter(reply.getUser().getNickName()))
+        if(!isWriter(reply.getUser().getEmail()))
             throw new UserUnauthorizedException("Access Deny");
         //TODO: 권한 인증 코드 작성
 
@@ -306,8 +306,7 @@ public class BoardServiceImpl {
     public boolean deleteReply(Long bdSeq, Long replyId) {
         Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
         if(!isWriter(reply.getUser().getEmail()))throw new UserUnauthorizedException("Access Deny");
-        if(replyRepository.existsById(Integer.parseInt(reply.getRpSeq().toString())))
-            replyRepository.delete(reply);
+        replyRepository.delete(reply);
         return (reply!=null)?false:true;
     }
     /*

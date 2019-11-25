@@ -77,6 +77,7 @@ public class UserServiceImpl implements UserService{
         내용: 특정 게시판에서 스크랩한 게시물 리스트 반환
 
      */
+    @Transactional
     public List<ScrapInfoDTO> getScrapList(String nickName, String boardType){
         User user = userRepository.findUserByNickName(nickName);
         return scrapRepository.findAllByUserAndBoardType(user,boardType).stream()

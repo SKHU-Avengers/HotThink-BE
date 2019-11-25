@@ -90,7 +90,6 @@ public class RealThinkController {
         내용: realthink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
-        TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{realId}/{category}")
     public ResponseEntity<?> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
@@ -115,7 +114,6 @@ public class RealThinkController {
         내용: realthink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
-        TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{realId}")
     public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,

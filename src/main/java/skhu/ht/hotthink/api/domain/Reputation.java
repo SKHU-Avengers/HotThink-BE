@@ -32,6 +32,12 @@ public class Reputation {
     @JoinColumn(name = "BD_SEQ")
     private Board board;
 
+    @Builder(builderClassName = "BasicBuilder",builderMethodName = "BasicBuilder")
+    public Reputation(PayList payList, Board board) {
+        this.payList = payList;
+        this.board = board;
+    }
+
     @Builder(builderClassName = "BuyerBuilder",builderMethodName = "BuyerBuilder")
     public Reputation(Integer sellerScore, String sellerComments, PayList payList, Board board) {
         setSeller(sellerScore,sellerComments);

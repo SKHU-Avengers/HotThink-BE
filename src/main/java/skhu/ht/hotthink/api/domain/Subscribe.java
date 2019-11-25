@@ -19,6 +19,7 @@ public class Subscribe {
     @NonNull
     @Column(name = "S_START")
     private Date start;
+    @Setter
     @NonNull
     @Column(name = "S_END")
     private Date end;

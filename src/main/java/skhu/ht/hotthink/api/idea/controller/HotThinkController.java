@@ -91,7 +91,6 @@ public class HotThinkController {
         내용: hotthink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(HotInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
-        TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{hotId}/{category}")
     public ResponseEntity<String> hotUpdate(@PathVariable("hotId") Long hotId, @PathVariable("category") String category,
@@ -113,7 +112,6 @@ public class HotThinkController {
         내용: hotthink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
-        TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{hotId}")
     public ResponseEntity<String> hotDelete(@PathVariable("hotId") Long hotId,
