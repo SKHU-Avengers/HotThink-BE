@@ -11,6 +11,7 @@ import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.exception.*;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
+import skhu.ht.hotthink.api.idea.model.LikeOutDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.BoardInDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.SubRealInDTO;
@@ -205,6 +206,20 @@ public class BoardServiceImpl {
         //if(isWriter(email))throw new UserConflictException("자기자신 좋아요",ErrorCode.EMAIL_CONFLICT);
         likeRepository.save(like);
         return email;
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-11-26
+        내용: 좋아요 리스트 반환 함수 작성
+     */
+    public List<LikeOutDTO> getLikeList(LikeDTO likeDTO){
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        List<LikeOutDTO> likes = likeRepository.findAllByBdSeqAndBoardTypeAndUser(likeDTO.getSeq(),likeDTO.getBoardType(),user)
+                .stream()
+                .map(e->modelMapper.map(e,LikeOutDTO.class))
+                .collect(Collectors.toList());
+        return likes;
     }
 
     /*

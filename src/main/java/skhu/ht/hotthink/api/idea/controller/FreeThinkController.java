@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
+import skhu.ht.hotthink.api.idea.model.LikeOutDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.FreeListDTO;
@@ -134,6 +135,34 @@ public class FreeThinkController {
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
+    /*
+        작성자: 홍민석
+        작성일: 19-11-26
+        내용: 게시판 좋아요 리스트 출력 기능입니다.
+    */
+    @GetMapping("{freeId}/likes")
+    public ResponseEntity<?> freeLikeListRead(@PathVariable Long freeId){
+        LikeDTO likeDTO = LikeDTO.builder()
+                .boardType(BoardType.FREE)
+                .seq(freeId)
+                .build();
+        return new ResponseEntity(boardService.getLikeList(likeDTO), HttpStatus.OK);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-11-26
+        내용: 게시판 좋아요 리스트 출력 기능입니다.
+    */
+    @GetMapping("{freeId}/reply/{replyId}/likes")
+    public ResponseEntity<?> replyLikeListRead(@PathVariable Long freeId,
+                                              @PathVariable Long replyId){
+        LikeDTO likeDTO = LikeDTO.builder()
+                .boardType(BoardType.REPLY)
+                .seq(replyId)
+                .build();
+        return new ResponseEntity(boardService.getLikeList(likeDTO), HttpStatus.OK);
+    }
     /*
         작성자: 홍민석
         작성일: 19-10-26
