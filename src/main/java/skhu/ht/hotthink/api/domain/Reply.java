@@ -24,7 +24,7 @@ public class Reply {
     private String contents;
     @NonNull
     private Date at;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "BD_SEQ")
     private Board board;
 

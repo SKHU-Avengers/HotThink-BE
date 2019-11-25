@@ -318,11 +318,14 @@ public class BoardServiceImpl {
             작성일: 19-11-01
             내용: 권한인증 코드 작성
     */
-    public boolean deleteReply(Long bdSeq, Long replyId) {
-        Reply reply = replyRepository.findReplyByRpSeqAndBdSeq(replyId,bdSeq);
+    public boolean deleteReply(Long bdSeq, long replyId) {
+        Board board = boardRepository.findBoardByBdSeq(bdSeq);
+        if(board == null) throw new IdeaNotFoundException();
+        Reply reply = replyRepository.findReplyByRpSeqAndBoard(replyId,board);
+        if(reply == null) throw new ReplyNotFoundException();
         if(!isWriter(reply.getUser().getEmail()))throw new UserUnauthorizedException("Access Deny");
         replyRepository.delete(reply);
-        return (reply!=null)?false:true;
+        return true;
     }
     /*
      공통 매퍼
