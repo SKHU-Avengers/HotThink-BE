@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Getter
 @Entity(name = "PayList")
-@Table(name = "TB_PAY_LIST")
+@Table(name = "TB_PAYLIST")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PayList {
     @Id
@@ -18,10 +18,13 @@ public class PayList {
     @Column(name = "IP_SEQ")
     private Long seq;
     @NonNull
+    @Column(name = "PAY_AT")
     private Date payAt;
     @NonNull
+    @Column(name = "PAY_METHOD")
     private PayMethod payMethod;
     @NonNull
+    @Column(name = "PAY_CATEGORY")
     private PayCategory payCategory;
     @NonNull
     private Integer price;

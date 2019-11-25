@@ -1,5 +1,7 @@
 package skhu.ht.hotthink.api.payment.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.Date;
 
 @Service
 public class PayServiceImpl {
+    private static final Logger log = LoggerFactory.getLogger(PayServiceImpl.class);
     @Autowired
     ReputationRepository reputationRepository;
     @Autowired
@@ -54,12 +57,16 @@ public class PayServiceImpl {
 
         switch(payInfoDTO.getPayCategory()){
             case SUBSCRIBE:
-                price = payInfoDTO.getPeriod().getPrice(payInfoDTO.getPrice());
+                price = payInfoDTO.getPeriod().caculatePrice(payInfoDTO.getPrice());
                 Subscribe subscribe = subscribeRepository.findSubscribeByUserEmail(findEmailBySpringSecurity());
                 if(subscribe == null || !DateUtil.isValid(subscribe.getEnd())){//생성된 구독정보가 없으면 생성 후 기간 증가
                     Date start = new Date();
                     Date end = DateUtil.addDate(start, payInfoDTO.getPeriod().getPeriod());
-                    user.setAuth(RoleName.ROLE_SUBSCR);
+                    if(user.getAuth().compare(RoleName.ROLE_MEMBER) <= 0) {
+                        log.info("실행됨");
+                        user.setAuth(RoleName.ROLE_SUBSCR);
+                        userRepository.save(user);
+                    }
                     subscribe = Subscribe.builder()
                             .user(user)
                             .start(start)
