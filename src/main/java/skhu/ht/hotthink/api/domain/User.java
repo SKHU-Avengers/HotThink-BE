@@ -14,6 +14,8 @@ import java.util.List;
     내용: Preference 필드 삭제
     작성일: 19-10-27
     내용: Preference 리스트 필드 다시 부활
+    작성일: 19-11-27
+    내용: 구독정보 저장
 */
 @Getter
 @Entity(name = "User")
@@ -58,4 +60,6 @@ public class User{
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     List<Preference> preferenceList;
 
+    @OneToOne(mappedBy = "user")
+    Subscribe subscribe;
 }

@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.netty;
+package skhu.ht.hotthink.netty.old;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -7,8 +7,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import skhu.ht.hotthink.netty.model.UserWebSocketMultiMap;
-import skhu.ht.hotthink.netty.model.UserWithChannelIdMap;
+import skhu.ht.hotthink.netty.old.model.UserWebSocketMultiMap;
+import skhu.ht.hotthink.netty.old.model.UserWithChannelIdMap;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentHashMap;

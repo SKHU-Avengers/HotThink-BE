@@ -54,7 +54,7 @@ public class PayController {
     }
 
     @PostMapping("/reputation/{type}")
-    public ResponseEntity<?> reputationCreate(@PathVariable("type")ReputationType reputationType,
+    public ResponseEntity<?> reputationCreate(@PathVariable("type") ReputationType reputationType,
                                               @RequestBody ReputationDTO reputationDTO){
         reputationDTO.setReputationType(reputationType);
         if(payService.setReputation(reputationDTO)) return new ResponseEntity(HttpStatus.CREATED);

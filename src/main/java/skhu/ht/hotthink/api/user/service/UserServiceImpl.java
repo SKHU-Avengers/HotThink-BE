@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import skhu.ht.hotthink.DateUtil;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.RoleName;
 import skhu.ht.hotthink.api.domain.enums.UseAt;
@@ -216,6 +217,9 @@ public class UserServiceImpl implements UserService{
         List<UserInfoBoardModel> scrapBoards = modelMapper.map(boards, listType);
         user.setScraps(scrapBoards);
         user.setSeq((long) -892);
+        if(entity.getSubscribe()!=null && DateUtil.isValid(entity.getSubscribe().getEnd())) {
+            user.setSubscribe(modelMapper.map(entity.getSubscribe(), SubscribeInfoDTO.class));
+        }
         return user;
     }
 

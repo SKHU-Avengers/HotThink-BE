@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
+import skhu.ht.hotthink.api.domain.enums.BoardReferenceType;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.exception.*;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
@@ -113,12 +114,26 @@ public class BoardServiceImpl {
         board.setBoardType(boardType);
         board.setHits(0);
         board.setCreateAt(new Date());
+        if(inDto.getAttaches()!=null) {
+            List<Attach> attaches = inDto.getAttaches()
+                                        .stream()
+                                        .map(e-> {
+                                            Attach temp = modelMapper.map(e, Attach.class);
+                                            temp.setBoardReferenceType(BoardReferenceType.BOARD);
+                                            temp.setBoardSeq(seq);
+                                            return temp;
+                                        })
+                                        .collect(Collectors.toList());
+            board.setAttaches(attaches);
+        }
         return boardRepository.save(board) == null?false:true;
     }
     /*
             작성자: 홍민석
             작성일: 19-10-26
             내용: FreeThink, RealThink, HotThink 게시물을 수정합니다.
+            작성일: 19-11-26
+            내용: HotThink를 RealThink로 전환하는 기능 작성
     */
     @Transactional
     public boolean putOne(PutDTO putDto) {
@@ -143,10 +158,27 @@ public class BoardServiceImpl {
             boardRepository.save(board);
         }
         if(putDto.getBoardType()==BoardType.REAL) {
-            SubRealInDTO rOriginal = modelMapper.map(board.getReals().get(0),SubRealInDTO.class);
+            SubRealInDTO rOriginal = null;
+            if(!board.getReals().isEmpty()) {
+                rOriginal = modelMapper.map(board.getReals().get(0), SubRealInDTO.class);
+            }else {
+                rOriginal = new SubRealInDTO();
+                board.setBoardType(BoardType.REAL);
+                boardRepository.save(board);
+            }
             SubRealInDTO rRecent = putDto.getReal();
             if(!rOriginal.equals(rRecent)){
                 Real real = modelMapper.map(rRecent,Real.class);
+                List<Attach> attaches = rRecent.getAttaches()
+                        .stream()
+                        .map(e->{
+                            Attach temp = modelMapper.map(e,Attach.class);
+                            temp.setBoardReferenceType(BoardReferenceType.REAL);
+                            temp.setBoardSeq(putDto.getBdSeq());
+                            return temp;
+                        })
+                        .collect(Collectors.toList());
+                real.setAttaches(attaches);
                 real.setBoard(board);
                 real.setUpdateAt(new Date());
                 realRepository.save(real);
@@ -155,11 +187,17 @@ public class BoardServiceImpl {
         return true;
     }
 
+    public boolean isHotThink(long bdSeq){
+        Board board = boardRepository.findBoardByBdSeq(bdSeq);
+        if(!board.getBoardType().equals(BoardType.HOT)) throw new IdeaInvalidException();
+
+        return true;
+    }
     /*
         작성자: 홍민석
         작성일: 19-10-22
         내용: 게시물을 삭제합니다.
-        작성일: 19-111-01
+        작성일: 19-11-01
         내용: 권한 인증 코드 작성
      */
     @Transactional

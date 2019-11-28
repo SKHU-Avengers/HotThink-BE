@@ -17,17 +17,24 @@ public class PayList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IP_SEQ")
     private Long seq;
+
     @NonNull
     @Column(name = "PAY_AT")
     private Date payAt;
+
     @NonNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAY_METHOD")
     private PayMethod payMethod;
+
     @NonNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAY_CATEGORY")
     private PayCategory payCategory;
+
     @NonNull
     private Integer price;
+
     @ManyToOne
     @JoinColumn(name="UR_BUYER")
     private User user;

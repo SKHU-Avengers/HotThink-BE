@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import skhu.ht.hotthink.config.FileUploadConfig;
-import skhu.ht.hotthink.netty.PushServer;
+import skhu.ht.hotthink.netty.old.PushServer;
 
 @SpringBootApplication
 @EnableConfigurationProperties({

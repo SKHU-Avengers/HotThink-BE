@@ -1,6 +1,5 @@
-package skhu.ht.hotthink.netty;
+package skhu.ht.hotthink.netty.old;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
@@ -10,13 +9,10 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import skhu.ht.hotthink.netty.model.UserWebSocketMultiMap;
+import skhu.ht.hotthink.netty.old.model.UserWebSocketMultiMap;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

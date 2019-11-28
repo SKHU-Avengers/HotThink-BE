@@ -2,6 +2,7 @@ package skhu.ht.hotthink.api.idea.model.boardout;
 
 import lombok.Data;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.idea.model.AttachDTO;
 import skhu.ht.hotthink.api.idea.model.HistoryOutDTO;
 import skhu.ht.hotthink.api.idea.model.UserOutDTO;
 
@@ -22,4 +23,5 @@ public class BoardOutDTO {
     private String category;
     private UserOutDTO user;
     private List<HistoryOutDTO> histories;
+    private List<AttachDTO> attaches;
 }

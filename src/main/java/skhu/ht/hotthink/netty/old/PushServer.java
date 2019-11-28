@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.netty;
+package skhu.ht.hotthink.netty.old;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-
-import java.util.logging.SocketHandler;
 
 @Component
 @PropertySource(value = "classpath:/push.properties")

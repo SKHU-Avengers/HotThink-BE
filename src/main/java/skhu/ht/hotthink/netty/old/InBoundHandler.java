@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.netty;
+package skhu.ht.hotthink.netty.old;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

@@ -2,9 +2,7 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.Where;
-import org.springframework.security.core.parameters.P;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
@@ -44,7 +42,7 @@ public class Board {
     @JoinColumn(name = "CT_CODE")
     private Category category;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "RL_SEQ")
     private List<Real> reals;
 
@@ -61,4 +59,10 @@ public class Board {
     @OneToMany(mappedBy="bdSeq", cascade = CascadeType.ALL)
     @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="BOARD_SEQ")
+    @Where(clause = "BOARD_REFERENCE_TYPE='BOARD'")
+    private List<Attach> attaches;
+
 }

@@ -73,13 +73,25 @@ public class RealThinkController {
         내용: realthink 게시물 CREATE.
         쓰고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         새로운 게시물 생성
+        작성일: 2019-11-26
+        내용: Hot think를 real Think로 전환.
     */
-    @PostMapping(value = "/{nickname}/{category}")
+    @PostMapping(value = "{boardId}/category/{category}")
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
-                                             @PathVariable("nickname") String nickname,
-                                             @PathVariable("category") String category){
-        if(boardService.setOne(realInDto, category, BoardType.REAL)) {
-            return new ResponseEntity(HttpStatus.OK);
+                                        @PathVariable Long boardId,
+                                        @PathVariable("category") String category){
+        if(boardService.isHotThink(boardId)) {
+            PutDTO putDTO = PutDTO.builder()
+                    .boardType(BoardType.REAL)
+                    .contents(realInDto.getContents())
+                    .title(realInDto.getTitle())
+                    .image(realInDto.getImage())
+                    .bdSeq(boardId)
+                    .real(realInDto.getReal())
+                    .build();
+            if (boardService.putOne(putDTO)) {
+                return new ResponseEntity(HttpStatus.OK);
+            }
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }

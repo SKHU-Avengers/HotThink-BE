@@ -1,4 +1,4 @@
-package skhu.ht.hotthink.netty.model;
+package skhu.ht.hotthink.netty.old.model;
 
 import lombok.Getter;
 import lombok.Setter;

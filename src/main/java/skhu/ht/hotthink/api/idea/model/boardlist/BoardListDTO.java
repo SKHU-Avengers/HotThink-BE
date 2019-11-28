@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.idea.model.boardlist;
 
 import lombok.Data;
+import skhu.ht.hotthink.api.idea.model.AttachDTO;
 import skhu.ht.hotthink.api.idea.model.HistoryOutDTO;
 import skhu.ht.hotthink.api.idea.model.UserOutDTO;
 
@@ -18,4 +19,5 @@ public class BoardListDTO {
     private UserOutDTO user;
     private String category;
     private List<HistoryOutDTO> histories;
+    private List<AttachDTO> attaches;
 }
