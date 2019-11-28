@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
@@ -14,6 +15,7 @@ import skhu.ht.hotthink.api.idea.model.boardout.HotOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -115,7 +117,7 @@ public class HotThinkController {
     */
     @DeleteMapping(value = "/{hotId}")
     public ResponseEntity<String> hotDelete(@PathVariable("hotId") Long hotId,
-                                             @RequestBody HotInDTO hotInDto){
+                                             @Validated @RequestBody HotInDTO hotInDto){
 
         if(boardService.deleteOne(hotId, hotInDto)) {
             return new ResponseEntity(HttpStatus.OK);

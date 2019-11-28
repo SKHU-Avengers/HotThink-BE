@@ -23,14 +23,13 @@ public class ControllerExceptionHandler {
     /*
         javax.validation.Valid or @Validated으로 binding error발생시 수행.
         HttpMessageConverter에서 등록한 httpMessageConverter 바인딩을 못할 경우 발생
-
+    */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         log.error("handleMethodArgumentNotValidException", e);
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-     */
 
     /*
         Enum type 일치하지 않아 binding 실패시 발생
