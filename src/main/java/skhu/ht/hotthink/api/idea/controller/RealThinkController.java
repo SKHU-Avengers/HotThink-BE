@@ -85,7 +85,6 @@ public class RealThinkController {
                     .boardType(BoardType.REAL)
                     .contents(realInDto.getContents())
                     .title(realInDto.getTitle())
-                    .image(realInDto.getImage())
                     .bdSeq(boardId)
                     .real(realInDto.getReal())
                     .build();
@@ -110,7 +109,6 @@ public class RealThinkController {
                 .bdSeq(realId)
                 .title(realInDto.getTitle())
                 .contents(realInDto.getContents())
-                .image(realInDto.getImage())
                 .real(realInDto.getReal())
                 .boardType(BoardType.REAL)
                 .build();

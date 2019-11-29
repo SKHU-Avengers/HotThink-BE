@@ -101,7 +101,6 @@ public class HotThinkController {
                 .bdSeq(hotId)
                 .title(hotInDto.getTitle())
                 .contents(hotInDto.getContents())
-                .image(hotInDto.getImage())
                 .boardType(BoardType.HOT)
                 .build();
         if(boardService.putOne(putDto)) return new ResponseEntity(HttpStatus.OK);

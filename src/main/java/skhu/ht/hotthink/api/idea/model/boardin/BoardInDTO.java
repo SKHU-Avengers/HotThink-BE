@@ -10,7 +10,6 @@ import java.util.List;
 public class BoardInDTO {
     private String title;
     private String contents;
-    private String image;
     @Nullable
     private List<AttachDTO> attaches;
 }

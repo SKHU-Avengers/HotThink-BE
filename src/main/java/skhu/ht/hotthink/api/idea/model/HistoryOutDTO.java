@@ -9,6 +9,5 @@ public class HistoryOutDTO {
     private Date updateAt;
 
     private String title;
-    private String image;
     private String contents;
 }

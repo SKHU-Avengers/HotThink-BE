@@ -17,7 +17,6 @@ public class BoardOutDTO {
     private BoardType boardType;
     private Long seq;
     private Date createAt;
-    private String image;
     private String title;
     private String contents;
     private String category;

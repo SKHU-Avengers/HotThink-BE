@@ -147,14 +147,12 @@ public class BoardServiceImpl {
         if(!original.equals(recent)) {
             History history = History.builder()
                     .board(board)
-                    .image(original.getImage())
                     .contents(original.getContents())
                     .title(original.getTitle())
                     .build();
             historyRepository.save(history);
             board.setTitle(recent.getTitle());
             board.setContents(recent.getContents());
-            board.setImage(recent.getImage());
             boardRepository.save(board);
         }
         if(putDto.getBoardType()==BoardType.REAL) {

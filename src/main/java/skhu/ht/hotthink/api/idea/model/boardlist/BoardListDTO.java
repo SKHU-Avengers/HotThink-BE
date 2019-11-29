@@ -15,7 +15,6 @@ public class BoardListDTO {
     private String title;
     private String contents;
     private Date createAt;
-    private String image;
     private UserOutDTO user;
     private String category;
     private List<HistoryOutDTO> histories;

@@ -31,8 +31,8 @@ public class Board {
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
-    @Column(name="THUMBNAIL_IMG")
-    private String image;
+    //@Column(name="THUMBNAIL_IMG")
+    //private String image;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UR_SEQ")

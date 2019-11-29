@@ -110,7 +110,6 @@ public class FreeThinkController {
                                 .bdSeq(freeId)
                                 .title(freeInDto.getTitle())
                                 .contents(freeInDto.getContents())
-                                .image(freeInDto.getImage())
                                 .boardType(BoardType.FREE)
                                 .build();
 
