@@ -43,7 +43,7 @@ public class Board {
     private Category category;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "RL_SEQ")
+    @JoinColumn(name = "BD_SEQ")
     private List<Real> reals;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)

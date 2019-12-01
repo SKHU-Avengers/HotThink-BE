@@ -12,7 +12,9 @@ import java.util.List;
 
 @Repository
 public interface ScrapRepository extends JpaRepository<Scrap,Integer> {
+    @Query("SELECT S FROM Scrap S WHERE S.user=?1")
     List<Scrap> findAllByUser(User user);
+
     @Query("SELECT S FROM Scrap S INNER JOIN S.board B WHERE S.user=?1 AND B.boardType = ?2")
     List<Scrap> findAllByUserAndBoardType(User user, String boardType);
 

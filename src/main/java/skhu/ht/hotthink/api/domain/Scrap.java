@@ -3,6 +3,7 @@ package skhu.ht.hotthink.api.domain;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
@@ -15,11 +16,11 @@ public class Scrap {
     @Column(name="SC_SEQ")
     private Long seq;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "UR_SEQ")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "BD_SEQ")
     private Board board;
 }
