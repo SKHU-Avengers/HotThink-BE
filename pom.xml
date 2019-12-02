@@ -38,6 +38,36 @@
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
         </dependency>
+        <!--Mahout
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-math</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-core</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-integration</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-buildtools</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>-->
+
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>

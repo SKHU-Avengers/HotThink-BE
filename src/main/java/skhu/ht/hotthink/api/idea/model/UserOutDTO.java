@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 
 @Data
 public class UserOutDTO {
+    protected String email;
     protected String nickName;
     @Enumerated(EnumType.STRING)
     protected RoleName auth;

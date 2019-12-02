@@ -3,13 +3,9 @@ package skhu.ht.hotthink.api.user.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import skhu.ht.hotthink.api.idea.model.boardlist.BoardListDTO;
 
 @Getter @Setter
 @ToString
-public class UserInfoBoardModel {
-    protected String title;
-    protected String image;
-    protected String contents;
-    protected Integer hits;
-    protected Integer good;
+public class UserInfoBoardModel extends BoardListDTO {
 }

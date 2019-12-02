@@ -1,7 +1,13 @@
 package skhu.ht.hotthink.api.idea.model;
 
 public enum CategoryDTO {
-    IT서비스,
+    웹사이트,
     디자인,
-    마케팅
+    마케팅,
+    모바일,
+    게임,
+    사물인터넷,
+    유틸리티,
+    컨텐츠
+
 }

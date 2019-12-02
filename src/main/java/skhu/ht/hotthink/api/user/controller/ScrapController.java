@@ -24,8 +24,9 @@ public class ScrapController {
     @PostMapping("/{nickName}/scrap/{boardId}")
     public ResponseEntity<?> ScrapCreate(@PathVariable("nickName") String nickName,
                                              @PathVariable("boardId") Long boardId){
-        if(userService.setScrap(nickName, boardId))return new ResponseEntity(HttpStatus.OK);
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        if(userService.setScrap(nickName, boardId))
+            return new ResponseEntity(HttpStatus.OK);
+        else return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     /*
         작성일: 2019-10-24
@@ -36,8 +37,9 @@ public class ScrapController {
     @DeleteMapping("/{nickName}/scrap/{boardId}")
     public ResponseEntity<?> ScrapDelete(@PathVariable("nickName") String nickName,
                                              @PathVariable("boardId") Long boardId){
-        if(userService.deleteScrap(nickName, boardId)) return new ResponseEntity(HttpStatus.OK);
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        if(userService.deleteScrap(nickName, boardId))
+            return new ResponseEntity(HttpStatus.OK);
+        else return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 /*
     @GetMapping("/{nickName}/scrap/freethink/{freeId}")

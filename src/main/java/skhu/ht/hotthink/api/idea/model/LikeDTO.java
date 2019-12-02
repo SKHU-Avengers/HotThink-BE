@@ -7,11 +7,13 @@ import skhu.ht.hotthink.api.domain.enums.BoardType;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 @Data
-@Builder
 public class LikeDTO {
-    private Long boardId;//bdSeq
-    private Long replyId;//각 게시물에 달린 댓글의 seq
-    private String nickName;
+    private Long seq;//bdSeq, rpSeq 모두 될 수 있음
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
+    @Builder
+    public LikeDTO(Long seq, BoardType boardType) {
+        this.seq = seq;
+        this.boardType = boardType;
+    }
 }

@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class ReplyPutDTO {
-    private String nickName;
     private String contents;
 }

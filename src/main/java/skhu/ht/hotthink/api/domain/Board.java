@@ -2,6 +2,7 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 
 import javax.persistence.*;
@@ -18,7 +19,6 @@ public class Board {
     private Long bdSeq;
     private Long seq;
     private Integer hits;
-    private Integer good;
 
     @JsonFormat(pattern="yyyy-MM-dd")
     @Column(name="CREATE_AT")
@@ -31,8 +31,8 @@ public class Board {
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
-    @Column(name="THUMBNAIL_IMG")
-    private String image;
+    //@Column(name="THUMBNAIL_IMG")
+    //private String image;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UR_SEQ")
@@ -42,13 +42,27 @@ public class Board {
     @JoinColumn(name = "CT_CODE")
     private Category category;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "RL_SEQ")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "BD_SEQ")
     private List<Real> reals;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<History> histories;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @Where(clause = "SUPER_SEQ IS NULL")
+    private List<Reply> replies;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Scrap> scraps;
+
+    @OneToMany(mappedBy="bdSeq", cascade = CascadeType.ALL)
+    @Where(clause = "BOARD_TYPE='FREE'")
+    private List<Like> likes;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="BOARD_SEQ")
+    @Where(clause = "BOARD_REFERENCE_TYPE='BOARD'")
+    private List<Attach> attaches;
+
 }

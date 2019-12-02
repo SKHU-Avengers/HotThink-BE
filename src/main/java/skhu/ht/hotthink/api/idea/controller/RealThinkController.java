@@ -73,13 +73,24 @@ public class RealThinkController {
         내용: realthink 게시물 CREATE.
         쓰고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         새로운 게시물 생성
+        작성일: 2019-11-26
+        내용: Hot think를 real Think로 전환.
     */
-    @PostMapping(value = "/{nickname}/{category}")
+    @PostMapping(value = "{boardId}/category/{category}")
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
-                                             @PathVariable("nickname") String nickname,
-                                             @PathVariable("category") String category){
-        if(boardService.setOne(realInDto, nickname, category, BoardType.REAL)) {
-            return new ResponseEntity(HttpStatus.OK);
+                                        @PathVariable Long boardId,
+                                        @PathVariable("category") String category){
+        if(boardService.isHotThink(boardId)) {
+            PutDTO putDTO = PutDTO.builder()
+                    .boardType(BoardType.REAL)
+                    .contents(realInDto.getContents())
+                    .title(realInDto.getTitle())
+                    .bdSeq(boardId)
+                    .real(realInDto.getReal())
+                    .build();
+            if (boardService.putOne(putDTO)) {
+                return new ResponseEntity(HttpStatus.OK);
+            }
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -90,7 +101,6 @@ public class RealThinkController {
         내용: realthink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
-        TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{realId}/{category}")
     public ResponseEntity<?> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
@@ -99,7 +109,6 @@ public class RealThinkController {
                 .bdSeq(realId)
                 .title(realInDto.getTitle())
                 .contents(realInDto.getContents())
-                .image(realInDto.getImage())
                 .real(realInDto.getReal())
                 .boardType(BoardType.REAL)
                 .build();
@@ -115,7 +124,6 @@ public class RealThinkController {
         내용: realthink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
-        TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{realId}")
     public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,

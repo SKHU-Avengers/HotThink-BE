@@ -5,29 +5,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
-import skhu.ht.hotthink.api.idea.exception.UserUnauthorizedException;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
+import skhu.ht.hotthink.api.idea.model.LikeOutDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.FreeInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.FreeListDTO;
 import skhu.ht.hotthink.api.idea.model.boardout.FreeOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
+import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
-import skhu.ht.hotthink.api.user.model.UserBase;
 import skhu.ht.hotthink.api.user.service.UserServiceImpl;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.Valid;
-import java.security.Principal;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -90,14 +87,9 @@ public class FreeThinkController {
     */
     @PostMapping(value = "/{category}")
     public ResponseEntity<?> freeCreate(@RequestBody @Valid FreeInDTO freeInDto,
-                                        @PathVariable("category") String category,
-                                        @AuthenticationPrincipal UserBase userBase) {
-        if(userBase == null){
-            log.error("userBase is null");
-        }
-        log.debug("인증된 사용자 정보"+userBase.getNickName());
-        //if(userBase.getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        if(boardService.setOne(freeInDto, userBase.getNickName(), category, BoardType.FREE)){
+                                        @PathVariable("category") String category) {
+        log.debug(category);
+        if(boardService.setOne(freeInDto, category, BoardType.FREE)){
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -118,7 +110,6 @@ public class FreeThinkController {
                                 .bdSeq(freeId)
                                 .title(freeInDto.getTitle())
                                 .contents(freeInDto.getContents())
-                                .image(freeInDto.getImage())
                                 .boardType(BoardType.FREE)
                                 .build();
 
@@ -135,9 +126,8 @@ public class FreeThinkController {
         TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{freeId}")
-    public ResponseEntity<?> freeDelete(@PathVariable("freeId") Long freeId,
-                           @RequestBody @Valid FreeInDTO freeInDto){
-        if(boardService.deleteOne(freeId, freeInDto)) {
+    public ResponseEntity<?> freeDelete(@PathVariable("freeId") Long freeId){
+        if(boardService.deleteOne(freeId, null)) {
             return new ResponseEntity(HttpStatus.OK);
         }
 
@@ -146,21 +136,63 @@ public class FreeThinkController {
 
     /*
         작성자: 홍민석
+        작성일: 19-11-26
+        내용: 게시판 좋아요 리스트 출력 기능입니다.
+    */
+    @GetMapping("{freeId}/likes")
+    public ResponseEntity<?> freeLikeListRead(@PathVariable Long freeId){
+        LikeDTO likeDTO = LikeDTO.builder()
+                .boardType(BoardType.FREE)
+                .seq(freeId)
+                .build();
+        return new ResponseEntity(boardService.getLikeList(likeDTO), HttpStatus.OK);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-11-26
+        내용: 게시판 좋아요 리스트 출력 기능입니다.
+    */
+    @GetMapping("{freeId}/reply/{replyId}/likes")
+    public ResponseEntity<?> replyLikeListRead(@PathVariable Long freeId,
+                                              @PathVariable Long replyId){
+        LikeDTO likeDTO = LikeDTO.builder()
+                .boardType(BoardType.REPLY)
+                .seq(replyId)
+                .build();
+        return new ResponseEntity(boardService.getLikeList(likeDTO), HttpStatus.OK);
+    }
+    /*
+        작성자: 홍민석
         작성일: 19-10-26
         내용: freethink 좋아요 기능입니다.
+        작성일: 19-11-13
+        내용: 프론트 요청으로 이메일 response코드 작성
     */
     @PostMapping(value="/{freeId}/fan")
-    public ResponseEntity<String> freeLike(@PathVariable("freeId") Long bdSeq,
-                                           Principal principal){
-        String nickName;
-        if((nickName = ((UserBase)principal).getNickName())==null)
-            throw new UserUnauthorizedException("Access Deny");
+    public ResponseEntity<?> freeLike(@PathVariable("freeId") Long bdSeq){
+        String email = null;
         LikeDTO likeDTO = LikeDTO.builder()
-                .boardId(bdSeq)
-                .nickName(nickName)
+                .seq(bdSeq)
                 .boardType(BoardType.FREE)
                 .build();
-        if(boardService.setLike(likeDTO)) return new ResponseEntity(HttpStatus.OK);
+        if((email=boardService.setLike(likeDTO))!=null) return new ResponseEntity(email,HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    /*
+        작성자: 홍민석
+        작성일: 19-11-12
+        내용: freethink 좋아요 취소기능입니다.
+    */
+    @DeleteMapping(value="/{freeId}/fan")
+    public ResponseEntity<?> freeUnLike(@PathVariable("freeId") Long bdSeq){
+        String email = null;
+        LikeDTO likeDTO = LikeDTO.builder()
+                .seq(bdSeq)
+                .boardType(BoardType.FREE)
+                .build();
+        if((email=boardService.deleteLike(likeDTO))!=null) return new ResponseEntity(email, HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     /*
@@ -169,22 +201,32 @@ public class FreeThinkController {
         내용: freethink 댓글 좋아요 기능입니다.
     */
     @PostMapping(value="/{freeId}/reply/{replyId}/fan")
-    public ResponseEntity<String> freeReplyLike(@PathVariable("freeId") Long bdSeq,
-                                                 @PathVariable("replyId") Long rpSeq,
-                                                Principal principal){
-        String nickName;
-        if((nickName = ((UserBase)principal).getNickName())==null)
-            throw new UserUnauthorizedException("Access Deny");
-
+    public ResponseEntity<?> freeReplyLike(@PathVariable("freeId") Long bdSeq,
+                                                 @PathVariable("replyId") Long rpSeq){
+        String email = null;
         LikeDTO likeDTO = LikeDTO.builder()
-                .boardId(bdSeq)
-                .replyId(rpSeq)
-                .nickName(nickName)
+                .seq(rpSeq)
                 .boardType(BoardType.REPLY)
                 .build();
-        if(boardService.setLike(likeDTO)){
-            return new ResponseEntity(HttpStatus.OK);
+        if((email = boardService.setLike(likeDTO))!=null){
+            return new ResponseEntity(email, HttpStatus.OK);
         }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+    /*
+            작성자: 홍민석
+            작성일: 19-11-12
+            내용: freethink 댓글 좋아요 취소기능입니다.
+    */
+    @DeleteMapping(value="/{freeId}/reply/{replyId}/fan")
+    public ResponseEntity<?> freeUnLike(@PathVariable("freeId") Long bdSeq,
+                                             @PathVariable("replyId") Long rpSeq){
+        String email=null;
+        LikeDTO likeDTO = LikeDTO.builder()
+                .seq(rpSeq)
+                .boardType(BoardType.REPLY)
+                .build();
+        if((email = boardService.deleteLike(likeDTO))!=null) return new ResponseEntity(email,HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
@@ -194,16 +236,16 @@ public class FreeThinkController {
         내용: 댓글 CREATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-21
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PostMapping(value = "{boardId}/reply")
     public ResponseEntity<?> replyCreate(@PathVariable("boardId") Long boardId,
-                                         @RequestBody ReplyInDTO replyInDto,
-                                         Principal principal){
-        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        replyInDto.setNickName(((UserBase)principal).getNickName());
+                                         @RequestBody ReplyInDTO replyInDto){
         replyInDto.setBdSeq(boardId);
         if(boardService.setReply(replyInDto)){
-            return new ResponseEntity(HttpStatus.CREATED);
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies, HttpStatus.CREATED);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -214,18 +256,18 @@ public class FreeThinkController {
         내용: 대댓글 CREATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-24
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PostMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> subreplyCreate(@PathVariable("freeId") Long boardId,
                                          @PathVariable("replyId")Long replyId,
-                                         @RequestBody @Valid ReplyInDTO replyInDto,
-                                            Principal principal){
-        if(((UserBase)principal).getNickName()==null) throw new UserUnauthorizedException("Access Deny");
-        replyInDto.setNickName(((UserBase)principal).getNickName());
+                                         @RequestBody @Valid ReplyInDTO replyInDto){
         replyInDto.setBdSeq(boardId);
         replyInDto.setSuperRpSeq(replyId);
         if(boardService.setReply(replyInDto)){
-            return new ResponseEntity(HttpStatus.CREATED);
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies, HttpStatus.CREATED);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -236,16 +278,18 @@ public class FreeThinkController {
         내용: 댓글 UPDATE.
         작성일: 19-11-01
         내용: 권한인증 코드작성
+        작성일: 19-11-25
+        내용: 프론트 요청으로 댓글 생성후 생성된 댓글 리스트를 반환하도록 변경.
     */
     @PutMapping(value = "{freeId}/reply/{replyId}")
     public ResponseEntity<?> replyUpdate(@PathVariable("freeId") Long boardId,//rest 및 이후 예외처리 위해 만듦.
                             @PathVariable("replyId") Long replyId,
-                            @RequestBody ReplyPutDTO replyPutDto,
-                                         Principal principal){
-        if(((UserBase)principal).getNickName().equals(replyPutDto.getNickName()))
-            throw new UserUnauthorizedException("Access Deny");
-        return boardService.putReply(replyPutDto,replyId)?
-                new ResponseEntity(HttpStatus.OK): new ResponseEntity(HttpStatus.BAD_REQUEST);
+                            @RequestBody ReplyPutDTO replyPutDto){
+        if(boardService.putReply(replyPutDto,replyId)){
+            List<ReplyOutDTO> replies = boardService.getReplyList(boardId);
+            return new ResponseEntity(replies,HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /*
@@ -255,8 +299,8 @@ public class FreeThinkController {
         서비스에 권한인증 코드작성
     */
     @DeleteMapping(value = "/{freeId}/reply/{replyId}")
-    public ResponseEntity<?> replyDelete(@PathVariable("freeId") Long freeId,
-                            @PathVariable("replyId") Long replyId){
+    public ResponseEntity<?> replyDelete(@Valid @PathVariable("freeId") Long freeId,
+                            @Valid @PathVariable("replyId") Long replyId){
         if(boardService.deleteReply(freeId,replyId)) return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }

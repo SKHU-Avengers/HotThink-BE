@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
@@ -14,6 +15,7 @@ import skhu.ht.hotthink.api.idea.model.boardout.HotOutDTO;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -91,7 +93,6 @@ public class HotThinkController {
         내용: hotthink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(HotInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
-        TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{hotId}/{category}")
     public ResponseEntity<String> hotUpdate(@PathVariable("hotId") Long hotId, @PathVariable("category") String category,
@@ -100,7 +101,6 @@ public class HotThinkController {
                 .bdSeq(hotId)
                 .title(hotInDto.getTitle())
                 .contents(hotInDto.getContents())
-                .image(hotInDto.getImage())
                 .boardType(BoardType.HOT)
                 .build();
         if(boardService.putOne(putDto)) return new ResponseEntity(HttpStatus.OK);
@@ -113,11 +113,10 @@ public class HotThinkController {
         내용: hotthink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
-        TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{hotId}")
     public ResponseEntity<String> hotDelete(@PathVariable("hotId") Long hotId,
-                                             @RequestBody HotInDTO hotInDto){
+                                             @Validated @RequestBody HotInDTO hotInDto){
 
         if(boardService.deleteOne(hotId, hotInDto)) {
             return new ResponseEntity(HttpStatus.OK);

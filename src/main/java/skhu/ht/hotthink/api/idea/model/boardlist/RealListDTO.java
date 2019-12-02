@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class RealListDTO extends BoardListDTO {
-    private SubRealListDTO real;
+    private SubRealListDTO reals;
 }

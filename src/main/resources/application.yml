@@ -18,7 +18,9 @@ spring:
       max-request-size: 20MB #default 10MB
 file:
   upload-dir: ./uploads
-
+server:
+  tomcat:
+    uri-encoding: UTF-8
 hot-think:
   security:
     jwt:
