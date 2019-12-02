@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 @Entity(name="TB_PREFERENCE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 @EqualsAndHashCode(of = "preference")
 @ToString(of = "preference")
 public class Preference {

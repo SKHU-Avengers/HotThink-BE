@@ -10,7 +10,9 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(400,"C005","Invalid Type Value"),
     UNAUTHORIZED(401,"C005","Unauthorized Access"),
     EMAIL_CONFLICT(409,"U001","이메일 중복"),
-    NICKNAME_CONFLICT(409,"U002","닉네임 중복"),
+    NICKNAME_CONFLICT(408,"U002","닉네임 중복"),
+    LIKE_CONFLICT(409,"I001","좋아요 중복"),
+    NOT_ENOUGH_MONEY(400,"P001","금액이 부족합니다.")
 
     ;
     /*

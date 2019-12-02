@@ -12,7 +12,7 @@ import java.util.List;
 public class UserModificationDTO extends UserBase {
     private String pw;
     private String tel;
-    private List<Preference> preferenceList;
+    private List<String> preferenceList;
 
     UserModificationDTO(){
         super();

@@ -12,7 +12,6 @@ public final class UserInfoDTO extends UserModificationDTO{
     private Integer realTicket;
     private List<UserInfoBoardModel> scraps;
     private List<UserInfoBoardModel> boards;
-
     public UserInfoDTO(){
         super();
     }

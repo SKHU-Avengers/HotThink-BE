@@ -26,7 +26,9 @@ import skhu.ht.hotthink.security.model.dto.UserAuthenticationModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,14 +63,22 @@ public class UserServiceImpl implements UserService{
         if(entity != null) throw new UserConflictException(ErrorCode.EMAIL_CONFLICT);
         entity = userRepository.findUserByNickName(newUserDTO.getNickName());
         if(entity != null) throw new UserConflictException(ErrorCode.NICKNAME_CONFLICT);
-        User user = modelMapper.map(newUserDTO,User.class);
+        User user = modelMapper.map(newUserDTO, User.class);
         user.setAuth(RoleName.ROLE_MEMBER);
         user.setPoint(initPoint);//초기 포인트 설정
         user.setRealTicket(0);
         user.setUseAt(UseAt.Y);//사용유무 설정
+        List<String> temp = newUserDTO.getPreferenceList();
+        List<Preference> preferenceList = new ArrayList<>();
+        for(String str:temp) {
+            PreferenceDTO dto = new PreferenceDTO();
+            dto.setPreference(str);
+            Preference preference = modelMapper.map(dto, Preference.class);
+            preferenceList.add(preference);
+        }
+        user.setPreferenceList(preferenceList);
         setPreference(user, user.getPreferenceList());
         userRepository.save(user);
-
         return true;
     }
     /*
@@ -204,19 +214,17 @@ public class UserServiceImpl implements UserService{
         //유저 기본 정보
         User entity = userRepository.findUserByEmail(getUserEmailFromSecurity());
         UserInfoDTO user = modelMapper.map(entity, UserInfoDTO.class);
+        //선호분야
+        user.setPreferenceList(getUserPreferenceList(entity));
         //내가 쓴글
-        Type listType = new TypeToken<List<UserInfoBoardModel>>() {}.getType();
-        List<Board> boards = boardRepository.findAllByUser(entity);
-        List<UserInfoBoardModel> myBoards = modelMapper.map(boards, listType);
-        user.setBoards(myBoards);
+        user.setBoards(getUserBoards(entity, "board"));
         //스크랩
-        boards.clear();
-        for(Scrap scrap : scrapRepository.findAllByUser(entity)) boards.add(scrap.getBoard());
-        List<UserInfoBoardModel> scrapBoards = modelMapper.map(boards, listType);
-        user.setScraps(scrapBoards);
+        user.setScraps(getUserBoards(entity, "scrap"));
         user.setSeq((long) -892);
         return user;
     }
+
+
 
     /*
       작성자: 김영곤
@@ -235,9 +243,12 @@ public class UserServiceImpl implements UserService{
         entity.setPw(userModificationDTO.getPw());
         entity.setTel(userModificationDTO.getTel());
         entity.setNickName(userModificationDTO.getNickName());
-        setPreference(entity, userModificationDTO.getPreferenceList());
-        entity.getPreferenceList().removeAll(comparePreferenceList(entity.getPreferenceList(), userModificationDTO.getPreferenceList()));
-        entity.getPreferenceList().addAll(comparePreferenceList(userModificationDTO.getPreferenceList(), entity.getPreferenceList()));
+
+        List<Preference> preferenceList = new ArrayList<>();
+        for(String str: userModificationDTO.getPreferenceList()) preferenceList.add(new Preference(str));
+        setPreference(entity, preferenceList);
+        entity.getPreferenceList().removeAll(comparePreferenceList(entity.getPreferenceList(), preferenceList));
+        entity.getPreferenceList().addAll(comparePreferenceList(preferenceList, entity.getPreferenceList()));
         return true;
     }
 
@@ -269,5 +280,58 @@ public class UserServiceImpl implements UserService{
     */
     private static String getUserEmailFromSecurity(){
         return ((UserBase) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
+    }
+
+    private List<String> getUserPreferenceList(User user){
+        List<Preference> list = preferenceRepository.findAllByUser(user);
+        List<String> preferenceList = new ArrayList<>();
+        for(Preference preference: list) preferenceList.add(preference.getPreference());
+        return preferenceList;
+    }
+
+    private List<UserInfoBoardModel> getUserBoards(User user, String value){
+        Type listType = new TypeToken<List<UserInfoBoardModel>>() {}.getType();
+        List<UserInfoBoardModel> boards;
+        if(value.equals("board")) boards = modelMapper.map(boardRepository.findAllByUser(user), listType);
+        else{
+            List<Board> temp = new ArrayList<>();
+            for(Scrap scrap : scrapRepository.findAllByUser(user)) temp.add(scrap.getBoard());
+            boards = modelMapper.map(temp, listType);
+        }
+        return boards;
+    }
+
+    @Transactional
+    public void pointCharge(int point) {
+        userRepository.pointCharge(getUserEmailFromSecurity(), point);
+    }
+
+    public HashMap<String, List<UserBase>> getUserFollowList(){
+        User entity = userRepository.findUserByEmail(getUserEmailFromSecurity());
+        HashMap<String, List<UserBase>> data = new HashMap<>();
+        data.put("followers", getFollowList(entity, "follower"));
+        data.put("followings", getFollowList(entity, "following"));
+        return data;
+    }
+
+    public TargetUserDTO getUserByNickName(String nickName){
+        User entity = userRepository.findUserByNickName(nickName);
+        TargetUserDTO user = modelMapper.map(entity, TargetUserDTO.class);
+        user.setPreferenceList(getUserPreferenceList(entity));
+        user.setBoards(getUserBoards(entity, "board"));
+        user.setScraps(getUserBoards(entity,"scrap"));
+        user.setFollowers(getFollowList(entity, "follower"));
+        user.setFollowings(getFollowList(entity, "following"));
+        return user;
+    }
+
+    private List<UserBase> getFollowList(User user, String value){
+        List<UserBase> followList = new ArrayList<>();
+        List<Follow> follows = value.equals("follower")?followRepository.findAllByCelebrity(user):followRepository.findAllByFollower(user);
+        for(Follow follow: follows) {
+            UserBase follwer = modelMapper.map(value.equals("follower")?follow.getFollower():follow.getCelebrity(), UserBase.class);
+            followList.add(follwer);
+        }
+        return followList;
     }
 }
