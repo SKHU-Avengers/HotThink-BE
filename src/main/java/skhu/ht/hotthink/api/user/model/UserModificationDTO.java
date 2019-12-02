@@ -3,7 +3,6 @@ package skhu.ht.hotthink.api.user.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import skhu.ht.hotthink.api.domain.Preference;
 
 import java.util.List;
 

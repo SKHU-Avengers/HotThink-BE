@@ -10,7 +10,6 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @EqualsAndHashCode(of = "preference")
-@ToString(of = "preference")
 public class Preference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +27,10 @@ public class Preference {
     @Setter
     private User user;
 
+    @Override
+    public String toString(){
+        return preference;
+    }
 //    public Preference(String preference, User user){
 //        this.preference=preference;
 //        this.user=user;

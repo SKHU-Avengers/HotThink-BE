@@ -221,19 +221,9 @@ public class UserServiceImpl implements UserService{
         User entity = userRepository.findUserByEmail(getUserEmailFromSecurity());
         UserInfoDTO user = modelMapper.map(entity, UserInfoDTO.class);
         //내가 쓴글
-        Type listType = new TypeToken<List<UserInfoBoardModel>>() {}.getType();
-        List<Board> boards = boardRepository.findAllByUser(entity);
-        List<UserInfoBoardModel> myBoards = modelMapper.map(boards, listType);
-        user.setBoards(myBoards);
+        user.setBoards(getUserBoards(entity, "board"));
         //스크랩
-        boards.clear();
-        List<UserInfoBoardModel> scraps = scrapRepository.findAllByUser(entity)
-                .stream()
-                .map(e-> {
-                    return modelMapper.map(e.getBoard(), UserInfoBoardModel.class);
-                })
-                .collect(Collectors.toList());
-        user.setScraps(scraps);
+        user.setScraps(getUserBoards(entity, "scrap"));
         user.setSeq((long) -892);
         if(entity.getSubscribe()!=null && DateUtil.isValid(entity.getSubscribe().getEnd())) {
             user.setSubscribe(modelMapper.map(entity.getSubscribe(), SubscribeInfoDTO.class));
@@ -309,9 +299,10 @@ public class UserServiceImpl implements UserService{
         List<UserInfoBoardModel> boards;
         if(value.equals("board")) boards = modelMapper.map(boardRepository.findAllByUser(user), listType);
         else{
-            List<Board> temp = new ArrayList<>();
-            for(Scrap scrap : scrapRepository.findAllByUser(user)) temp.add(scrap.getBoard());
-            boards = modelMapper.map(temp, listType);
+            boards = scrapRepository.findAllByUser(user)
+                    .stream()
+                    .map(e-> { return modelMapper.map(e.getBoard(), UserInfoBoardModel.class);})
+                    .collect(Collectors.toList());
         }
         return boards;
     }
