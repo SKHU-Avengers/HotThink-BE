@@ -1,13 +1,15 @@
 package skhu.ht.hotthink.api.domain;
 
-import lombok.Data;
+import lombok.*;
 import skhu.ht.hotthink.api.domain.enums.BoardReferenceType;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity(name = "Attach")
 @Table(name = "TB_ATTACH")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Attach {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
