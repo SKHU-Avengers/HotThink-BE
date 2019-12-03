@@ -14,8 +14,11 @@ public class Attach {
     @Column(name="AC_SEQ")
     private Long seq;
     private String path;
+
     @Column(name = "BOARD_SEQ")
     private Long boardSeq;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "BOARD_REFERENCE_TYPE")
     private BoardReferenceType boardReferenceType;
 }

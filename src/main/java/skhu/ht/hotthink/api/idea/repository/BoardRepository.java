@@ -21,27 +21,21 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Integer> {
-    Option[] searchBy = { new Option(0,"검색없음"), new Option(1,"글쓴이"),
-                          new Option(2,"제목"), new Option(3,"내용")};
-    Option[] orderBy = { new Option(0,"최근 글"), new Option(1, "오래된 글"),
-                         new Option(2, "생성날짜")};
-    Sort[] sort = { new Sort(Sort.Direction.DESC, "bdSeq"),
-             new Sort(Sort.Direction.ASC, "bdSeq"),
-             new Sort(Sort.Direction.ASC, "createAt")};
 
     default List<Board> findAll(Pagination pagination,Category category){
-        Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), sort[pagination.getOrderBy()]);
+        Pageable pageable = PageRequest.of(pagination.getPage()-1, pagination.getSize(), pagination.getOrderBy());
         Page<Board> page;
         String searchText = pagination.getSearchText();
         BoardType boardType = pagination.getBoardType();
+
         switch(pagination.getSearchBy()){
-            case 1:
+            case 작성자_닉네임:
                 page = this.findByCategoryAndUserAndBoardType(category,searchText, boardType, pageable);
                 break;
-            case 2:
+            case 제목:
                 page = this.findByCategoryAndTitleContainsAndBoardType(category, searchText, boardType, pageable);
                 break;
-            case 3:
+            case 내용:
                 page = this.findByCategoryAndContentsContainsAndBoardType(category, searchText, boardType, pageable);
                 break;
             default:

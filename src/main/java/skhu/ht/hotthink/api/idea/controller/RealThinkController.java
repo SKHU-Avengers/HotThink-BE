@@ -69,6 +69,20 @@ public class RealThinkController {
 
     /*
         작성자: 홍민석
+        작성일: 2019-12-02
+        내용: FreePass권 1회 소모 후
+        real Think 작성
+    */
+    @PostMapping(value = "/{category}")
+    public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
+                                        @PathVariable("category") String category) {
+        if(boardService.setOne(realInDto, category, BoardType.REAL)) {
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+    /*
+        작성자: 홍민석
         작성일: 2019-10-07
         내용: realthink 게시물 CREATE.
         쓰고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
@@ -126,9 +140,8 @@ public class RealThinkController {
         삭제 실패시 BAD_REQUEST 반환.
     */
     @DeleteMapping(value = "/{realId}")
-    public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,
-                                             @RequestBody RealInDTO realInDto){
-        if(boardService.deleteOne(realId, realInDto)) return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId){
+        if(boardService.deleteOne(realId, null)) return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 }

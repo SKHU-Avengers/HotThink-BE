@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import skhu.ht.hotthink.config.FileUploadConfig;
-import skhu.ht.hotthink.netty.old.PushServer;
+import skhu.ht.hotthink.netty.NettyServer;
 
 @SpringBootApplication
 @EnableConfigurationProperties({
@@ -20,8 +20,8 @@ public class HotthinkApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(HotthinkApplication.class, args);//스프링 부트 스타트
-        PushServer pushServer = context.getBean(PushServer.class);
-        pushServer.start();//Netty기반 Push 서버 스타트
+        NettyServer nettyServer = context.getBean(NettyServer.class);
+        nettyServer.start();//Netty 서버 스타트
     }
 
 }

@@ -45,7 +45,7 @@ public class FileController {
         성공시 CREATED 반환.
      */
     @PostMapping("/images")
-    public ResponseEntity<?> ImagesUpload(@RequestParam("files") MultipartFile[] sourceFiles) throws IOException{
+    public ResponseEntity<?> ImagesUpload(@RequestParam("file") MultipartFile[] sourceFiles) throws IOException{
         List<FileResponse> responses = Arrays.asList(sourceFiles)
                 .stream()
                 .map(file -> upload(file))

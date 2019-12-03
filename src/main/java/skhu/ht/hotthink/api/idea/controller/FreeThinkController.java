@@ -49,6 +49,7 @@ public class FreeThinkController {
                                       @RequestParam(name="ob", defaultValue = "0") Integer orderBy,
                                       @RequestParam(name="category") CategoryDTO category,
                                       @RequestParam(name="st", required = false) String searchText) {
+
         Pagination pagination = Pagination.builder()
                 .category(category.name())
                 .page(page)

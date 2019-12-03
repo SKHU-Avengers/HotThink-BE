@@ -42,25 +42,24 @@ public class Board {
     @JoinColumn(name = "CT_CODE")
     private Category category;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "BD_SEQ")
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Real> reals;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<History> histories;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "SUPER_SEQ IS NULL")
     private List<Reply> replies;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scraps;
 
-    @OneToMany(mappedBy="bdSeq", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="bdSeq", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name="BOARD_SEQ")
     @Where(clause = "BOARD_REFERENCE_TYPE='BOARD'")
     private List<Attach> attaches;

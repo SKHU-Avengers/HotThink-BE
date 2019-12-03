@@ -23,6 +23,7 @@ import skhu.ht.hotthink.api.idea.model.reply.ReplyInDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyOutDTO;
 import skhu.ht.hotthink.api.idea.model.reply.ReplyPutDTO;
 import skhu.ht.hotthink.api.idea.repository.*;
+import skhu.ht.hotthink.api.payment.exception.MoneyException;
 import skhu.ht.hotthink.api.user.exception.UserConflictException;
 import skhu.ht.hotthink.api.user.exception.UserNotFoundException;
 import skhu.ht.hotthink.api.user.model.UserBase;
@@ -63,16 +64,6 @@ public class BoardServiceImpl {
     @Transactional
     public <Tlist extends BoardListDTO, Tpage extends Pagination> List<Tlist> getBoardList(Tpage pagination, Class<? extends Tlist> classLiteral) {
         Category category = categoryRepository.findCategoryByCategory(pagination.getCategory());
-        List<Board> test = boardRepository.findAll(pagination,category);
-        for(Board one : test){
-            log.debug(one.getTitle());
-            for(Reply o : one.getReplies()) {
-                log.debug(o.getContents());
-                for(Reply re: o.getSubReplies()) {
-                    log.debug(re.getContents());
-                }
-            }
-        }
         List<Tlist> tlist = boardRepository.findAll(pagination,category)
                 .stream()
                 .map(e -> convertTo(e, classLiteral))
@@ -101,11 +92,16 @@ public class BoardServiceImpl {
         작성자: 홍민석
         작성일: 19-10-22
         내용: 게시물을 생성합니다.
+        작성일: 19-12-02
+        내용: REAL THINK 생성시 FreePass권 1회 소모.
+        실패하면 False 반환.
      */
     @Transactional
     public <Tin extends BoardInDTO> boolean setOne(Tin inDto, String category, BoardType boardType) {
         Long seq;
         Board board = modelMapper.map(inDto, Board.class);
+        //REAL THINK FreePass권으로 구매 후 사용시 수행
+        if(boardType.equals(BoardType.REAL) && !useFreePass()) return false;
         board.setCategory(categoryRepository.findCategoryByCategory(category));
         if ((seq = boardRepository.findBoardSeq(category, boardType.name())) == -1) throw new IdeaInvalidException();
         board.setSeq(seq);
@@ -184,6 +180,23 @@ public class BoardServiceImpl {
         }
         return true;
     }
+
+
+    /*
+        작성자: 홍민석
+        작성일: 19-12-02
+        내용: REAL THINK 생성시 FreePass권 1회 소모.
+        프리패스권(리얼티켓)이 모자라면 예외처리.
+     */
+    @Transactional
+    protected boolean useFreePass(){
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        if(user.getRealTicket()<=0) throw new MoneyException("리얼티켓 개수 부족");
+        user.setRealTicket(user.getRealTicket() - 1);
+        userRepository.save(user);
+        return true;
+    }
+
 
     public boolean isHotThink(long bdSeq){
         Board board = boardRepository.findBoardByBdSeq(bdSeq);
