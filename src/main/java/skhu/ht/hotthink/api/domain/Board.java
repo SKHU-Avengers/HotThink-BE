@@ -59,7 +59,7 @@ public class Board {
     @Where(clause = "BOARD_TYPE='FREE'")
     private List<Like> likes;
 
-    @OneToMany(mappedBy="boardSeq", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="boardSeq", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @Where(clause = "BOARD_REFERENCE_TYPE='BOARD'")
     private List<Attach> attaches;
 

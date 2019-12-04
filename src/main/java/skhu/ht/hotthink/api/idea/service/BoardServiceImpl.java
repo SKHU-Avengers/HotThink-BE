@@ -52,6 +52,8 @@ public class BoardServiceImpl {
     RealRepository realRepository;
     @Autowired
     HistoryRepository historyRepository;
+    @Autowired
+    AttachRepository attachRepository;
 
     @Autowired
     ModelMapper modelMapper = new ModelMapper();
@@ -110,19 +112,22 @@ public class BoardServiceImpl {
         board.setBoardType(boardType);
         board.setHits(0);
         board.setCreateAt(new Date());
-        if(inDto.getAttaches()!=null) {
+        board = boardRepository.save(board);
+        if(board == null) return false;
+        if(!inDto.getAttaches().isEmpty()) {
+            final Long boardSeq = board.getBdSeq();//아래 lambda 에서 사용.
             List<Attach> attaches = inDto.getAttaches()
-                                        .stream()
-                                        .map(e-> {
-                                            Attach temp = modelMapper.map(e, Attach.class);
-                                            temp.setBoardReferenceType(BoardReferenceType.BOARD);
-                                            temp.setBoardSeq(seq);
-                                            return temp;
-                                        })
-                                        .collect(Collectors.toList());
-            board.setAttaches(attaches);
+                    .stream()
+                    .map(e-> {
+                        Attach temp = modelMapper.map(e, Attach.class);
+                        temp.setBoardReferenceType(BoardReferenceType.BOARD);
+                        temp.setBoardSeq(boardSeq);
+                        return temp;
+                    })
+                    .collect(Collectors.toList());
+            attachRepository.saveList(attaches);
         }
-        return boardRepository.save(board) == null?false:true;
+        return true;
     }
     /*
             작성자: 홍민석
