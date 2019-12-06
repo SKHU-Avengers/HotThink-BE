@@ -13,7 +13,6 @@ public enum ErrorCode {
     NICKNAME_CONFLICT(409,"U002","닉네임 중복"),
     LIKE_CONFLICT(409,"I001","좋아요 중복"),
     NOT_ENOUGH_MONEY(400,"P001","금액이 부족합니다.")
-
     ;
     /*
     Fail, //잘못된 입력값으로 조건에 안맞아 끝나는 경우

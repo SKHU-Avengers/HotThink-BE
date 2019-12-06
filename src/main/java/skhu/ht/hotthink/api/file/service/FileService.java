@@ -1,6 +1,7 @@
 package skhu.ht.hotthink.api.file.service;
 
-import org.apache.tomcat.util.http.fileupload.FileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -20,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileService {
+    private static final Logger log = LoggerFactory.getLogger(FileService.class);
     private Path fileLocation;
 
     @Autowired
@@ -52,15 +54,16 @@ public class FileService {
         try{
             Path filePath = this.fileLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-
+            log.info("File Path : ".concat(resource.getURI().toString()));
             if(resource.exists()){
                 return resource;
             }else{
                 throw new FileDownloadException(fileName + "파일을 찾을 수 없습니다.");
-
             }
         }catch(MalformedURLException e){
-            throw new FileDownloadException(fileName + "파일을 찾을 수 없습니다.", e);
+            throw new FileDownloadException(fileName + "파일을 찾을 수 없습니다.(잘못된 URL 형식)");
+        } catch (IOException e) {
+            throw new FileDownloadException("URI 에러");
         }
     }
 

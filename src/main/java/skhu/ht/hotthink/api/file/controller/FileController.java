@@ -61,7 +61,7 @@ public class FileController {
         클라이언트 측에서 요청시 content-type:multipart/form-data 헤더를 패킷에 포함하지 말것
      */
     @GetMapping("/image/{fileName:.+}")
-    public ResponseEntity<Resource> ImageDownload(@PathVariable String fileName, HttpServletRequest request){
+    public ResponseEntity<Resource> ImageDownload(@PathVariable("fileName") String fileName, HttpServletRequest request){
         //리소스로 파일 불러오기
         Resource resource = fileService.loadFileAsResource(fileName);
 
