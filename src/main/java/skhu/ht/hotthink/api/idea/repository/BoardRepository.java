@@ -12,6 +12,7 @@ import skhu.ht.hotthink.api.domain.Category;
 import skhu.ht.hotthink.api.domain.Like;
 import skhu.ht.hotthink.api.domain.User;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.UseAt;
 import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.page.Option;
 import skhu.ht.hotthink.api.idea.model.page.Pagination;
@@ -30,16 +31,16 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
         switch(pagination.getSearchBy()){
             case 작성자_닉네임:
-                page = this.findByCategoryAndUserAndBoardType(category,searchText, boardType, pageable);
+                page = this.findByCategoryAndUserAndBoardTypeAndUseAt(category,searchText, boardType, UseAt.Y, pageable);
                 break;
             case 제목:
-                page = this.findByCategoryAndTitleContainsAndBoardType(category, searchText, boardType, pageable);
+                page = this.findByCategoryAndTitleContainsAndBoardTypeAndUseAt(category, searchText, boardType, UseAt.Y, pageable);
                 break;
             case 내용:
-                page = this.findByCategoryAndContentsContainsAndBoardType(category, searchText, boardType, pageable);
+                page = this.findByCategoryAndContentsContainsAndBoardTypeAndUseAt(category, searchText, boardType, UseAt.Y, pageable);
                 break;
             default:
-                page = this.findByCategoryAndBoardType(category, boardType, pageable);
+                page = this.findByCategoryAndBoardTypeAndUseAt(category, boardType, UseAt.Y, pageable);
         }
         return page.getContent();
     }
@@ -47,21 +48,16 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     @Query(value = "SELECT getBD_Seq(?1, ?2)", nativeQuery = true)
     Long findBoardSeq(String category, String boardType);
 
-    //@Query(value = "SELECT BD.BD_SEQ FROM TB_BOARD BD INNER JOIN CATEGORY CT ON BD.CT_CODE = CT.CODE WHERE FR.SEQ = ?1 AND CT.CATEGORY = ?2", nativeQuery = true)
-    //Long findBdSeq(Long seq, String category);
-
-    //@Query("SELECT L FROM ELike L JOIN Board B WHERE B.boardType=?1")
-    //List<Like> findLikeByBdSeqAndBoardType(Long bdSeq, BoardType boardType);
-
     //내용으로 검색
-    Page<Board> findByCategoryAndContentsContainsAndBoardType(Category category, String Contents, BoardType boardType, Pageable pageable);
+    Page<Board> findByCategoryAndContentsContainsAndBoardTypeAndUseAt(Category category, String Contents, BoardType boardType, UseAt useAt, Pageable pageable);
     //글 제목으로 검색
-    Page<Board> findByCategoryAndTitleContainsAndBoardType(Category category, String Title, BoardType boardType, Pageable pageable);
-    Page<Board> findByCategoryAndUserAndBoardType(Category category, String User, BoardType boardType, Pageable pageable);
+    Page<Board> findByCategoryAndTitleContainsAndBoardTypeAndUseAt(Category category, String Title, BoardType boardType, UseAt useAt, Pageable pageable);
+    Page<Board> findByCategoryAndUserAndBoardTypeAndUseAt(Category category, String User, BoardType boardType, UseAt useAt, Pageable pageable);
     //기본 검색
-    Page<Board> findByCategoryAndBoardType(Category category, BoardType boardType, Pageable pageable);
-
+    Page<Board> findByCategoryAndBoardTypeAndUseAt(Category category, BoardType boardType, UseAt useAt, Pageable pageable);
+    @Query("SELECT B FROM Board B WHERE B.useAt='Y' AND B.bdSeq=?1")
     Board findBoardByBdSeq(Long bdSeq);
 
+    @Query("SELECT B FROM Board B WHERE B.useAt='Y' AND B.user=?1")
     List<Board> findAllByUser(User entity);
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
 import skhu.ht.hotthink.api.domain.enums.IdeaState;
+import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
 import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
 import skhu.ht.hotthink.api.idea.model.boardin.RealInDTO;
@@ -94,6 +95,8 @@ public class RealThinkController {
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
                                         @PathVariable Long boardId,
                                         @PathVariable("category") String category){
+        if(realInDto.getTitle().isEmpty()||realInDto.getContents().isEmpty())
+            throw new IdeaInvalidException("제목과 내용이 없습니다.");
         if(boardService.isHotThink(boardId)) {
             PutDTO putDTO = PutDTO.builder()
                     .boardType(BoardType.REAL)

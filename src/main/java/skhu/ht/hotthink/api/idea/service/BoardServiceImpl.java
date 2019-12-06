@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.BoardReferenceType;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.UseAt;
 import skhu.ht.hotthink.api.idea.exception.*;
 import skhu.ht.hotthink.api.idea.model.LikeDTO;
 import skhu.ht.hotthink.api.idea.model.LikeOutDTO;
@@ -101,17 +102,21 @@ public class BoardServiceImpl {
     @Transactional
     public <Tin extends BoardInDTO> boolean setOne(Tin inDto, String category, BoardType boardType) {
         Long seq;
-        Board board = modelMapper.map(inDto, Board.class);
         //REAL THINK FreePass권으로 구매 후 사용시 수행
         if(boardType.equals(BoardType.REAL) && !useFreePass()) return false;
-        board.setCategory(categoryRepository.findCategoryByCategory(category));
+        Category categ = categoryRepository.findCategoryByCategory(category);
         if ((seq = boardRepository.findBoardSeq(category, boardType.name())) == -1) throw new IdeaInvalidException();
-        board.setSeq(seq);
-        board.setUser(userRepository.findUserByEmail(findEmailBySpringSecurity()));
-        if(board.getUser()==null) throw new UserNotFoundException();
-        board.setBoardType(boardType);
-        board.setHits(0);
-        board.setCreateAt(new Date());
+        User user = userRepository.findUserByEmail(findEmailBySpringSecurity());
+        if(user==null) throw new UserNotFoundException();
+        Board board = Board.FreeHotBuilder()
+                .category(categ)
+                .user(user)
+                .boardType(boardType)
+                .seq(seq)
+                .title(inDto.getTitle())
+                .contents(inDto.getContents())
+                .createAt(new Date())
+                .build();
         board = boardRepository.save(board);
         if(board == null) return false;
         if(!inDto.getAttaches().isEmpty()) {
@@ -152,8 +157,7 @@ public class BoardServiceImpl {
                     .title(original.getTitle())
                     .build();
             historyRepository.save(history);
-            board.setTitle(recent.getTitle());
-            board.setContents(recent.getContents());
+            board.setTitleAndContents(recent.getTitle(),recent.getContents());
             boardRepository.save(board);
         }
         if(putDto.getBoardType()==BoardType.REAL) {
@@ -221,7 +225,15 @@ public class BoardServiceImpl {
         Board board = boardRepository.findBoardByBdSeq(seq);
         if(!isWriter(board.getUser().getEmail()))
             throw new UserUnauthorizedException("Access Deny");
-        boardRepository.delete(board);
+        switch(board.getBoardType()){
+            case REAL:
+                board.setUseAt(UseAt.N);
+                boardRepository.save(board);
+                break;
+            default:
+                boardRepository.delete(board);
+                break;
+        }
         return true;
     }
     /*
