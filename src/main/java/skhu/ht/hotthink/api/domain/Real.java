@@ -2,6 +2,7 @@ package skhu.ht.hotthink.api.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 import skhu.ht.hotthink.api.domain.enums.IdeaState;
 
 import javax.persistence.*;
@@ -20,8 +21,18 @@ public class Real {
     private IdeaState state;
     @Column(name="UPDATE_AT")
     private Date updateAt;
-    private String review;
+    private String difference;
     private String pMaterial;
+    private String inventor;
+    @Column(name="RIGHT_HOLDER")
+    private String rightHolder;
+    @Column(name="PROGRESS_RATE")
+    private Integer progressRate;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="BOARD_SEQ")
+    @Where(clause = "BOARD_REFERENCE_TYPE='REAL'")
+    private List<Attach> attaches;
 
     @ManyToOne
     @JoinColumn(name = "BD_SEQ")

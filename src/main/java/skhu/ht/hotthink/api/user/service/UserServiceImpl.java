@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import skhu.ht.hotthink.DateUtil;
 import skhu.ht.hotthink.api.domain.*;
 import skhu.ht.hotthink.api.domain.enums.RoleName;
 import skhu.ht.hotthink.api.domain.enums.UseAt;
@@ -77,6 +78,7 @@ public class UserServiceImpl implements UserService{
         내용: 특정 게시판에서 스크랩한 게시물 리스트 반환
 
      */
+    @Transactional
     public List<ScrapInfoDTO> getScrapList(String nickName, String boardType){
         User user = userRepository.findUserByNickName(nickName);
         return scrapRepository.findAllByUserAndBoardType(user,boardType).stream()
@@ -195,9 +197,12 @@ public class UserServiceImpl implements UserService{
     }
 
     /*
-       작성자: 김영곤
+       작성자: 김영곤, 홍민석
        작성일: 19-10-24
        내용: 이메일로 유저 조회하여 마이페이지 모델로 맵핑
+       작성일: 19-12-01
+       내용: JPA ORM에 따라 SCRAP 수정.
+       UserInfoBoardModel -> BoardListDTO 상속구조로 변경
     */
     @Override
     public UserInfoDTO findUserInfo() {
@@ -211,10 +216,17 @@ public class UserServiceImpl implements UserService{
         user.setBoards(myBoards);
         //스크랩
         boards.clear();
-        for(Scrap scrap : scrapRepository.findAllByUser(entity)) boards.add(scrap.getBoard());
-        List<UserInfoBoardModel> scrapBoards = modelMapper.map(boards, listType);
-        user.setScraps(scrapBoards);
+        List<UserInfoBoardModel> scraps = scrapRepository.findAllByUser(entity)
+                .stream()
+                .map(e-> {
+                    return modelMapper.map(e.getBoard(), UserInfoBoardModel.class);
+                })
+                .collect(Collectors.toList());
+        user.setScraps(scraps);
         user.setSeq((long) -892);
+        if(entity.getSubscribe()!=null && DateUtil.isValid(entity.getSubscribe().getEnd())) {
+            user.setSubscribe(modelMapper.map(entity.getSubscribe(), SubscribeInfoDTO.class));
+        }
         return user;
     }
 

@@ -14,8 +14,10 @@ public class EmailConfirm {
     private Long seq;
 
     private Long emailKey;
+
     @Column(name="REGISTER_AT")
     private Date registerAt;
+
     @Column(name="EXPIRED_AT")
     private Date expiredAt;
 

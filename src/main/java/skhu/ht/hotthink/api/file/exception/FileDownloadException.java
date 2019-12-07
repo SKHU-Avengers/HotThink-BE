@@ -1,11 +1,10 @@
 package skhu.ht.hotthink.api.file.exception;
 
-public class FileDownloadException extends RuntimeException{
-    public FileDownloadException(String message){
-        super(message);
-    }
+import skhu.ht.hotthink.error.ErrorCode;
+import skhu.ht.hotthink.error.exception.BusinessException;
 
-    public FileDownloadException(String message, Throwable cause){
-        super(message, cause);
+public class FileDownloadException extends BusinessException{
+    public FileDownloadException(String message){
+        super(message, ErrorCode.ENTITY_NOT_FOUND);
     }
 }

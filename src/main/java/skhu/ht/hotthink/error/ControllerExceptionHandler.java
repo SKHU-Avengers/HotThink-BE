@@ -23,7 +23,7 @@ public class ControllerExceptionHandler {
     /*
         javax.validation.Valid or @Validated으로 binding error발생시 수행.
         HttpMessageConverter에서 등록한 httpMessageConverter 바인딩을 못할 경우 발생
-     */
+    */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         log.error("handleMethodArgumentNotValidException", e);
@@ -47,7 +47,8 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity handleBusinessException(final BusinessException e){
         final ErrorCode errorCode = e.getErrorCode();
-        final ErrorResponse response = ErrorResponse.of(errorCode);
+        final String message = e.getMessage();
+        final ErrorResponse response = ErrorResponse.of(errorCode, message);
         return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
     }
     /*

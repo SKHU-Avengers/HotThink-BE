@@ -1,17 +1,24 @@
 package skhu.ht.hotthink.api.idea.controller;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import skhu.ht.hotthink.api.domain.enums.BoardType;
+import skhu.ht.hotthink.api.domain.enums.IdeaState;
+import skhu.ht.hotthink.api.idea.exception.IdeaInvalidException;
+import skhu.ht.hotthink.api.idea.model.CategoryDTO;
 import skhu.ht.hotthink.api.idea.model.PutDTO;
-import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
 import skhu.ht.hotthink.api.idea.model.boardin.RealInDTO;
 import skhu.ht.hotthink.api.idea.model.boardlist.RealListDTO;
 import skhu.ht.hotthink.api.idea.model.boardout.RealOutDTO;
+import skhu.ht.hotthink.api.idea.model.page.IdeaPagination;
+import skhu.ht.hotthink.api.idea.model.page.Pagination;
 import skhu.ht.hotthink.api.idea.service.BoardServiceImpl;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 
 @RestController
@@ -27,7 +34,23 @@ public class RealThinkController {
             해당하는 realthink 게시물 리스트 반환
     */
     @GetMapping
-    public ResponseEntity<?> realList(@RequestBody IdeaPagination pagination) {
+    public ResponseEntity<?> realList(@RequestParam(value = "sb",defaultValue = "0") Integer searchBy,
+                                      @RequestParam("sz") @NonNull Integer size,
+                                      @RequestParam("pg") @NonNull Integer page,
+                                      @RequestParam(name="ob", defaultValue = "0") Integer orderBy,
+                                      @RequestParam(name="category") CategoryDTO category,
+                                      @RequestParam(name="st", required = false) String searchText,
+                                      @RequestParam(name="state",required = false) IdeaState ideaState) {
+        IdeaPagination pagination = IdeaPagination.ideaBuilder()
+                .category(category.name())
+                .page(page)
+                .boardType(BoardType.REAL)
+                .size(size)
+                .orderBy(orderBy)
+                .searchBy(searchBy)
+                .searchText(searchText)
+                .type(ideaState)
+                .build();
         List<RealListDTO> real = boardService.getBoardList(pagination,RealListDTO.class);
         return new ResponseEntity(real, HttpStatus.OK);
     }
@@ -47,17 +70,44 @@ public class RealThinkController {
 
     /*
         작성자: 홍민석
+        작성일: 2019-12-02
+        내용: FreePass권 1회 소모 후
+        real Think 작성
+    */
+    @PostMapping(value = "/{category}")
+    public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
+                                        @PathVariable("category") String category) {
+        if(boardService.setOne(realInDto, category, BoardType.REAL)) {
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+    /*
+        작성자: 홍민석
         작성일: 2019-10-07
         내용: realthink 게시물 CREATE.
         쓰고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         새로운 게시물 생성
+        작성일: 2019-11-26
+        내용: Hot think를 real Think로 전환.
     */
-    @PostMapping(value = "/{nickname}/{category}")
+    @PostMapping(value = "{boardId}/category/{category}")
     public ResponseEntity<?> realCreate(@RequestBody RealInDTO realInDto,
-                                             @PathVariable("nickname") String nickname,
-                                             @PathVariable("category") String category){
-        if(boardService.setOne(realInDto, nickname, category, BoardType.REAL)) {
-            return new ResponseEntity(HttpStatus.OK);
+                                        @PathVariable Long boardId,
+                                        @PathVariable("category") String category){
+        if(realInDto.getTitle().isEmpty()||realInDto.getContents().isEmpty())
+            throw new IdeaInvalidException("제목과 내용이 없습니다.");
+        if(boardService.isHotThink(boardId)) {
+            PutDTO putDTO = PutDTO.builder()
+                    .boardType(BoardType.REAL)
+                    .contents(realInDto.getContents())
+                    .title(realInDto.getTitle())
+                    .bdSeq(boardId)
+                    .real(realInDto.getReal())
+                    .build();
+            if (boardService.putOne(putDTO)) {
+                return new ResponseEntity(HttpStatus.OK);
+            }
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -68,7 +118,6 @@ public class RealThinkController {
         내용: realthink 게시물 UPDATE.
         수정하고자 하는 게시물 정보(RealInDTO)를 JSON으로 입력받아
         원본 게시물 수정.
-        TODO:권한 인증 코드 작성
     */
     @PutMapping(value = "/{realId}/{category}")
     public ResponseEntity<?> realUpdate(@PathVariable("realId") Long realId, @PathVariable("category") String category,
@@ -77,7 +126,6 @@ public class RealThinkController {
                 .bdSeq(realId)
                 .title(realInDto.getTitle())
                 .contents(realInDto.getContents())
-                .image(realInDto.getImage())
                 .real(realInDto.getReal())
                 .boardType(BoardType.REAL)
                 .build();
@@ -93,12 +141,10 @@ public class RealThinkController {
         내용: realthink 게시물 DELETE.
         수정하고자 하는 게시물 번호를 입력받아 해당 게시물 삭제.
         삭제 실패시 BAD_REQUEST 반환.
-        TODO:권한 인증 코드 작성
     */
     @DeleteMapping(value = "/{realId}")
-    public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId,
-                                             @RequestBody RealInDTO realInDto){
-        if(boardService.deleteOne(realId, realInDto)) return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity<?> realDelete(@PathVariable("realId") Long realId){
+        if(boardService.deleteOne(realId, null)) return new ResponseEntity(HttpStatus.OK);
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 }

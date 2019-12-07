@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import skhu.ht.hotthink.security.auth.jwt.SkipPathRequestMatcher;
 import skhu.ht.hotthink.security.auth.login.LoginAuthenticationProvier;
 import skhu.ht.hotthink.security.auth.login.LoginProcessingFilter;
@@ -30,6 +32,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String LOGIN_PROCESSING_URL = "/api/login/processing";
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String REFRESH_TOKEN_URL = "/auth/token";
+    public static final String SWAGGER_TEST_URL = "/swagger-ui.html#/";
+    public static final String API_IMAGE_URL = "/api/image/**";
 
     @Autowired private AuthenticationHandler authenticationHandler;
     @Autowired private LoginAuthenticationProvier loginAuthenticationProvider;
@@ -49,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() {
-        List<String> pathsToSkip = Arrays.asList(API_ROOT_URL, REFRESH_TOKEN_URL);
+        List<String> pathsToSkip = Arrays.asList(API_ROOT_URL, REFRESH_TOKEN_URL, SWAGGER_TEST_URL, API_IMAGE_URL);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip);
         JwtTokenAuthenticationProcessingFilter filter
                 = new JwtTokenAuthenticationProcessingFilter(authenticationHandler, tokenExtractor, matcher);
@@ -73,9 +77,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception{
-
         httpSecurity
-                //csrf 공격 방어기능 비활성화
+                 //csrf 공격 방어기능 비활성화
                 .csrf().disable()
 
                 //인증되지 않은 request -> 401 status
@@ -90,8 +93,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //root,login,tokenRefresh 빼고 나머지는 권한 요청
                 .and()
                     .authorizeRequests()
-                    .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL,"/swagger-ui.html#/").permitAll()
+                    .antMatchers(API_ROOT_URL, REFRESH_TOKEN_URL).permitAll()
                     .antMatchers(HttpMethod.POST, "/api/user").permitAll()
+                    .antMatchers(SWAGGER_TEST_URL).permitAll()
+                    .antMatchers(HttpMethod.GET, API_IMAGE_URL).permitAll()
                     .anyRequest().authenticated()
 
                 .and()
@@ -102,11 +107,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .failureUrl(LOGIN_ERROR_URL);
 //                .usernameParameter("email")
 //                .passwordParameter("password");
-
-
-
-
     }
-
-
 }
